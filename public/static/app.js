@@ -1,7 +1,8 @@
-// EV Charge Calculator - Frontend Application
-// State management
-const state = {
-  userTier: 'free', // free, premium, pro
+// ============================================
+// STATE MANAGEMENT
+// ============================================
+let appState = {
+  currentTier: 'free',
   vehicles: [],
   selectedVehicle: null,
   chargerPower: 50,
@@ -9,59 +10,117 @@ const state = {
   lastCalculation: null
 }
 
-// Initialize app
+// ============================================
+// INITIALIZATION
+// ============================================
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp()
-  setupEventListeners()
-  loadVehicles()
-  loadPricingTiers()
 })
 
-function initializeApp() {
-  // Check for saved user tier
-  const savedTier = localStorage.getItem('userTier')
-  if (savedTier) {
-    state.userTier = savedTier
-    updateTierUI()
-  }
+async function initializeApp() {
+  // Load vehicles
+  await loadVehicles()
   
-  // Sync range inputs
-  syncRangeInputs()
+  // Setup event listeners
+  setupEventListeners()
+  
+  // Load subscription tiers
+  await loadSubscriptionTiers()
 }
 
+// ============================================
+// VEHICLE LOADING
+// ============================================
+async function loadVehicles() {
+  try {
+    const response = await axios.get(`/api/vehicles?tier=${appState.currentTier}`)
+    
+    if (response.data.success) {
+      appState.vehicles = response.data.vehicles
+      populateVehicleSelect()
+      
+      // Update vehicle count
+      document.getElementById('vehicleCount').textContent = `${response.data.total}+`
+    }
+  } catch (error) {
+    console.error('Failed to load vehicles:', error)
+    showNotification('Failed to load vehicles', 'error')
+  }
+}
+
+function populateVehicleSelect() {
+  const select = document.getElementById('vehicleSelect')
+  
+  // Clear existing options
+  select.innerHTML = '<option value="">Select your vehicle...</option>'
+  
+  // Group vehicles by make
+  const groupedVehicles = {}
+  appState.vehicles.forEach(vehicle => {
+    if (!groupedVehicles[vehicle.make]) {
+      groupedVehicles[vehicle.make] = []
+    }
+    groupedVehicles[vehicle.make].push(vehicle)
+  })
+  
+  // Create optgroups
+  Object.keys(groupedVehicles).sort().forEach(make => {
+    const optgroup = document.createElement('optgroup')
+    optgroup.label = make
+    
+    groupedVehicles[make].forEach(vehicle => {
+      const option = document.createElement('option')
+      option.value = vehicle.id
+      option.textContent = `${vehicle.model} ${vehicle.variant || ''} (${vehicle.year})`
+      option.dataset.vehicle = JSON.stringify(vehicle)
+      optgroup.appendChild(option)
+    })
+    
+    select.appendChild(optgroup)
+  })
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
 function setupEventListeners() {
-  // Charger power controls
+  // Vehicle selection
+  document.getElementById('vehicleSelect').addEventListener('change', (e) => {
+    const option = e.target.selectedOptions[0]
+    if (option && option.dataset.vehicle) {
+      appState.selectedVehicle = JSON.parse(option.dataset.vehicle)
+      
+      // Show SOC slider for premium users
+      if (appState.currentTier !== 'free') {
+        document.getElementById('socSlider').classList.remove('hidden')
+      }
+    }
+  })
+  
+  // Charger power slider
   const powerRange = document.getElementById('chargerPowerRange')
   const powerInput = document.getElementById('chargerPowerInput')
   
   powerRange.addEventListener('input', (e) => {
-    state.chargerPower = parseInt(e.target.value)
-    powerInput.value = state.chargerPower
+    powerInput.value = e.target.value
+    appState.chargerPower = parseInt(e.target.value)
   })
   
   powerInput.addEventListener('input', (e) => {
-    state.chargerPower = parseInt(e.target.value) || 50
-    powerRange.value = state.chargerPower
+    let value = parseInt(e.target.value)
+    if (value < 1) value = 1
+    if (value > 350) value = 350
+    powerRange.value = value
+    appState.chargerPower = value
   })
   
-  // SOC controls
+  // SOC slider
   const socRange = document.getElementById('socRange')
   const socValue = document.getElementById('socValue')
   
   socRange.addEventListener('input', (e) => {
-    state.soc = parseInt(e.target.value)
-    socValue.textContent = state.soc
-  })
-  
-  // Vehicle selection
-  document.getElementById('vehicleSelect').addEventListener('change', (e) => {
-    const vehicleId = e.target.value
-    state.selectedVehicle = state.vehicles.find(v => v.id == vehicleId)
-    
-    // Show SOC slider for premium users
-    if (state.userTier !== 'free') {
-      document.getElementById('socSlider').classList.remove('hidden')
-    }
+    socValue.textContent = e.target.value
+    appState.soc = parseInt(e.target.value)
   })
   
   // Calculate button
@@ -70,9 +129,11 @@ function setupEventListeners() {
   // Upgrade buttons
   document.getElementById('upgradeBtnNav').addEventListener('click', showPricingModal)
   document.getElementById('upgradeBtnCalc').addEventListener('click', showPricingModal)
+  
+  // Pricing modal
   document.getElementById('closePricingModal').addEventListener('click', hidePricingModal)
   
-  // Close modal on background click
+  // Close modal on outside click
   document.getElementById('pricingModal').addEventListener('click', (e) => {
     if (e.target.id === 'pricingModal') {
       hidePricingModal()
@@ -80,146 +141,105 @@ function setupEventListeners() {
   })
 }
 
-function syncRangeInputs() {
-  // Initial sync
-  const powerRange = document.getElementById('chargerPowerRange')
-  const powerInput = document.getElementById('chargerPowerInput')
-  powerInput.value = powerRange.value
-}
-
-async function loadVehicles() {
-  try {
-    const response = await axios.get(`/api/vehicles?tier=${state.userTier}`)
-    
-    if (response.data.success) {
-      state.vehicles = response.data.vehicles
-      populateVehicleSelect()
-      updateVehicleCount(response.data.total)
-      
-      // Show premium notice if free tier
-      if (state.userTier === 'free') {
-        showPremiumNotice()
-      }
-    }
-  } catch (error) {
-    console.error('Failed to load vehicles:', error)
-    showError('Failed to load vehicles. Please refresh the page.')
-  }
-}
-
-function populateVehicleSelect() {
-  const select = document.getElementById('vehicleSelect')
-  select.innerHTML = '<option value="">Select your vehicle...</option>'
-  
-  // Group vehicles by make
-  const grouped = state.vehicles.reduce((acc, vehicle) => {
-    if (!acc[vehicle.make]) {
-      acc[vehicle.make] = []
-    }
-    acc[vehicle.make].push(vehicle)
-    return acc
-  }, {})
-  
-  // Add options grouped by make
-  Object.keys(grouped).sort().forEach(make => {
-    const optgroup = document.createElement('optgroup')
-    optgroup.label = make
-    
-    grouped[make].forEach(vehicle => {
-      const option = document.createElement('option')
-      option.value = vehicle.id
-      const variantText = vehicle.variant ? ` ${vehicle.variant}` : ''
-      option.textContent = `${vehicle.model}${variantText} (${vehicle.year})`
-      
-      // Add premium badge
-      if (vehicle.is_premium) {
-        option.textContent += ' 👑'
-      }
-      
-      optgroup.appendChild(option)
-    })
-    
-    select.appendChild(optgroup)
-  })
-}
-
-function updateVehicleCount(count) {
-  document.getElementById('vehicleCount').textContent = `${count}+`
-}
-
-function showPremiumNotice() {
-  const notice = document.getElementById('premiumVehicleNotice')
-  notice.classList.remove('hidden')
-  
-  notice.querySelector('button').addEventListener('click', showPricingModal)
-}
-
+// ============================================
+// CALCULATION
+// ============================================
 async function calculateChargingSpeed() {
-  if (!state.selectedVehicle) {
-    showError('Please select a vehicle first')
+  if (!appState.selectedVehicle) {
+    showNotification('Please select a vehicle first', 'warning')
     return
   }
   
-  const btn = document.getElementById('calculateBtn')
-  btn.disabled = true
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Calculating...'
+  const calculateBtn = document.getElementById('calculateBtn')
+  calculateBtn.disabled = true
+  calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Calculating...'
   
   try {
     const response = await axios.post('/api/calculate', {
-      vehicleId: state.selectedVehicle.id,
-      chargerPowerKw: state.chargerPower,
-      soc: state.userTier !== 'free' ? state.soc : undefined
+      vehicleId: appState.selectedVehicle.id,
+      chargerPowerKw: appState.chargerPower,
+      soc: appState.currentTier !== 'free' ? appState.soc : undefined
     })
     
     if (response.data.success) {
-      state.lastCalculation = response.data.calculation
+      appState.lastCalculation = response.data.calculation
       displayResults(response.data.calculation)
     }
   } catch (error) {
     console.error('Calculation failed:', error)
-    showError('Calculation failed. Please try again.')
+    showNotification('Calculation failed', 'error')
   } finally {
-    btn.disabled = false
-    btn.innerHTML = '<i class="fas fa-calculator mr-2"></i>Calculate Charging Speed'
+    calculateBtn.disabled = false
+    calculateBtn.innerHTML = '<i class="fas fa-calculator mr-2"></i>Calculate Charging Speed'
   }
 }
 
 function displayResults(calculation) {
-  // Show results section
   const resultsSection = document.getElementById('resultsSection')
   resultsSection.classList.remove('hidden')
   
   // Scroll to results
-  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
   
-  // Update values
+  // Vehicle name
   document.getElementById('vehicleName').textContent = 
     `${calculation.vehicleMake} ${calculation.vehicleModel}`
   
-  document.getElementById('speedResult').textContent = 
-    calculation.chargingSpeedKmh.toLocaleString()
+  // Main speed result
+  document.getElementById('speedResult').textContent = calculation.chargingSpeedKmh
   
-  document.getElementById('effectivePower').textContent = 
-    `${calculation.effectivePowerKw.toFixed(1)} kW`
+  // Details
+  document.getElementById('effectivePower').textContent = `${calculation.effectivePowerKw} kW`
+  document.getElementById('chargingTime').textContent = `${calculation.chargingTime20to80} min`
+  document.getElementById('rangePerHour').textContent = `${calculation.rangePerHour} km`
   
-  document.getElementById('chargingTime').textContent = 
-    `${calculation.chargingTime20to80} min`
+  // Check if charger power exceeds vehicle maximum
+  const isLimited = calculation.chargerPowerKw > appState.selectedVehicle.max_dc_charging_kw
   
-  document.getElementById('rangePerHour').textContent = 
-    `${calculation.rangePerHour.toLocaleString()} km`
+  // Create or update the warning message
+  const detailsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-3')
+  let warningDiv = document.getElementById('chargingLimitWarning')
+  
+  if (isLimited) {
+    if (!warningDiv) {
+      warningDiv = document.createElement('div')
+      warningDiv.id = 'chargingLimitWarning'
+      warningDiv.className = 'col-span-full mt-4 p-4 bg-red-500/20 border-2 border-red-500 rounded-xl animate-pulse'
+      detailsGrid.parentNode.insertBefore(warningDiv, detailsGrid.nextSibling)
+    }
+    
+    warningDiv.innerHTML = `
+      <div class="flex items-center text-red-400">
+        <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+        <div>
+          <div class="font-bold text-lg">Limited by vehicle maximum charging capacity</div>
+          <div class="text-sm mt-1">
+            Your charger provides ${calculation.chargerPowerKw} kW, but this vehicle can only accept up to 
+            <span class="font-bold">${appState.selectedVehicle.max_dc_charging_kw} kW</span>.
+            Effective charging power: <span class="font-bold">${calculation.effectivePowerKw} kW</span>
+          </div>
+        </div>
+      </div>
+    `
+    warningDiv.classList.remove('hidden')
+  } else {
+    if (warningDiv) {
+      warningDiv.classList.add('hidden')
+    }
+  }
   
   // Show charging curve for premium users
-  if (state.userTier !== 'free' && state.selectedVehicle.charging_curve_data) {
-    showChargingCurve(state.selectedVehicle.charging_curve_data, calculation.soc)
+  if (appState.currentTier !== 'free' && appState.selectedVehicle.charging_curve_data) {
+    displayChargingCurve()
   }
 }
 
-function showChargingCurve(curveDataJson, currentSoc) {
+function displayChargingCurve() {
   const curveSection = document.getElementById('chargingCurve')
   curveSection.classList.remove('hidden')
   
   try {
-    const curveData = JSON.parse(curveDataJson)
+    const curveData = JSON.parse(appState.selectedVehicle.charging_curve_data)
     const canvas = document.getElementById('curveCanvas')
     const ctx = canvas.getContext('2d')
     
@@ -227,167 +247,187 @@ function showChargingCurve(curveDataJson, currentSoc) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     
     // Draw curve
-    if (curveData.curve && Array.isArray(curveData.curve)) {
-      drawChargingCurveOnCanvas(ctx, canvas, curveData.curve, currentSoc)
+    if (curveData.curve && curveData.curve.length > 0) {
+      const curve = curveData.curve
+      const maxPower = Math.max(...curve.map(p => p.kw))
+      
+      // Calculate dimensions
+      const padding = 40
+      const width = canvas.width - padding * 2
+      const height = canvas.height - padding * 2
+      
+      // Draw grid lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
+      ctx.lineWidth = 1
+      
+      // Vertical grid lines (SOC)
+      for (let i = 0; i <= 100; i += 20) {
+        const x = padding + (i / 100) * width
+        ctx.beginPath()
+        ctx.moveTo(x, padding)
+        ctx.lineTo(x, canvas.height - padding)
+        ctx.stroke()
+      }
+      
+      // Horizontal grid lines (Power)
+      for (let i = 0; i <= maxPower; i += 50) {
+        const y = canvas.height - padding - (i / maxPower) * height
+        ctx.beginPath()
+        ctx.moveTo(padding, y)
+        ctx.lineTo(canvas.width - padding, y)
+        ctx.stroke()
+      }
+      
+      // Draw curve
+      ctx.strokeStyle = '#667eea'
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      
+      curve.forEach((point, index) => {
+        const x = padding + (point.soc / 100) * width
+        const y = canvas.height - padding - (point.kw / maxPower) * height
+        
+        if (index === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      })
+      
+      ctx.stroke()
+      
+      // Draw points
+      ctx.fillStyle = '#667eea'
+      curve.forEach(point => {
+        const x = padding + (point.soc / 100) * width
+        const y = canvas.height - padding - (point.kw / maxPower) * height
+        
+        ctx.beginPath()
+        ctx.arc(x, y, 4, 0, Math.PI * 2)
+        ctx.fill()
+      })
+      
+      // Draw current SOC indicator if available
+      if (appState.soc !== undefined) {
+        const x = padding + (appState.soc / 100) * width
+        ctx.strokeStyle = '#f5576c'
+        ctx.lineWidth = 2
+        ctx.setLineDash([5, 5])
+        ctx.beginPath()
+        ctx.moveTo(x, padding)
+        ctx.lineTo(x, canvas.height - padding)
+        ctx.stroke()
+        ctx.setLineDash([])
+      }
+      
+      // Draw labels
+      ctx.fillStyle = '#9ca3af'
+      ctx.font = '12px Inter'
+      ctx.textAlign = 'center'
+      
+      // X-axis labels (SOC)
+      ctx.fillText('0%', padding, canvas.height - 10)
+      ctx.fillText('50%', padding + width / 2, canvas.height - 10)
+      ctx.fillText('100%', canvas.width - padding, canvas.height - 10)
+      
+      // Y-axis labels (Power)
+      ctx.textAlign = 'right'
+      ctx.fillText('0 kW', padding - 10, canvas.height - padding)
+      ctx.fillText(`${Math.round(maxPower / 2)} kW`, padding - 10, canvas.height - padding - height / 2)
+      ctx.fillText(`${maxPower} kW`, padding - 10, padding + 5)
+      
+      // Title
+      ctx.textAlign = 'left'
+      ctx.fillStyle = '#ffffff'
+      ctx.font = '14px Inter'
+      ctx.fillText('Charging Power vs Battery SOC', padding, 20)
     }
   } catch (error) {
     console.error('Failed to draw charging curve:', error)
   }
 }
 
-function drawChargingCurveOnCanvas(ctx, canvas, curve, currentSoc) {
-  const padding = 40
-  const width = canvas.width - padding * 2
-  const height = canvas.height - padding * 2
-  
-  // Find max power for scaling
-  const maxPower = Math.max(...curve.map(p => p.kw))
-  
-  // Draw axes
-  ctx.strokeStyle = '#475569'
-  ctx.lineWidth = 2
-  ctx.beginPath()
-  ctx.moveTo(padding, padding)
-  ctx.lineTo(padding, padding + height)
-  ctx.lineTo(padding + width, padding + height)
-  ctx.stroke()
-  
-  // Draw curve
-  ctx.strokeStyle = '#667eea'
-  ctx.lineWidth = 3
-  ctx.beginPath()
-  
-  curve.forEach((point, index) => {
-    const x = padding + (point.soc / 100) * width
-    const y = padding + height - (point.kw / maxPower) * height
-    
-    if (index === 0) {
-      ctx.moveTo(x, y)
-    } else {
-      ctx.lineTo(x, y)
-    }
-  })
-  
-  ctx.stroke()
-  
-  // Draw current SOC indicator
-  if (currentSoc !== undefined) {
-    const socX = padding + (currentSoc / 100) * width
-    
-    ctx.strokeStyle = '#f59e0b'
-    ctx.lineWidth = 2
-    ctx.setLineDash([5, 5])
-    ctx.beginPath()
-    ctx.moveTo(socX, padding)
-    ctx.lineTo(socX, padding + height)
-    ctx.stroke()
-    ctx.setLineDash([])
-    
-    // Label
-    ctx.fillStyle = '#f59e0b'
-    ctx.font = '12px Inter'
-    ctx.fillText(`${currentSoc}%`, socX - 15, padding - 10)
-  }
-  
-  // Labels
-  ctx.fillStyle = '#94a3b8'
-  ctx.font = '12px Inter'
-  ctx.fillText('0%', padding - 10, padding + height + 20)
-  ctx.fillText('100%', padding + width - 20, padding + height + 20)
-  ctx.fillText(`${maxPower.toFixed(0)} kW`, 5, padding)
-  ctx.fillText('0 kW', 5, padding + height)
-}
-
-async function loadPricingTiers() {
+// ============================================
+// SUBSCRIPTION TIERS
+// ============================================
+async function loadSubscriptionTiers() {
   try {
     const response = await axios.get('/api/subscription-tiers')
     
     if (response.data.success) {
-      populatePricingTiers(response.data.tiers)
+      displayPricingTiers(response.data.tiers)
     }
   } catch (error) {
-    console.error('Failed to load pricing tiers:', error)
+    console.error('Failed to load subscription tiers:', error)
   }
 }
 
-function populatePricingTiers(tiers) {
+function displayPricingTiers(tiers) {
   const container = document.getElementById('pricingTiers')
   container.innerHTML = ''
   
   tiers.forEach(tier => {
-    const isCurrentTier = tier.id === state.userTier
-    const isPopular = tier.popular
+    const tierCard = document.createElement('div')
+    tierCard.className = `glass rounded-2xl p-6 ${tier.popular ? 'ring-2 ring-purple-500 transform scale-105' : ''} transition-all hover:scale-105`
     
-    const card = document.createElement('div')
-    card.className = `relative bg-slate-800/50 rounded-2xl p-8 border-2 transition-all hover:scale-105 ${
-      isPopular ? 'border-purple-500' : 'border-slate-700'
-    } ${isCurrentTier ? 'ring-4 ring-green-500' : ''}`
-    
-    card.innerHTML = `
-      ${isPopular ? '<div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-4 py-1 premium-badge text-white text-xs font-bold rounded-full">POPULAR</div>' : ''}
-      ${isCurrentTier ? '<div class="absolute top-4 right-4 text-green-400"><i class="fas fa-check-circle text-2xl"></i></div>' : ''}
+    tierCard.innerHTML = `
+      ${tier.popular ? '<div class="text-center mb-4"><span class="px-3 py-1 premium-badge rounded-full text-xs font-bold">MOST POPULAR</span></div>' : ''}
       
       <div class="text-center mb-6">
         <h3 class="text-2xl font-bold mb-2">${tier.name}</h3>
         <div class="text-4xl font-bold mb-1">
           ${tier.price === 0 ? 'Free' : `€${tier.price}`}
         </div>
-        ${tier.period ? `<div class="text-gray-400 text-sm">per ${tier.period}</div>` : ''}
+        ${tier.period ? `<div class="text-sm text-gray-400">per ${tier.period}</div>` : ''}
       </div>
       
       <ul class="space-y-3 mb-8">
         ${tier.features.map(feature => `
           <li class="flex items-start">
             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span class="text-sm text-gray-300">${feature}</span>
+            <span class="text-sm">${feature}</span>
           </li>
         `).join('')}
       </ul>
       
       <button class="w-full py-3 rounded-xl font-semibold transition-all ${
-        isCurrentTier 
-          ? 'bg-green-600 text-white cursor-not-allowed' 
-          : tier.price === 0
-            ? 'bg-slate-700 hover:bg-slate-600 text-white'
-            : 'tesla-gradient text-white hover:opacity-90'
-      }" ${isCurrentTier ? 'disabled' : ''} data-tier="${tier.id}">
-        ${isCurrentTier ? 'Current Plan' : tier.price === 0 ? 'Current Plan' : 'Upgrade Now'}
+        tier.id === 'free' 
+          ? 'bg-slate-700 hover:bg-slate-600' 
+          : tier.popular
+            ? 'premium-badge hover:opacity-90'
+            : 'bg-blue-600 hover:bg-blue-700'
+      }" onclick="selectTier('${tier.id}')">
+        ${tier.id === 'free' ? 'Current Plan' : 'Upgrade Now'}
       </button>
     `
     
-    // Add click handler for upgrade buttons
-    const button = card.querySelector('button')
-    if (!isCurrentTier && tier.price > 0) {
-      button.addEventListener('click', () => selectPlan(tier))
-    }
-    
-    container.appendChild(card)
+    container.appendChild(tierCard)
   })
 }
 
-function selectPlan(tier) {
-  // Simulate upgrade (in production, this would process payment)
-  if (confirm(`Upgrade to ${tier.name} for €${tier.price}/${tier.period}?`)) {
-    state.userTier = tier.id
-    localStorage.setItem('userTier', tier.id)
-    updateTierUI()
-    hidePricingModal()
-    loadVehicles()
-    
-    // Show success message
-    showSuccess(`Successfully upgraded to ${tier.name}!`)
+function selectTier(tierId) {
+  if (tierId === 'free') {
+    showNotification('You are already on the free plan', 'info')
+    return
   }
-}
-
-function updateTierUI() {
-  const tierBadge = document.getElementById('currentTier')
-  tierBadge.textContent = state.userTier.charAt(0).toUpperCase() + state.userTier.slice(1)
   
-  if (state.userTier === 'premium' || state.userTier === 'pro') {
-    tierBadge.className = 'ml-2 px-3 py-1 premium-badge rounded-full text-sm font-medium'
+  // In a real app, this would redirect to payment
+  showNotification('Payment integration coming soon! This is a demo.', 'info')
+  
+  // For demo purposes, simulate upgrade
+  if (confirm(`Upgrade to ${tierId} plan? (Demo mode)`)) {
+    appState.currentTier = tierId
+    document.getElementById('currentTier').textContent = tierId.charAt(0).toUpperCase() + tierId.slice(1)
+    document.getElementById('currentTier').className = 'ml-2 px-3 py-1 premium-badge rounded-full text-sm font-medium'
+    hidePricingModal()
+    loadVehicles() // Reload with all vehicles
+    showNotification('Successfully upgraded! You now have access to all features.', 'success')
   }
 }
 
+// ============================================
+// MODAL MANAGEMENT
+// ============================================
 function showPricingModal() {
   document.getElementById('pricingModal').classList.remove('hidden')
   document.body.style.overflow = 'hidden'
@@ -395,28 +435,51 @@ function showPricingModal() {
 
 function hidePricingModal() {
   document.getElementById('pricingModal').classList.add('hidden')
-  document.body.style.overflow = ''
+  document.body.style.overflow = 'auto'
 }
 
-function showError(message) {
-  // Simple error notification
+// ============================================
+// NOTIFICATIONS
+// ============================================
+function showNotification(message, type = 'info') {
+  const colors = {
+    success: 'bg-green-500',
+    error: 'bg-red-500',
+    warning: 'bg-yellow-500',
+    info: 'bg-blue-500'
+  }
+  
   const notification = document.createElement('div')
-  notification.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-fade-in'
-  notification.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`
+  notification.className = `fixed top-20 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-fade-in`
+  notification.innerHTML = `
+    <div class="flex items-center space-x-3">
+      <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+      <span>${message}</span>
+    </div>
+  `
+  
   document.body.appendChild(notification)
   
   setTimeout(() => {
-    notification.remove()
-  }, 5000)
+    notification.style.opacity = '0'
+    notification.style.transform = 'translateX(100%)'
+    setTimeout(() => notification.remove(), 300)
+  }, 3000)
 }
 
-function showSuccess(message) {
-  const notification = document.createElement('div')
-  notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-fade-in'
-  notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`
-  document.body.appendChild(notification)
-  
-  setTimeout(() => {
-    notification.remove()
-  }, 5000)
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function formatNumber(num) {
+  return new Intl.NumberFormat('nl-NL').format(num)
 }
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount)
+}
+
+// Export for global access
+window.selectTier = selectTier
