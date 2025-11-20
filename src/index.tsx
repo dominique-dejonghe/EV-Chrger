@@ -441,42 +441,104 @@ app.get('/app', (c) => {
         pointer-events: none;
       }
       
+      /* Enhanced Range Slider Styling */
       input[type="range"] {
         -webkit-appearance: none;
         appearance: none;
         background: transparent;
+        width: 100%;
+        height: 40px;
+        cursor: pointer;
       }
       
       input[type="range"]::-webkit-slider-track {
-        background: #334155;
-        height: 6px;
-        border-radius: 3px;
+        background: linear-gradient(to right, 
+          #1e293b 0%, 
+          #334155 50%, 
+          #475569 100%
+        );
+        height: 10px;
+        border-radius: 6px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
       
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
-        background: #667eea;
-        cursor: pointer;
-        margin-top: -7px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: grab;
+        margin-top: -9px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5),
+                    0 0 0 4px rgba(102, 126, 234, 0.2);
+        transition: all 0.2s ease;
       }
       
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.7),
+                    0 0 0 6px rgba(102, 126, 234, 0.3);
+      }
+      
+      input[type="range"]::-webkit-slider-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.6),
+                    0 0 0 8px rgba(102, 126, 234, 0.2);
+      }
+      
+      /* Firefox */
       input[type="range"]::-moz-range-track {
-        background: #334155;
-        height: 6px;
-        border-radius: 3px;
+        background: linear-gradient(to right, 
+          #1e293b 0%, 
+          #334155 50%, 
+          #475569 100%
+        );
+        height: 10px;
+        border-radius: 6px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
       
       input[type="range"]::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
-        background: #667eea;
-        cursor: pointer;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: grab;
         border: none;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5),
+                    0 0 0 4px rgba(102, 126, 234, 0.2);
+        transition: all 0.2s ease;
+      }
+      
+      input[type="range"]::-moz-range-thumb:hover {
+        transform: scale(1.15);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.7),
+                    0 0 0 6px rgba(102, 126, 234, 0.3);
+      }
+      
+      input[type="range"]::-moz-range-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.05);
+      }
+      
+      /* Focus state for accessibility */
+      input[type="range"]:focus {
+        outline: none;
+      }
+      
+      input[type="range"]:focus::-webkit-slider-thumb {
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8),
+                    0 0 0 6px rgba(102, 126, 234, 0.4);
+      }
+      
+      input[type="range"]:focus::-moz-range-thumb {
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8),
+                    0 0 0 6px rgba(102, 126, 234, 0.4);
       }
       
       .charging-curve {
@@ -665,35 +727,52 @@ app.get('/app', (c) => {
 
             <!-- Charger Power Input -->
             <div class="mb-8">
-                <label class="block text-sm font-medium mb-3">
-                    <i class="fas fa-charging-station mr-2"></i>Charger Power
+                <label class="block text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-charging-station text-blue-400 mr-3 text-xl"></i>
+                    <span>Charger Power</span>
                 </label>
-                <div class="flex items-center space-x-4">
-                    <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="flex-1">
-                    <div class="flex items-center bg-slate-800 rounded-xl px-4 py-3 min-w-[120px]">
-                        <input type="number" id="chargerPowerInput" value="50" min="1" max="350" 
-                               class="bg-transparent border-none outline-none text-white text-right w-full">
-                        <span class="text-gray-400 ml-2">kW</span>
+                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                    <div class="flex items-center space-x-4 mb-2">
+                        <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="flex-1">
+                        <div class="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
+                            <input type="number" id="chargerPowerInput" value="50" min="1" max="350" 
+                                   class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
+                            <span class="text-white ml-2 text-lg font-semibold">kW</span>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-3 flex justify-between text-xs text-gray-400">
-                    <span>Slow (7 kW)</span>
-                    <span>Fast (50 kW)</span>
-                    <span>Ultra (350 kW)</span>
+                    <div class="mt-4 flex justify-between text-sm font-medium">
+                        <span class="text-gray-400">
+                            <i class="fas fa-plug mr-1"></i>Slow (7 kW)
+                        </span>
+                        <span class="text-blue-400">
+                            <i class="fas fa-bolt mr-1"></i>Fast (50 kW)
+                        </span>
+                        <span class="text-purple-400">
+                            <i class="fas fa-rocket mr-1"></i>Ultra (350 kW)
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- SOC Slider (Premium Feature) -->
             <div id="socSlider" class="mb-8 hidden">
-                <label class="block text-sm font-medium mb-3">
-                    <i class="fas fa-battery-half mr-2"></i>Battery State of Charge (SOC)
-                    <span class="ml-2 px-2 py-1 text-xs premium-badge rounded-full">PREMIUM</span>
+                <label class="block text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-battery-half text-green-400 mr-3 text-xl"></i>
+                    <span>Battery State of Charge (SOC)</span>
+                    <span class="ml-3 px-3 py-1 text-xs premium-badge rounded-full font-bold">PREMIUM</span>
                 </label>
-                <div class="flex items-center space-x-4">
-                    <input type="range" id="socRange" min="0" max="100" value="50" class="flex-1">
-                    <div class="flex items-center bg-slate-800 rounded-xl px-4 py-3 min-w-[100px]">
-                        <span id="socValue" class="text-white font-medium">50</span>
-                        <span class="text-gray-400 ml-1">%</span>
+                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                    <div class="flex items-center space-x-4">
+                        <input type="range" id="socRange" min="0" max="100" value="50" class="flex-1">
+                        <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-5 py-4 min-w-[120px] shadow-lg">
+                            <span id="socValue" class="text-white font-bold text-2xl">50</span>
+                            <span class="text-white ml-2 text-lg font-semibold">%</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between text-sm font-medium text-gray-400">
+                        <span><i class="fas fa-battery-empty mr-1"></i>Empty (0%)</span>
+                        <span class="text-green-400"><i class="fas fa-battery-half mr-1"></i>Half (50%)</span>
+                        <span><i class="fas fa-battery-full mr-1"></i>Full (100%)</span>
                     </div>
                 </div>
             </div>
