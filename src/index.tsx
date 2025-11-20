@@ -267,7 +267,7 @@ app.post('/api/calculate', async (c) => {
 // Compare multiple vehicles
 app.post('/api/compare', async (c) => {
   const { DB } = c.env
-  const { vehicleIds, chargerPowerKw } = await c.req.json()
+  const { vehicleIds, chargerPowerKw, startSoc = 20, endSoc = 80, electricityPrice = 0.30 } = await c.req.json()
   
   if (!Array.isArray(vehicleIds) || vehicleIds.length < 2) {
     return c.json({ success: false, error: 'At least 2 vehicles required for comparison' }, 400)
@@ -287,15 +287,43 @@ app.post('/api/compare', async (c) => {
       )
       const chargingSpeedKmh = (effectivePower / consumption) * 100
       
+      // Calculate charging time based on SOC range
+      const batteryCapacity = vehicle.usable_capacity_kwh
+      const socDelta = (endSoc - startSoc) / 100
+      const chargeAmount = batteryCapacity * socDelta
+      const chargingTimeHours = chargeAmount / effectivePower
+      const chargingTimeMinutes = Math.round(chargingTimeHours * 60)
+      
+      // Format charging time
+      const hours = Math.floor(chargingTimeMinutes / 60)
+      const minutes = chargingTimeMinutes % 60
+      const chargingTimeFormatted = hours > 0 
+        ? `${hours}h ${minutes}m` 
+        : `${minutes}m`
+      
+      // Calculate range added per hour
+      const rangePerHour = chargingSpeedKmh
+      
+      // Cost calculations
+      const energyUsed = parseFloat(chargeAmount.toFixed(2))
+      const totalCost = (energyUsed * electricityPrice).toFixed(2)
+      const costPer100km = (consumption * electricityPrice).toFixed(2)
+      
       return {
         vehicleId: vehicle.id,
         make: vehicle.make,
         model: vehicle.model,
         variant: vehicle.variant,
         chargingSpeedKmh: Math.round(chargingSpeedKmh),
-        effectivePowerKw: effectivePower,
+        effectivePowerKw: parseFloat(effectivePower.toFixed(1)),
         consumption: consumption,
-        batteryCapacity: vehicle.usable_capacity_kwh
+        batteryCapacity: batteryCapacity,
+        chargingTime: chargingTimeFormatted,
+        chargingTimeMinutes: chargingTimeMinutes,
+        rangePerHour: Math.round(rangePerHour),
+        energyUsed: energyUsed,
+        totalCost: `€${totalCost}`,
+        costPer100km: `€${costPer100km}`
       }
     })
     
@@ -305,7 +333,10 @@ app.post('/api/compare', async (c) => {
     return c.json({
       success: true,
       comparisons,
-      chargerPowerKw
+      chargerPowerKw,
+      startSoc,
+      endSoc,
+      electricityPrice
     })
   } catch (error) {
     return c.json({ success: false, error: 'Comparison failed' }, 500)
@@ -926,17 +957,109 @@ app.get('/app', (c) => {
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-4 justify-center">
-                    <button class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">
-                        <i class="fas fa-redo mr-2"></i>New Calculation
-                    </button>
-                    <button id="compareFromResult" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors">
+                <div class="flex justify-center">
+                    <button id="compareFromResult" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all transform hover:scale-105 font-semibold text-lg">
                         <i class="fas fa-exchange-alt mr-2"></i>Compare Vehicles
                     </button>
-                    <button class="px-6 py-3 premium-badge hover:opacity-90 rounded-xl transition-opacity">
-                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
-                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare Vehicles Modal -->
+    <div id="compareModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 animate-fade-in">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Compare Vehicles</h2>
+                    <p class="text-gray-400">Select vehicles to compare charging performance</p>
+                </div>
+                <button id="closeCompareModal" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Current Settings Display -->
+            <div class="mb-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-400">Charger:</span>
+                        <span class="ml-2 font-bold" id="compareChargerPower">50 kW</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">SOC:</span>
+                        <span class="ml-2 font-bold" id="compareSOCRange">20-80%</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Price:</span>
+                        <span class="ml-2 font-bold" id="compareElectricityPrice">€0.30/kWh</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Selected:</span>
+                        <span class="ml-2 font-bold text-blue-400" id="compareVehicleCount">0 vehicles</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Search for Comparison -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-3">
+                    <i class="fas fa-search mr-2"></i>Search Vehicles to Compare (max 4)
+                </label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="compareVehicleSearch" 
+                        placeholder="Type to search..." 
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        autocomplete="off"
+                    >
+                    <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    
+                    <!-- Autocomplete Dropdown for Comparison -->
+                    <div id="compareAutocompleteDropdown" class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
+                        <div id="compareAutocompleteResults" class="py-2">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Vehicles for Comparison -->
+            <div id="selectedCompareVehicles" class="mb-6">
+                <h3 class="text-sm font-medium mb-3">Selected Vehicles:</h3>
+                <div id="selectedCompareVehiclesList" class="space-y-2">
+                    <div class="text-sm text-gray-400 text-center py-4">No vehicles selected yet</div>
+                </div>
+            </div>
+
+            <!-- Compare Button -->
+            <button id="startCompareBtn" disabled class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-exchange-alt mr-2"></i>Compare Selected Vehicles
+            </button>
+        </div>
+    </div>
+
+    <!-- Comparison Results Section -->
+    <div id="comparisonResults" class="hidden max-w-6xl mx-auto px-4 pb-12 mt-8">
+        <div class="glass rounded-3xl p-8 md:p-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-2">Vehicle Comparison</h2>
+                <p class="text-gray-400">Side-by-side charging performance analysis</p>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full" id="comparisonTable">
+                    <!-- Table will be populated by JavaScript -->
+                </table>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-8 text-center">
+                <button id="closeComparisonResults" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Calculator
+                </button>
             </div>
         </div>
     </div>

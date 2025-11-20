@@ -11,7 +11,9 @@ let appState = {
   endSoc: 80,
   electricityPrice: 0.30,
   lastCalculation: null,
-  activeAutocompleteIndex: -1
+  activeAutocompleteIndex: -1,
+  compareVehicles: [], // Array of selected vehicles for comparison (max 4)
+  compareFilteredVehicles: []
 }
 
 // ============================================
@@ -422,6 +424,46 @@ function setupEventListeners() {
       hidePricingModal()
     }
   })
+  
+  // Compare functionality
+  document.getElementById('compareFromResult').addEventListener('click', showCompareModal)
+  document.getElementById('closeCompareModal').addEventListener('click', hideCompareModal)
+  document.getElementById('startCompareBtn').addEventListener('click', performComparison)
+  document.getElementById('closeComparisonResults').addEventListener('click', hideComparisonResults)
+  
+  // Compare vehicle search
+  const compareSearchInput = document.getElementById('compareVehicleSearch')
+  let compareDebounceTimer
+  
+  compareSearchInput.addEventListener('input', (e) => {
+    clearTimeout(compareDebounceTimer)
+    compareDebounceTimer = setTimeout(() => {
+      filterCompareVehicles(e.target.value)
+    }, 300)
+  })
+  
+  compareSearchInput.addEventListener('focus', (e) => {
+    if (e.target.value.length >= 2) {
+      filterCompareVehicles(e.target.value)
+    }
+  })
+  
+  // Close compare autocomplete on outside click
+  document.addEventListener('click', (e) => {
+    const compareSearchInput = document.getElementById('compareVehicleSearch')
+    const compareDropdown = document.getElementById('compareAutocompleteDropdown')
+    
+    if (!compareSearchInput.contains(e.target) && !compareDropdown.contains(e.target)) {
+      hideCompareAutocomplete()
+    }
+  })
+  
+  // Close compare modal on outside click
+  document.getElementById('compareModal').addEventListener('click', (e) => {
+    if (e.target.id === 'compareModal') {
+      hideCompareModal()
+    }
+  })
 }
 
 // ============================================
@@ -781,9 +823,290 @@ function formatCurrency(amount) {
   }).format(amount)
 }
 
+// ============================================
+// COMPARE FUNCTIONALITY
+// ============================================
+function showCompareModal() {
+  const modal = document.getElementById('compareModal')
+  modal.classList.remove('hidden')
+  document.body.style.overflow = 'hidden'
+  
+  // Update current settings display
+  document.getElementById('compareChargerPower').textContent = `${appState.chargerPower} kW`
+  document.getElementById('compareSOCRange').textContent = `${appState.startSoc}-${appState.endSoc}%`
+  document.getElementById('compareElectricityPrice').textContent = `€${appState.electricityPrice.toFixed(2)}/kWh`
+  
+  // Add current vehicle if one is selected
+  if (appState.selectedVehicle && appState.compareVehicles.length === 0) {
+    addVehicleToCompare(appState.selectedVehicle.id)
+  }
+  
+  updateCompareVehicleCount()
+}
+
+function hideCompareModal() {
+  const modal = document.getElementById('compareModal')
+  modal.classList.add('hidden')
+  document.body.style.overflow = 'auto'
+}
+
+function filterCompareVehicles(searchTerm) {
+  if (!searchTerm || searchTerm.length < 2) {
+    appState.compareFilteredVehicles = []
+    hideCompareAutocomplete()
+    return
+  }
+  
+  const term = searchTerm.toLowerCase()
+  
+  appState.compareFilteredVehicles = appState.vehicles.filter(vehicle => {
+    const searchString = `${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} ${vehicle.year}`.toLowerCase()
+    return searchString.includes(term) && !appState.compareVehicles.find(v => v.id === vehicle.id)
+  })
+  
+  displayCompareAutocompleteResults()
+}
+
+function displayCompareAutocompleteResults() {
+  const dropdown = document.getElementById('compareAutocompleteDropdown')
+  const resultsContainer = document.getElementById('compareAutocompleteResults')
+  
+  if (appState.compareFilteredVehicles.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="p-4 text-center text-gray-400">
+        <i class="fas fa-search mb-2 text-2xl"></i>
+        <p>No vehicles found</p>
+      </div>
+    `
+    dropdown.classList.remove('hidden')
+    return
+  }
+  
+  const displayVehicles = appState.compareFilteredVehicles.slice(0, 20)
+  
+  resultsContainer.innerHTML = displayVehicles.map((vehicle) => {
+    const isPremiumLocked = vehicle.is_premium && appState.currentTier === 'free'
+    
+    return `
+      <div class="autocomplete-item ${vehicle.is_premium ? 'premium' : ''} ${isPremiumLocked ? 'locked' : ''}" 
+           data-vehicle-id="${vehicle.id}"
+           onclick="addVehicleToCompareFromSearch(${vehicle.id})">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <div class="font-semibold">
+              ${vehicle.make} ${vehicle.model}
+              ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400 ml-2 text-xs"></i>' : ''}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+              ${vehicle.variant || ''} ${vehicle.year ? '(' + vehicle.year + ')' : ''} • 
+              ${vehicle.usable_capacity_kwh}kWh • ${vehicle.max_dc_charging_kw}kW max
+            </div>
+          </div>
+          ${isPremiumLocked ? '<i class="fas fa-lock text-yellow-400 ml-3"></i>' : ''}
+        </div>
+      </div>
+    `
+  }).join('')
+  
+  dropdown.classList.remove('hidden')
+}
+
+function hideCompareAutocomplete() {
+  document.getElementById('compareAutocompleteDropdown').classList.add('hidden')
+}
+
+function addVehicleToCompareFromSearch(vehicleId) {
+  addVehicleToCompare(vehicleId)
+  document.getElementById('compareVehicleSearch').value = ''
+  hideCompareAutocomplete()
+}
+
+function addVehicleToCompare(vehicleId) {
+  const vehicle = appState.vehicles.find(v => v.id === vehicleId)
+  if (!vehicle) return
+  
+  // Check if premium locked
+  if (vehicle.is_premium && appState.currentTier === 'free') {
+    showPremiumUpgradeModal(vehicle)
+    return
+  }
+  
+  // Check if already added
+  if (appState.compareVehicles.find(v => v.id === vehicleId)) {
+    showNotification('Vehicle already added', 'warning')
+    return
+  }
+  
+  // Check max limit
+  if (appState.compareVehicles.length >= 4) {
+    showNotification('Maximum 4 vehicles can be compared', 'warning')
+    return
+  }
+  
+  appState.compareVehicles.push(vehicle)
+  updateCompareVehiclesList()
+  updateCompareVehicleCount()
+  updateCompareButton()
+}
+
+function removeVehicleFromCompare(vehicleId) {
+  appState.compareVehicles = appState.compareVehicles.filter(v => v.id !== vehicleId)
+  updateCompareVehiclesList()
+  updateCompareVehicleCount()
+  updateCompareButton()
+}
+
+function updateCompareVehiclesList() {
+  const container = document.getElementById('selectedCompareVehiclesList')
+  
+  if (appState.compareVehicles.length === 0) {
+    container.innerHTML = '<div class="text-sm text-gray-400 text-center py-4">No vehicles selected yet</div>'
+    return
+  }
+  
+  container.innerHTML = appState.compareVehicles.map(vehicle => `
+    <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+      <div class="flex-1">
+        <div class="font-semibold text-sm">
+          ${vehicle.make} ${vehicle.model}
+          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400 ml-1 text-xs"></i>' : ''}
+        </div>
+        <div class="text-xs text-gray-400 mt-1">
+          ${vehicle.variant || ''} • ${vehicle.usable_capacity_kwh}kWh
+        </div>
+      </div>
+      <button onclick="removeVehicleFromCompare(${vehicle.id})" class="ml-3 w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `).join('')
+}
+
+function updateCompareVehicleCount() {
+  document.getElementById('compareVehicleCount').textContent = `${appState.compareVehicles.length} vehicle${appState.compareVehicles.length !== 1 ? 's' : ''}`
+}
+
+function updateCompareButton() {
+  const btn = document.getElementById('startCompareBtn')
+  if (appState.compareVehicles.length >= 2) {
+    btn.disabled = false
+  } else {
+    btn.disabled = true
+  }
+}
+
+async function performComparison() {
+  if (appState.compareVehicles.length < 2) {
+    showNotification('Please select at least 2 vehicles', 'warning')
+    return
+  }
+  
+  const btn = document.getElementById('startCompareBtn')
+  btn.disabled = true
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Comparing...'
+  
+  try {
+    const vehicleIds = appState.compareVehicles.map(v => v.id)
+    
+    const response = await axios.post('/api/compare', {
+      vehicleIds: vehicleIds,
+      chargerPowerKw: appState.chargerPower,
+      startSoc: appState.startSoc,
+      endSoc: appState.endSoc,
+      electricityPrice: appState.electricityPrice
+    })
+    
+    if (response.data.success) {
+      displayComparisonResults(response.data.comparisons)
+      hideCompareModal()
+    }
+  } catch (error) {
+    console.error('Comparison failed:', error)
+    showNotification('Comparison failed', 'error')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = '<i class="fas fa-exchange-alt mr-2"></i>Compare Selected Vehicles'
+  }
+}
+
+function displayComparisonResults(comparisons) {
+  const resultsSection = document.getElementById('comparisonResults')
+  const table = document.getElementById('comparisonTable')
+  
+  // Build table HTML
+  let tableHTML = `
+    <thead>
+      <tr class="border-b border-slate-700">
+        <th class="text-left p-4 font-semibold">Vehicle</th>
+        <th class="text-center p-4 font-semibold">Charging Speed</th>
+        <th class="text-center p-4 font-semibold">Charging Time</th>
+        <th class="text-center p-4 font-semibold">Range/Hour</th>
+        <th class="text-center p-4 font-semibold">Total Cost</th>
+        <th class="text-center p-4 font-semibold">Cost/100km</th>
+      </tr>
+    </thead>
+    <tbody>
+  `
+  
+  comparisons.forEach((comp, index) => {
+    const isFirst = index === 0
+    const rowClass = isFirst ? 'bg-green-500/10 border-2 border-green-500/30' : 'border-b border-slate-700/50'
+    
+    tableHTML += `
+      <tr class="${rowClass}">
+        <td class="p-4">
+          <div class="font-semibold">
+            ${comp.make} ${comp.model}
+            ${isFirst ? '<i class="fas fa-trophy text-yellow-400 ml-2"></i>' : ''}
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            ${comp.variant || ''} • ${comp.batteryCapacity}kWh
+          </div>
+        </td>
+        <td class="text-center p-4">
+          <div class="text-2xl font-bold tesla-gradient bg-clip-text text-transparent">
+            ${comp.chargingSpeedKmh}
+          </div>
+          <div class="text-xs text-gray-400">km/h</div>
+        </td>
+        <td class="text-center p-4">
+          <div class="text-lg font-bold">${comp.chargingTime}</div>
+        </td>
+        <td class="text-center p-4">
+          <div class="text-lg font-bold">${comp.rangePerHour} km</div>
+        </td>
+        <td class="text-center p-4">
+          <div class="text-lg font-bold text-orange-400">${comp.totalCost}</div>
+        </td>
+        <td class="text-center p-4">
+          <div class="text-lg font-bold text-yellow-400">${comp.costPer100km}</div>
+        </td>
+      </tr>
+    `
+  })
+  
+  tableHTML += '</tbody>'
+  table.innerHTML = tableHTML
+  
+  // Show results and hide calculator
+  resultsSection.classList.remove('hidden')
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function hideComparisonResults() {
+  document.getElementById('comparisonResults').classList.add('hidden')
+  // Optionally clear selected compare vehicles
+  appState.compareVehicles = []
+  updateCompareVehiclesList()
+  updateCompareVehicleCount()
+  updateCompareButton()
+}
+
 // Export for global access
 window.selectTier = selectTier
 window.selectVehicleFromAutocomplete = selectVehicleFromAutocomplete
 window.showPricingModal = showPricingModal
 window.closePremiumUpgradeModal = closePremiumUpgradeModal
 window.upgradeToPremium = upgradeToPremium
+window.addVehicleToCompareFromSearch = addVehicleToCompareFromSearch
+window.removeVehicleFromCompare = removeVehicleFromCompare
