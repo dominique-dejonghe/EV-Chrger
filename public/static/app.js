@@ -7,7 +7,9 @@ let appState = {
   filteredVehicles: [],
   selectedVehicle: null,
   chargerPower: 50,
-  soc: 50,
+  startSoc: 20,
+  endSoc: 80,
+  electricityPrice: 0.30,
   lastCalculation: null,
   activeAutocompleteIndex: -1
 }
@@ -353,13 +355,55 @@ function setupEventListeners() {
     appState.chargerPower = value
   })
   
-  // SOC slider
-  const socRange = document.getElementById('socRange')
-  const socValue = document.getElementById('socValue')
+  // Start SOC slider
+  const startSocRange = document.getElementById('startSocRange')
+  const startSocValue = document.getElementById('startSocValue')
   
-  socRange.addEventListener('input', (e) => {
-    socValue.textContent = e.target.value
-    appState.soc = parseInt(e.target.value)
+  if (startSocRange) {
+    startSocRange.addEventListener('input', (e) => {
+      let value = parseInt(e.target.value)
+      // Ensure start SOC doesn't exceed end SOC
+      if (value >= appState.endSoc) {
+        value = appState.endSoc - 5
+        e.target.value = value
+      }
+      startSocValue.textContent = value
+      appState.startSoc = value
+    })
+  }
+  
+  // End SOC slider
+  const endSocRange = document.getElementById('endSocRange')
+  const endSocValue = document.getElementById('endSocValue')
+  
+  if (endSocRange) {
+    endSocRange.addEventListener('input', (e) => {
+      let value = parseInt(e.target.value)
+      // Ensure end SOC doesn't go below start SOC
+      if (value <= appState.startSoc) {
+        value = appState.startSoc + 5
+        e.target.value = value
+      }
+      endSocValue.textContent = value
+      appState.endSoc = value
+    })
+  }
+  
+  // Electricity price slider
+  const priceRange = document.getElementById('electricityPriceRange')
+  const priceInput = document.getElementById('electricityPriceInput')
+  
+  priceRange.addEventListener('input', (e) => {
+    priceInput.value = parseFloat(e.target.value).toFixed(2)
+    appState.electricityPrice = parseFloat(e.target.value)
+  })
+  
+  priceInput.addEventListener('input', (e) => {
+    let value = parseFloat(e.target.value)
+    if (value < 0.10) value = 0.10
+    if (value > 1.00) value = 1.00
+    priceRange.value = value
+    appState.electricityPrice = value
   })
   
   // Calculate button
@@ -398,7 +442,9 @@ async function calculateChargingSpeed() {
     const response = await axios.post('/api/calculate', {
       vehicleId: appState.selectedVehicle.id,
       chargerPowerKw: appState.chargerPower,
-      soc: appState.currentTier !== 'free' ? appState.soc : undefined
+      startSoc: appState.currentTier !== 'free' ? appState.startSoc : 20,
+      endSoc: appState.currentTier !== 'free' ? appState.endSoc : 80,
+      electricityPrice: appState.electricityPrice
     })
     
     if (response.data.success) {
@@ -430,14 +476,22 @@ function displayResults(calculation) {
   
   // Details
   document.getElementById('effectivePower').textContent = `${calculation.effectivePowerKw} kW`
-  document.getElementById('chargingTime').textContent = `${calculation.chargingTime20to80} min`
+  document.getElementById('chargingTime').textContent = calculation.chargingTime
   document.getElementById('rangePerHour').textContent = `${calculation.rangePerHour} km`
+  document.getElementById('chargingCost').textContent = calculation.totalCost || 'N/A'
+  
+  // Cost details
+  if (calculation.energyUsed) {
+    document.getElementById('energyUsed').textContent = `${calculation.energyUsed} kWh`
+    document.getElementById('costPerHour').textContent = calculation.costPerHour || 'N/A'
+    document.getElementById('costPer100km').textContent = calculation.costPer100km || 'N/A'
+  }
   
   // Check if charger power exceeds vehicle maximum - SHOW RED WARNING
   const isLimited = calculation.chargerPowerKw > appState.selectedVehicle.max_dc_charging_kw
   
   // Create or update the warning message
-  const detailsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-3')
+  const detailsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2')
   let warningDiv = document.getElementById('chargingLimitWarning')
   
   if (isLimited) {

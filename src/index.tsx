@@ -161,7 +161,7 @@ app.get('/api/vehicles/:id', async (c) => {
 // Calculate charging speed
 app.post('/api/calculate', async (c) => {
   const { DB } = c.env
-  const { vehicleId, chargerPowerKw, soc } = await c.req.json()
+  const { vehicleId, chargerPowerKw, startSoc = 20, endSoc = 80, electricityPrice = 0.30 } = await c.req.json()
   
   try {
     // Get vehicle data
@@ -180,21 +180,23 @@ app.post('/api/calculate', async (c) => {
       vehicle.max_dc_charging_kw || chargerPowerKw
     )
     
-    // Parse charging curve if available
+    // Use middle SOC for curve calculation if charging curve available
+    const middleSoc = (startSoc + endSoc) / 2
     let effectivePower = effectiveChargerPower
-    if (vehicle.charging_curve_data && soc !== undefined) {
+    
+    if (vehicle.charging_curve_data) {
       try {
         const curveData = JSON.parse(vehicle.charging_curve_data)
         if (curveData.curve && Array.isArray(curveData.curve)) {
-          // Find the appropriate power based on SOC
+          // Find the appropriate power based on middle SOC
           for (let i = 0; i < curveData.curve.length - 1; i++) {
             const current = curveData.curve[i]
             const next = curveData.curve[i + 1]
-            if (soc >= current.soc && soc < next.soc) {
+            if (middleSoc >= current.soc && middleSoc < next.soc) {
               // Linear interpolation
               const socRange = next.soc - current.soc
               const powerRange = next.kw - current.kw
-              const socOffset = soc - current.soc
+              const socOffset = middleSoc - current.soc
               const interpolatedPower = current.kw + (powerRange * socOffset / socRange)
               effectivePower = Math.min(effectiveChargerPower, interpolatedPower)
               break
@@ -209,14 +211,28 @@ app.post('/api/calculate', async (c) => {
     // Calculate km/h: (kW / (kWh/100km)) * 100
     const chargingSpeedKmh = (effectivePower / consumption) * 100
     
-    // Calculate time to charge from 20% to 80% (typical fast charging session)
+    // Calculate time to charge from startSoc to endSoc
     const batteryCapacity = vehicle.usable_capacity_kwh
-    const chargeAmount = batteryCapacity * 0.6 // 60% charge (20% to 80%)
+    const socDelta = (endSoc - startSoc) / 100
+    const chargeAmount = batteryCapacity * socDelta
     const chargingTimeHours = chargeAmount / effectivePower
     const chargingTimeMinutes = Math.round(chargingTimeHours * 60)
     
+    // Format charging time as "Xh Ym" or "Xm"
+    const hours = Math.floor(chargingTimeMinutes / 60)
+    const minutes = chargingTimeMinutes % 60
+    const chargingTimeFormatted = hours > 0 
+      ? `${hours}h ${minutes}m` 
+      : `${minutes}m`
+    
     // Calculate range added per hour
     const rangePerHour = chargingSpeedKmh
+    
+    // Cost calculations
+    const energyUsed = parseFloat(chargeAmount.toFixed(2))
+    const totalCost = (energyUsed * electricityPrice).toFixed(2)
+    const costPerHour = (effectivePower * electricityPrice).toFixed(2)
+    const costPer100km = (consumption * electricityPrice).toFixed(2)
     
     const result = {
       success: true,
@@ -224,13 +240,20 @@ app.post('/api/calculate', async (c) => {
         vehicleMake: vehicle.make,
         vehicleModel: vehicle.model,
         chargerPowerKw: chargerPowerKw,
-        effectivePowerKw: effectivePower,
+        effectivePowerKw: parseFloat(effectivePower.toFixed(1)),
         chargingSpeedKmh: Math.round(chargingSpeedKmh),
         consumption: consumption,
         batteryCapacity: batteryCapacity,
-        chargingTime20to80: chargingTimeMinutes,
+        chargingTime: chargingTimeFormatted,
+        chargingTimeMinutes: chargingTimeMinutes,
         rangePerHour: Math.round(rangePerHour),
-        soc: soc
+        startSoc: startSoc,
+        endSoc: endSoc,
+        energyUsed: energyUsed,
+        totalCost: `€${totalCost}`,
+        costPerHour: `€${costPerHour}/h`,
+        costPer100km: `€${costPer100km}`,
+        electricityPrice: electricityPrice
       }
     }
     
@@ -754,25 +777,74 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
-            <!-- SOC Slider (Premium Feature) -->
+            <!-- SOC Range Slider (Premium Feature) -->
             <div id="socSlider" class="mb-8 hidden">
                 <label class="block text-lg font-semibold mb-4 flex items-center">
                     <i class="fas fa-battery-half text-green-400 mr-3 text-xl"></i>
-                    <span>Battery State of Charge (SOC)</span>
+                    <span>State of Charge Range</span>
                     <span class="ml-3 px-3 py-1 text-xs premium-badge rounded-full font-bold">PREMIUM</span>
                 </label>
                 <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-                    <div class="flex items-center space-x-4">
-                        <input type="range" id="socRange" min="0" max="100" value="50" class="flex-1">
-                        <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl px-5 py-4 min-w-[120px] shadow-lg">
-                            <span id="socValue" class="text-white font-bold text-2xl">50</span>
-                            <span class="text-white ml-2 text-lg font-semibold">%</span>
+                    <!-- Start SOC -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-400">Start SOC</span>
+                            <div class="flex items-center bg-gradient-to-r from-orange-600 to-red-600 rounded-lg px-3 py-1 min-w-[80px] shadow-md">
+                                <span id="startSocValue" class="text-white font-bold text-lg">20</span>
+                                <span class="text-white ml-1 text-sm font-semibold">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="startSocRange" min="0" max="100" value="20" class="w-full">
+                    </div>
+                    
+                    <!-- End SOC -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-400">Target SOC</span>
+                            <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg px-3 py-1 min-w-[80px] shadow-md">
+                                <span id="endSocValue" class="text-white font-bold text-lg">80</span>
+                                <span class="text-white ml-1 text-sm font-semibold">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between text-xs font-medium text-gray-400">
+                        <span><i class="fas fa-battery-empty mr-1"></i>0%</span>
+                        <span class="text-yellow-400"><i class="fas fa-info-circle mr-1"></i>Optimal: 20-80%</span>
+                        <span><i class="fas fa-battery-full mr-1"></i>100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Electricity Price Input -->
+            <div class="mb-8">
+                <label class="block text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-euro-sign text-yellow-400 mr-3 text-xl"></i>
+                    <span>Electricity Price</span>
+                </label>
+                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                    <div class="flex items-center space-x-4 mb-2">
+                        <input type="range" id="electricityPriceRange" min="0.10" max="1.00" step="0.01" value="0.30" class="flex-1">
+                        <div class="flex items-center bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
+                            <span class="text-white mr-1 text-lg font-semibold">€</span>
+                            <input type="number" id="electricityPriceInput" value="0.30" min="0.10" max="1.00" step="0.01" 
+                                   class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
                         </div>
                     </div>
-                    <div class="mt-4 flex justify-between text-sm font-medium text-gray-400">
-                        <span><i class="fas fa-battery-empty mr-1"></i>Empty (0%)</span>
-                        <span class="text-green-400"><i class="fas fa-battery-half mr-1"></i>Half (50%)</span>
-                        <span><i class="fas fa-battery-full mr-1"></i>Full (100%)</span>
+                    <div class="mt-4 flex justify-between text-sm font-medium">
+                        <span class="text-gray-400">
+                            <i class="fas fa-home mr-1"></i>Home (€0.10)
+                        </span>
+                        <span class="text-yellow-400">
+                            <i class="fas fa-plug mr-1"></i>Average (€0.30)
+                        </span>
+                        <span class="text-orange-400">
+                            <i class="fas fa-bolt mr-1"></i>Fast (€0.70)
+                        </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 text-center">
+                        Price per kWh (incl. taxes & fees)
                     </div>
                 </div>
             </div>
@@ -802,7 +874,7 @@ app.get('/app', (c) => {
                 </div>
 
                 <!-- Details Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="bg-slate-800/50 rounded-xl p-6 text-center">
                         <i class="fas fa-bolt text-3xl text-yellow-400 mb-3"></i>
                         <div class="text-2xl font-bold" id="effectivePower">-</div>
@@ -811,12 +883,33 @@ app.get('/app', (c) => {
                     <div class="bg-slate-800/50 rounded-xl p-6 text-center">
                         <i class="fas fa-clock text-3xl text-blue-400 mb-3"></i>
                         <div class="text-2xl font-bold" id="chargingTime">-</div>
-                        <div class="text-sm text-gray-400 mt-1">Time 20-80% (min)</div>
+                        <div class="text-sm text-gray-400 mt-1">Charging Time</div>
                     </div>
                     <div class="bg-slate-800/50 rounded-xl p-6 text-center">
                         <i class="fas fa-road text-3xl text-green-400 mb-3"></i>
                         <div class="text-2xl font-bold" id="rangePerHour">-</div>
                         <div class="text-sm text-gray-400 mt-1">Range/Hour (km)</div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
+                        <i class="fas fa-euro-sign text-3xl text-orange-400 mb-3"></i>
+                        <div class="text-2xl font-bold" id="chargingCost">-</div>
+                        <div class="text-sm text-gray-400 mt-1">Charging Cost</div>
+                    </div>
+                </div>
+                
+                <!-- Additional Cost Details -->
+                <div id="costDetails" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Energy Used</div>
+                        <div class="text-xl font-bold" id="energyUsed">-</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Cost per Hour</div>
+                        <div class="text-xl font-bold" id="costPerHour">-</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400 mb-1">Cost per 100km</div>
+                        <div class="text-xl font-bold" id="costPer100km">-</div>
                     </div>
                 </div>
 
