@@ -4,10 +4,12 @@
 let appState = {
   currentTier: 'free',
   vehicles: [],
+  filteredVehicles: [],
   selectedVehicle: null,
   chargerPower: 50,
   soc: 50,
-  lastCalculation: null
+  lastCalculation: null,
+  activeAutocompleteIndex: -1
 }
 
 // ============================================
@@ -37,7 +39,7 @@ async function loadVehicles() {
     
     if (response.data.success) {
       appState.vehicles = response.data.vehicles
-      populateVehicleSelect()
+      appState.filteredVehicles = response.data.vehicles
       
       // Update vehicle count
       document.getElementById('vehicleCount').textContent = `${response.data.total}+`
@@ -48,35 +50,150 @@ async function loadVehicles() {
   }
 }
 
-function populateVehicleSelect() {
-  const select = document.getElementById('vehicleSelect')
+// ============================================
+// AUTOCOMPLETE SEARCH
+// ============================================
+function filterVehicles(searchTerm) {
+  if (!searchTerm || searchTerm.length < 2) {
+    appState.filteredVehicles = []
+    hideAutocomplete()
+    return
+  }
   
-  // Clear existing options
-  select.innerHTML = '<option value="">Select your vehicle...</option>'
+  const term = searchTerm.toLowerCase()
   
-  // Group vehicles by make
-  const groupedVehicles = {}
-  appState.vehicles.forEach(vehicle => {
-    if (!groupedVehicles[vehicle.make]) {
-      groupedVehicles[vehicle.make] = []
-    }
-    groupedVehicles[vehicle.make].push(vehicle)
+  appState.filteredVehicles = appState.vehicles.filter(vehicle => {
+    const searchString = `${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} ${vehicle.year}`.toLowerCase()
+    return searchString.includes(term)
   })
   
-  // Create optgroups
-  Object.keys(groupedVehicles).sort().forEach(make => {
-    const optgroup = document.createElement('optgroup')
-    optgroup.label = make
-    
-    groupedVehicles[make].forEach(vehicle => {
-      const option = document.createElement('option')
-      option.value = vehicle.id
-      option.textContent = `${vehicle.model} ${vehicle.variant || ''} (${vehicle.year})`
-      option.dataset.vehicle = JSON.stringify(vehicle)
-      optgroup.appendChild(option)
-    })
-    
-    select.appendChild(optgroup)
+  displayAutocompleteResults()
+}
+
+function displayAutocompleteResults() {
+  const dropdown = document.getElementById('autocompleteDropdown')
+  const resultsContainer = document.getElementById('autocompleteResults')
+  
+  if (appState.filteredVehicles.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="p-4 text-center text-gray-400">
+        <i class="fas fa-search mb-2 text-2xl"></i>
+        <p>No vehicles found</p>
+      </div>
+    `
+    dropdown.classList.remove('hidden')
+    return
+  }
+  
+  // Limit results to 50 for performance
+  const displayVehicles = appState.filteredVehicles.slice(0, 50)
+  
+  resultsContainer.innerHTML = displayVehicles.map((vehicle, index) => `
+    <div class="autocomplete-item ${vehicle.is_premium ? 'premium' : ''}" 
+         data-index="${index}" 
+         data-vehicle-id="${vehicle.id}"
+         onclick="selectVehicleFromAutocomplete(${vehicle.id})">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-medium">
+            ${vehicle.make} ${vehicle.model}
+            ${vehicle.variant ? `<span class="text-gray-400">${vehicle.variant}</span>` : ''}
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            ${vehicle.battery_capacity_kwh} kWh • 
+            ${vehicle.avg_consumption_kwh_per_100km} kWh/100km • 
+            ${vehicle.max_dc_charging_kw} kW DC
+          </div>
+        </div>
+        ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400"></i>' : ''}
+      </div>
+    </div>
+  `).join('')
+  
+  dropdown.classList.remove('hidden')
+  appState.activeAutocompleteIndex = -1
+}
+
+function hideAutocomplete() {
+  const dropdown = document.getElementById('autocompleteDropdown')
+  dropdown.classList.add('hidden')
+  appState.activeAutocompleteIndex = -1
+}
+
+function selectVehicleFromAutocomplete(vehicleId) {
+  const vehicle = appState.vehicles.find(v => v.id === vehicleId)
+  if (!vehicle) return
+  
+  if (vehicle.is_premium && appState.currentTier === 'free') {
+    showNotification('This is a premium vehicle. Please upgrade to access it.', 'warning')
+    document.getElementById('premiumVehicleNotice').classList.remove('hidden')
+    return
+  }
+  
+  appState.selectedVehicle = vehicle
+  
+  // Update UI
+  document.getElementById('vehicleSearch').value = `${vehicle.make} ${vehicle.model} ${vehicle.variant || ''}`
+  document.getElementById('selectedVehicleName').textContent = 
+    `${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} (${vehicle.year})`
+  document.getElementById('selectedVehicleSpecs').textContent = 
+    `${vehicle.battery_capacity_kwh} kWh • ${vehicle.avg_consumption_kwh_per_100km} kWh/100km • Max DC: ${vehicle.max_dc_charging_kw} kW`
+  
+  document.getElementById('selectedVehicleDisplay').classList.remove('hidden')
+  document.getElementById('premiumVehicleNotice').classList.add('hidden')
+  
+  // Show SOC slider for premium users
+  if (appState.currentTier !== 'free') {
+    document.getElementById('socSlider').classList.remove('hidden')
+  }
+  
+  hideAutocomplete()
+}
+
+function clearVehicleSelection() {
+  appState.selectedVehicle = null
+  document.getElementById('vehicleSearch').value = ''
+  document.getElementById('selectedVehicleDisplay').classList.add('hidden')
+  document.getElementById('socSlider').classList.add('hidden')
+  document.getElementById('resultsSection').classList.add('hidden')
+}
+
+// Handle keyboard navigation in autocomplete
+function handleAutocompleteKeyboard(e) {
+  const dropdown = document.getElementById('autocompleteDropdown')
+  if (dropdown.classList.contains('hidden')) return
+  
+  const items = document.querySelectorAll('.autocomplete-item')
+  if (items.length === 0) return
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    appState.activeAutocompleteIndex = Math.min(appState.activeAutocompleteIndex + 1, items.length - 1)
+    updateActiveAutocompleteItem(items)
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    appState.activeAutocompleteIndex = Math.max(appState.activeAutocompleteIndex - 1, 0)
+    updateActiveAutocompleteItem(items)
+  } else if (e.key === 'Enter') {
+    e.preventDefault()
+    if (appState.activeAutocompleteIndex >= 0) {
+      const activeItem = items[appState.activeAutocompleteIndex]
+      const vehicleId = parseInt(activeItem.dataset.vehicleId)
+      selectVehicleFromAutocomplete(vehicleId)
+    }
+  } else if (e.key === 'Escape') {
+    hideAutocomplete()
+  }
+}
+
+function updateActiveAutocompleteItem(items) {
+  items.forEach((item, index) => {
+    if (index === appState.activeAutocompleteIndex) {
+      item.classList.add('active')
+      item.scrollIntoView({ block: 'nearest' })
+    } else {
+      item.classList.remove('active')
+    }
   })
 }
 
@@ -84,16 +201,35 @@ function populateVehicleSelect() {
 // EVENT LISTENERS
 // ============================================
 function setupEventListeners() {
-  // Vehicle selection
-  document.getElementById('vehicleSelect').addEventListener('change', (e) => {
-    const option = e.target.selectedOptions[0]
-    if (option && option.dataset.vehicle) {
-      appState.selectedVehicle = JSON.parse(option.dataset.vehicle)
-      
-      // Show SOC slider for premium users
-      if (appState.currentTier !== 'free') {
-        document.getElementById('socSlider').classList.remove('hidden')
-      }
+  // Vehicle search input
+  const searchInput = document.getElementById('vehicleSearch')
+  let debounceTimer
+  
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      filterVehicles(e.target.value)
+    }, 300)
+  })
+  
+  searchInput.addEventListener('focus', (e) => {
+    if (e.target.value.length >= 2) {
+      filterVehicles(e.target.value)
+    }
+  })
+  
+  searchInput.addEventListener('keydown', handleAutocompleteKeyboard)
+  
+  // Clear vehicle selection
+  document.getElementById('clearVehicleBtn').addEventListener('click', clearVehicleSelection)
+  
+  // Click outside to close autocomplete
+  document.addEventListener('click', (e) => {
+    const searchInput = document.getElementById('vehicleSearch')
+    const dropdown = document.getElementById('autocompleteDropdown')
+    
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+      hideAutocomplete()
     }
   })
   
@@ -147,6 +283,7 @@ function setupEventListeners() {
 async function calculateChargingSpeed() {
   if (!appState.selectedVehicle) {
     showNotification('Please select a vehicle first', 'warning')
+    document.getElementById('vehicleSearch').focus()
     return
   }
   
@@ -193,7 +330,7 @@ function displayResults(calculation) {
   document.getElementById('chargingTime').textContent = `${calculation.chargingTime20to80} min`
   document.getElementById('rangePerHour').textContent = `${calculation.rangePerHour} km`
   
-  // Check if charger power exceeds vehicle maximum
+  // Check if charger power exceeds vehicle maximum - SHOW RED WARNING
   const isLimited = calculation.chargerPowerKw > appState.selectedVehicle.max_dc_charging_kw
   
   // Create or update the warning message
@@ -204,19 +341,24 @@ function displayResults(calculation) {
     if (!warningDiv) {
       warningDiv = document.createElement('div')
       warningDiv.id = 'chargingLimitWarning'
-      warningDiv.className = 'col-span-full mt-4 p-4 bg-red-500/20 border-2 border-red-500 rounded-xl animate-pulse'
+      warningDiv.className = 'col-span-full mt-6'
       detailsGrid.parentNode.insertBefore(warningDiv, detailsGrid.nextSibling)
     }
     
     warningDiv.innerHTML = `
-      <div class="flex items-center text-red-400">
-        <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
-        <div>
-          <div class="font-bold text-lg">Limited by vehicle maximum charging capacity</div>
-          <div class="text-sm mt-1">
-            Your charger provides ${calculation.chargerPowerKw} kW, but this vehicle can only accept up to 
-            <span class="font-bold">${appState.selectedVehicle.max_dc_charging_kw} kW</span>.
-            Effective charging power: <span class="font-bold">${calculation.effectivePowerKw} kW</span>
+      <div class="p-4 bg-red-500/20 border-2 border-red-500 rounded-xl animate-pulse">
+        <div class="flex items-start text-red-400">
+          <i class="fas fa-exclamation-triangle text-3xl mr-4 flex-shrink-0 mt-1"></i>
+          <div class="flex-1">
+            <div class="font-bold text-xl mb-2">⚠️ Limited by vehicle maximum charging capacity</div>
+            <div class="text-base leading-relaxed">
+              Your charger provides <span class="font-bold text-red-300">${calculation.chargerPowerKw} kW</span>, 
+              but this vehicle can only accept up to <span class="font-bold text-red-300">${appState.selectedVehicle.max_dc_charging_kw} kW</span>.
+              <br>
+              <span class="text-sm mt-2 inline-block">
+                ⚡ Effective charging power: <span class="font-bold">${calculation.effectivePowerKw} kW</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -463,6 +605,7 @@ function showNotification(message, type = 'info') {
   setTimeout(() => {
     notification.style.opacity = '0'
     notification.style.transform = 'translateX(100%)'
+    notification.style.transition = 'all 0.3s ease-out'
     setTimeout(() => notification.remove(), 300)
   }, 3000)
 }
@@ -483,3 +626,5 @@ function formatCurrency(amount) {
 
 // Export for global access
 window.selectTier = selectTier
+window.selectVehicleFromAutocomplete = selectVehicleFromAutocomplete
+window.showPricingModal = showPricingModal

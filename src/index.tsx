@@ -396,6 +396,50 @@ app.get('/', (c) => {
         border-radius: 12px;
         padding: 20px;
       }
+      
+      /* Autocomplete dropdown styles */
+      .autocomplete-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+      
+      .autocomplete-item:hover,
+      .autocomplete-item.active {
+        background: rgba(100, 116, 139, 0.3);
+      }
+      
+      .autocomplete-item.premium {
+        background: rgba(167, 139, 250, 0.1);
+      }
+      
+      .autocomplete-item.premium:hover {
+        background: rgba(167, 139, 250, 0.2);
+      }
+      
+      /* Custom scrollbar for autocomplete */
+      #autocompleteDropdown::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      #autocompleteDropdown::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 0 12px 12px 0;
+      }
+      
+      #autocompleteDropdown::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+      
+      #autocompleteDropdown::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen">
@@ -460,17 +504,45 @@ app.get('/', (c) => {
                 </button>
             </div>
 
-            <!-- Vehicle Selection -->
+            <!-- Vehicle Selection with Search -->
             <div class="mb-8">
                 <label class="block text-sm font-medium mb-3">
-                    <i class="fas fa-car mr-2"></i>Select Your Vehicle
+                    <i class="fas fa-car mr-2"></i>Search Your Vehicle
                 </label>
                 <div class="relative">
-                    <select id="vehicleSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer">
-                        <option value="">Loading vehicles...</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    <input 
+                        type="text" 
+                        id="vehicleSearch" 
+                        placeholder="Type to search... (e.g., Tesla Model 3, Dacia Spring)" 
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-4 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        autocomplete="off"
+                    >
+                    <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    
+                    <!-- Autocomplete Dropdown -->
+                    <div id="autocompleteDropdown" class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
+                        <div id="autocompleteResults" class="py-2">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Selected Vehicle Display -->
+                <div id="selectedVehicleDisplay" class="hidden mt-3 p-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-400"></i>
+                            <div>
+                                <div class="font-semibold" id="selectedVehicleName">-</div>
+                                <div class="text-xs text-gray-400" id="selectedVehicleSpecs">-</div>
+                            </div>
+                        </div>
+                        <button id="clearVehicleBtn" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
                 <div id="premiumVehicleNotice" class="hidden mt-2 p-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-lg">
                     <i class="fas fa-crown text-yellow-400 mr-2"></i>
                     <span class="text-sm">Want access to premium vehicles? <button class="text-blue-400 hover:text-blue-300 font-medium">Upgrade now</button></span>
