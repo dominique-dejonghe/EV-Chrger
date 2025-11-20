@@ -15,6 +15,93 @@ app.use('/api/*', cors())
 app.use('/static/*', serveStatic({ root: './public' }))
 
 // ============================================
+// LANDING PAGE
+// ============================================
+app.get('/', (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="nl" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ EV Charge Pro - Premium Laadcalculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Inter', sans-serif; }
+      .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+      .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col justify-center px-4 py-20">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="mb-8">
+                <i class="fas fa-bolt text-7xl gradient-text mb-6"></i>
+                <h1 class="text-6xl md:text-8xl font-black mb-6">
+                    EV Charge <span class="gradient-text">Pro</span>
+                </h1>
+                <p class="text-2xl md:text-3xl text-gray-300 mb-12 max-w-4xl mx-auto">
+                    De meest geavanceerde EV laadcalculator.<br>
+                    <span class="text-blue-400 font-semibold">284+ voertuigen • Gratis te gebruiken</span>
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+                    <a href="/app" class="px-10 py-5 gradient-bg text-white rounded-xl text-xl font-bold hover:opacity-90 transition-all transform hover:scale-105 shadow-2xl">
+                        <i class="fas fa-rocket mr-2"></i>Start Gratis
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid md:grid-cols-3 gap-6 mb-16">
+                <div class="glass rounded-2xl p-8">
+                    <i class="fas fa-search text-4xl gradient-text mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Smart Search</h3>
+                    <p class="text-gray-400">Type en vind direct je voertuig</p>
+                </div>
+                <div class="glass rounded-2xl p-8">
+                    <i class="fas fa-chart-line text-4xl gradient-text mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Charging Curves</h3>
+                    <p class="text-gray-400">Real-world laadcurves per SOC</p>
+                </div>
+                <div class="glass rounded-2xl p-8">
+                    <i class="fas fa-euro-sign text-4xl gradient-text mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Kosten Calculator</h3>
+                    <p class="text-gray-400">Bereken exact je laadkosten</p>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-4 gap-8 max-w-3xl mx-auto">
+                <div class="text-center">
+                    <div class="text-5xl font-bold gradient-text mb-2">284+</div>
+                    <div class="text-gray-400">Voertuigen</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold gradient-text mb-2">39</div>
+                    <div class="text-gray-400">Merken</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold gradient-text mb-2">100%</div>
+                    <div class="text-gray-400">Gratis</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold gradient-text mb-2">2s</div>
+                    <div class="text-gray-400">Snel</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+  `)
+})
+
+// ============================================
 // API ROUTES
 // ============================================
 
@@ -250,9 +337,10 @@ app.get('/api/subscription-tiers', (c) => {
 })
 
 // ============================================
-// MAIN APP ROUTE
+// MAIN APP ROUTES
 // ============================================
-app.get('/', (c) => {
+// Main calculator app
+app.get('/app', (c) => {
   return c.html(`
 <!DOCTYPE html>
 <html lang="nl" class="dark">
