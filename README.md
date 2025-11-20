@@ -11,7 +11,8 @@ Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïn
 ## ✨ Hoofdfuncties
 
 ### Gratis Tier (Free)
-- ✅ **70+ populaire EV modellen** - Mainstream elektrische voertuigen
+- ✅ **73+ populaire EV modellen** - Mainstream elektrische voertuigen (incl. Dacia Spring!)
+- ✅ **Searchable dropdown** - Type om te zoeken, geen eindeloos scrollen meer
 - ✅ **Basis laadcalculator** - Bereken laadsnelheid in km/uur
 - ✅ **DC & AC ondersteuning** - Beide laadtypen ondersteund
 - ✅ **Real-world data** - Echte verbruiksgegevens
@@ -19,7 +20,8 @@ Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïn
 - ✅ **Waarschuwingen** - Rode waarschuwing wanneer laadpaal vermogen hoger is dan voertuig capaciteit
 
 ### Premium Tier (€4,99/maand)
-- 🌟 **278+ EV modellen** - Alle merken A-Z (alfabetisch gesorteerd)
+- 🌟 **284+ EV modellen** - Alle merken A-Z met searchable interface
+- 🌟 **Advanced search** - Type en filter direct door alle voertuigen (incl. MG Cyberster!)
 - 🌟 **Laadcurve analyse** - Gedetailleerde laadcurve grafieken per SOC
 - 🌟 **Voertuig vergelijking** - Vergelijk meerdere voertuigen tegelijk
 - 🌟 **Berekeningsgeschiedenis** - Bewaar je berekeningen
@@ -36,12 +38,17 @@ Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïn
 
 ## 🚗 Voertuigendatabase
 
-### Totaal: 278 voertuigen
-- **Gratis**: 70 populaire mainstream EVs
-- **Premium**: 208 luxe, performance en extended range EVs
+### Totaal: 284 voertuigen
+- **Gratis**: 73 populaire mainstream EVs (inclusief Dacia Spring)
+- **Premium**: 211 luxe, performance en extended range EVs (inclusief MG Cyberster)
+- **Merken**: 39 verschillende automerken
 
 ### Merken (Alfabetisch)
-Audi, BMW, BYD, Cadillac, Chevrolet, Citroën, Cupra, Fiat, Fisker, Ford, Genesis, GMC, Honda, Hyundai, Jaguar, Kia, Lexus, Lotus, Lucid, Maserati, Mazda, Mercedes-Benz, MG, Nissan, Opel, Peugeot, Polestar, Porsche, Renault, Rivian, Škoda, Smart, Subaru, Tesla, Toyota, Volkswagen, Volvo, XPeng
+Audi, BMW, BYD, Cadillac, Chevrolet, Citroën, Cupra, **Dacia**, Fiat, Fisker, Ford, Genesis, GMC, Honda, Hyundai, Jaguar, Kia, Lexus, Lotus, Lucid, Maserati, Mazda, Mercedes-Benz, MG, Nissan, Opel, Peugeot, Polestar, Porsche, Renault, Rivian, Škoda, Smart, Subaru, Tesla, Toyota, Volkswagen, Volvo, XPeng
+
+### 🆕 Recent Toegevoegd
+- **Dacia Spring Electric 65** (Free) - Budget-vriendelijke stadsauto
+- **MG Cyberster RWD/AWD** (Premium) - Elektrische roadster
 
 ### Voertuigspecificaties
 Elk voertuig bevat:
@@ -168,7 +175,11 @@ npm run db:migrate:prod
 
 ### Voor Eindgebruikers
 
-1. **Selecteer je voertuig** - Kies uit 70+ gratis voertuigen (278+ met premium)
+1. **Zoek je voertuig** - Type in het zoekveld om direct te filteren (bijv. "Tesla", "Dacia Spring", "BMW i4")
+   - Live search met autocomplete
+   - Geen eindeloos scrollen door merken meer
+   - Keyboard navigation: gebruik pijltjestoetsen en Enter
+   - Kies uit 73+ gratis voertuigen (284+ met premium)
 2. **Stel laadvermogen in** - Gebruik de slider of voer het vermogen in (1-350 kW)
 3. **Bereken** - Klik op "Calculate Charging Speed"
 4. **Bekijk resultaten**:
