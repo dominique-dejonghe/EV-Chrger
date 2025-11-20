@@ -3,59 +3,70 @@ import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
 
 type Bindings = {
-  DB: D1Database;
+  DB: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-// Enable CORS
+// Enable CORS for API
 app.use('/api/*', cors())
 
 // Serve static files
 app.use('/static/*', serveStatic({ root: './public' }))
 
-// API Routes
+// ============================================
+// API ROUTES
+// ============================================
 
-// Get all vehicles (free users see limited data)
+// Get all vehicles (free users see only free vehicles)
 app.get('/api/vehicles', async (c) => {
   const { DB } = c.env
-  const tier = c.req.query('tier') || 'free'
+  const userTier = c.req.query('tier') || 'free'
   
-  let query = 'SELECT id, make, model, variant, year, battery_capacity_kwh, usable_capacity_kwh, avg_consumption_kwh_per_100km, max_dc_charging_kw, max_ac_charging_kw, is_premium FROM vehicles'
-  
-  if (tier === 'free') {
-    query += ' WHERE is_premium = 0'
+  try {
+    let query = `
+      SELECT id, make, model, variant, year, battery_capacity_kwh, usable_capacity_kwh,
+             avg_consumption_kwh_per_100km, max_dc_charging_kw, max_ac_charging_kw,
+             is_premium, charging_curve_data
+      FROM vehicles
+    `
+    
+    if (userTier === 'free') {
+      query += ' WHERE is_premium = 0'
+    }
+    
+    query += ' ORDER BY make, model, variant'
+    
+    const { results } = await DB.prepare(query).all()
+    
+    return c.json({
+      success: true,
+      vehicles: results,
+      total: results.length
+    })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to fetch vehicles' }, 500)
   }
-  
-  query += ' ORDER BY make, model'
-  
-  const { results } = await DB.prepare(query).all()
-  return c.json(results)
 })
 
-// Get vehicle details (premium features locked for free users)
+// Get vehicle by ID
 app.get('/api/vehicles/:id', async (c) => {
   const { DB } = c.env
   const id = c.req.param('id')
-  const tier = c.req.query('tier') || 'free'
   
-  const vehicle = await DB.prepare(
-    'SELECT * FROM vehicles WHERE id = ?'
-  ).bind(id).first()
-  
-  if (!vehicle) {
-    return c.json({ error: 'Vehicle not found' }, 404)
+  try {
+    const result = await DB.prepare(`
+      SELECT * FROM vehicles WHERE id = ?
+    `).bind(id).first()
+    
+    if (!result) {
+      return c.json({ success: false, error: 'Vehicle not found' }, 404)
+    }
+    
+    return c.json({ success: true, vehicle: result })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to fetch vehicle' }, 500)
   }
-  
-  // Hide charging curve data for free users on premium vehicles
-  if (tier === 'free' && vehicle.is_premium) {
-    return c.json({ 
-      error: 'Premium vehicle',
-      message: 'Upgrade to premium to access this vehicle'
-    }, 403)
-  }
-  
-  return c.json(vehicle)
 })
 
 // Calculate charging speed
@@ -63,546 +74,550 @@ app.post('/api/calculate', async (c) => {
   const { DB } = c.env
   const { vehicleId, chargerPowerKw, soc } = await c.req.json()
   
-  const vehicle: any = await DB.prepare(
-    'SELECT * FROM vehicles WHERE id = ?'
-  ).bind(vehicleId).first()
-  
-  if (!vehicle) {
-    return c.json({ error: 'Vehicle not found' }, 404)
-  }
-  
-  // Basic calculation: kW / (kWh/100km) * 100 = km/h
-  const baseChargingSpeed = (chargerPowerKw / vehicle.avg_consumption_kwh_per_100km) * 100
-  
-  // Apply charging curve if available
-  let effectiveChargingSpeed = baseChargingSpeed
-  let effectivePower = chargerPowerKw
-  
-  if (vehicle.charging_curve_data && soc !== undefined) {
-    const curve = JSON.parse(vehicle.charging_curve_data).curve
+  try {
+    // Get vehicle data
+    const vehicle = await DB.prepare(`
+      SELECT * FROM vehicles WHERE id = ?
+    `).bind(vehicleId).first()
     
-    // Find the two closest SOC points
-    const lowerPoint = curve.filter((p: any) => p.soc <= soc).pop()
-    const upperPoint = curve.find((p: any) => p.soc >= soc)
-    
-    if (lowerPoint && upperPoint) {
-      // Linear interpolation
-      const socRange = upperPoint.soc - lowerPoint.soc
-      const powerRange = upperPoint.kw - lowerPoint.kw
-      const socProgress = (soc - lowerPoint.soc) / socRange
-      const interpolatedMaxPower = lowerPoint.kw + (powerRange * socProgress)
-      
-      // Use the lower of charger power or vehicle's current max acceptance
-      effectivePower = Math.min(chargerPowerKw, interpolatedMaxPower, vehicle.max_dc_charging_kw || 999)
-      effectiveChargingSpeed = (effectivePower / vehicle.avg_consumption_kwh_per_100km) * 100
+    if (!vehicle) {
+      return c.json({ success: false, error: 'Vehicle not found' }, 404)
     }
-  } else {
-    // Apply max charging limits
-    effectivePower = Math.min(chargerPowerKw, vehicle.max_dc_charging_kw || 999)
-    effectiveChargingSpeed = (effectivePower / vehicle.avg_consumption_kwh_per_100km) * 100
-  }
-  
-  // Calculate time to charge and range added
-  const timeToFullHour = vehicle.usable_capacity_kwh / effectivePower
-  const rangeAddedPerHour = effectiveChargingSpeed
-  const rangeAddedPer15Min = effectiveChargingSpeed / 4
-  const rangeAddedPer30Min = effectiveChargingSpeed / 2
-  
-  return c.json({
-    vehicle: {
-      make: vehicle.make,
-      model: vehicle.model,
-      variant: vehicle.variant
-    },
-    input: {
+    
+    // Calculate charging speed in km/h
+    const consumption = vehicle.avg_consumption_kwh_per_100km
+    const effectiveChargerPower = Math.min(
       chargerPowerKw,
-      soc: soc || 0
-    },
-    results: {
-      chargingSpeedKmh: Math.round(effectiveChargingSpeed * 10) / 10,
-      effectivePowerKw: Math.round(effectivePower * 10) / 10,
-      rangeAddedPer15Min: Math.round(rangeAddedPer15Min),
-      rangeAddedPer30Min: Math.round(rangeAddedPer30Min),
-      rangeAddedPerHour: Math.round(rangeAddedPerHour),
-      timeToFullHour: Math.round(timeToFullHour * 10) / 10
+      vehicle.max_dc_charging_kw || chargerPowerKw
+    )
+    
+    // Parse charging curve if available
+    let effectivePower = effectiveChargerPower
+    if (vehicle.charging_curve_data && soc !== undefined) {
+      try {
+        const curveData = JSON.parse(vehicle.charging_curve_data)
+        if (curveData.curve && Array.isArray(curveData.curve)) {
+          // Find the appropriate power based on SOC
+          for (let i = 0; i < curveData.curve.length - 1; i++) {
+            const current = curveData.curve[i]
+            const next = curveData.curve[i + 1]
+            if (soc >= current.soc && soc < next.soc) {
+              // Linear interpolation
+              const socRange = next.soc - current.soc
+              const powerRange = next.kw - current.kw
+              const socOffset = soc - current.soc
+              const interpolatedPower = current.kw + (powerRange * socOffset / socRange)
+              effectivePower = Math.min(effectiveChargerPower, interpolatedPower)
+              break
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing charging curve:', e)
+      }
     }
-  })
+    
+    // Calculate km/h: (kW / (kWh/100km)) * 100
+    const chargingSpeedKmh = (effectivePower / consumption) * 100
+    
+    // Calculate time to charge from 20% to 80% (typical fast charging session)
+    const batteryCapacity = vehicle.usable_capacity_kwh
+    const chargeAmount = batteryCapacity * 0.6 // 60% charge (20% to 80%)
+    const chargingTimeHours = chargeAmount / effectivePower
+    const chargingTimeMinutes = Math.round(chargingTimeHours * 60)
+    
+    // Calculate range added per hour
+    const rangePerHour = chargingSpeedKmh
+    
+    const result = {
+      success: true,
+      calculation: {
+        vehicleMake: vehicle.make,
+        vehicleModel: vehicle.model,
+        chargerPowerKw: chargerPowerKw,
+        effectivePowerKw: effectivePower,
+        chargingSpeedKmh: Math.round(chargingSpeedKmh),
+        consumption: consumption,
+        batteryCapacity: batteryCapacity,
+        chargingTime20to80: chargingTimeMinutes,
+        rangePerHour: Math.round(rangePerHour),
+        soc: soc
+      }
+    }
+    
+    return c.json(result)
+  } catch (error) {
+    console.error('Calculation error:', error)
+    return c.json({ success: false, error: 'Calculation failed' }, 500)
+  }
 })
 
-// Compare vehicles (premium feature)
+// Compare multiple vehicles
 app.post('/api/compare', async (c) => {
   const { DB } = c.env
   const { vehicleIds, chargerPowerKw } = await c.req.json()
-  const tier = c.req.query('tier') || 'free'
   
-  if (tier === 'free' && vehicleIds.length > 2) {
-    return c.json({ 
-      error: 'Premium feature',
-      message: 'Free users can compare up to 2 vehicles. Upgrade to premium for unlimited comparisons.'
-    }, 403)
+  if (!Array.isArray(vehicleIds) || vehicleIds.length < 2) {
+    return c.json({ success: false, error: 'At least 2 vehicles required for comparison' }, 400)
   }
   
-  const comparisons = []
-  
-  for (const vehicleId of vehicleIds) {
-    const vehicle: any = await DB.prepare(
-      'SELECT * FROM vehicles WHERE id = ?'
-    ).bind(vehicleId).first()
+  try {
+    const placeholders = vehicleIds.map(() => '?').join(',')
+    const query = `SELECT * FROM vehicles WHERE id IN (${placeholders})`
     
-    if (vehicle) {
-      const chargingSpeed = (chargerPowerKw / vehicle.avg_consumption_kwh_per_100km) * 100
-      const effectivePower = Math.min(chargerPowerKw, vehicle.max_dc_charging_kw || 999)
-      const effectiveSpeed = (effectivePower / vehicle.avg_consumption_kwh_per_100km) * 100
+    const { results } = await DB.prepare(query).bind(...vehicleIds).all()
+    
+    const comparisons = results.map((vehicle: any) => {
+      const consumption = vehicle.avg_consumption_kwh_per_100km
+      const effectivePower = Math.min(
+        chargerPowerKw,
+        vehicle.max_dc_charging_kw || chargerPowerKw
+      )
+      const chargingSpeedKmh = (effectivePower / consumption) * 100
       
-      comparisons.push({
-        id: vehicle.id,
+      return {
+        vehicleId: vehicle.id,
         make: vehicle.make,
         model: vehicle.model,
         variant: vehicle.variant,
-        chargingSpeedKmh: Math.round(effectiveSpeed * 10) / 10,
-        effectivePowerKw: Math.round(effectivePower * 10) / 10,
-        batteryCapacity: vehicle.usable_capacity_kwh,
-        maxDcCharging: vehicle.max_dc_charging_kw,
-        isPremium: vehicle.is_premium
-      })
-    }
+        chargingSpeedKmh: Math.round(chargingSpeedKmh),
+        effectivePowerKw: effectivePower,
+        consumption: consumption,
+        batteryCapacity: vehicle.usable_capacity_kwh
+      }
+    })
+    
+    // Sort by charging speed descending
+    comparisons.sort((a, b) => b.chargingSpeedKmh - a.chargingSpeedKmh)
+    
+    return c.json({
+      success: true,
+      comparisons,
+      chargerPowerKw
+    })
+  } catch (error) {
+    return c.json({ success: false, error: 'Comparison failed' }, 500)
   }
-  
-  return c.json({ comparisons })
 })
 
-// Save calculation to history (premium feature)
-app.post('/api/history', async (c) => {
-  const { DB } = c.env
-  const tier = c.req.query('tier') || 'free'
-  
-  if (tier === 'free') {
-    return c.json({ 
-      error: 'Premium feature',
-      message: 'Upgrade to premium to save calculation history'
-    }, 403)
-  }
-  
-  const { userId, vehicleId, chargerPowerKw, chargingSpeedKmh, calculationData } = await c.req.json()
-  
-  await DB.prepare(
-    'INSERT INTO calculation_history (user_id, vehicle_id, charger_power_kw, charging_speed_kmh, calculation_data) VALUES (?, ?, ?, ?, ?)'
-  ).bind(userId, vehicleId, chargerPowerKw, chargingSpeedKmh, JSON.stringify(calculationData)).run()
-  
-  return c.json({ success: true })
+// Get subscription tiers info
+app.get('/api/subscription-tiers', (c) => {
+  return c.json({
+    success: true,
+    tiers: [
+      {
+        id: 'free',
+        name: 'Free',
+        price: 0,
+        features: [
+          '30+ popular EV models',
+          'Basic charging calculator',
+          'DC & AC charging support',
+          'Real-world consumption data'
+        ]
+      },
+      {
+        id: 'premium',
+        name: 'Premium',
+        price: 4.99,
+        period: 'month',
+        features: [
+          'All Free features',
+          '110+ EV models (all brands)',
+          'Charging curve analysis',
+          'Vehicle comparison tool',
+          'Calculation history',
+          'Export to PDF'
+        ],
+        popular: true
+      },
+      {
+        id: 'pro',
+        name: 'Pro',
+        price: 49.99,
+        period: 'year',
+        features: [
+          'All Premium features',
+          'Priority vehicle requests',
+          'Advanced analytics',
+          'Fleet management',
+          'API access',
+          'White-label option'
+        ]
+      }
+    ]
+  })
 })
 
-// Main page
+// ============================================
+// MAIN APP ROUTE
+// ============================================
 app.get('/', (c) => {
   return c.html(`
-    <!DOCTYPE html>
-    <html lang="nl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EV Charger Pro - Laadsnelheid Calculator</title>
-        <meta name="description" content="Bereken hoeveel kilometers per uur uw elektrische voertuig laadt aan elke laadpaal. Premium Tesla-achtige interface met geavanceerde functies.">
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-          
-          * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-          }
-          
-          body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            color: #ffffff;
-            min-height: 100vh;
-          }
-          
-          .glass-card {
-            background: rgba(30, 30, 30, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-          }
-          
-          .glass-card:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
-            transform: translateY(-2px);
-          }
-          
-          .premium-badge {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #000;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          
-          .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            font-weight: 600;
-            padding: 14px 32px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
-          }
-          
-          .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.6);
-          }
-          
-          .btn-premium {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #000;
-            font-weight: 700;
-          }
-          
-          .btn-premium:hover {
-            box-shadow: 0 6px 24px rgba(255, 215, 0, 0.6);
-          }
-          
-          input, select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 14px 16px;
-            border-radius: 10px;
-            width: 100%;
-            transition: all 0.3s ease;
-          }
-          
-          input:focus, select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-          }
-          
-          option {
-            background: #1a1a1a;
-            color: white;
-          }
-          
-          .result-card {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            padding: 24px;
-            border-radius: 16px;
-            margin: 12px 0;
-            animation: slideIn 0.5s ease;
-          }
-          
-          @keyframes slideIn {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charge Calculator - Tesla-style Premium Experience</title>
+    <meta name="description" content="Calculate your EV charging speed in km/h. Premium calculator with 110+ electric vehicles, charging curves, and real-world data.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              tesla: {
+                50: '#f5f5f5',
+                100: '#e5e5e5',
+                200: '#cccccc',
+                300: '#b3b3b3',
+                400: '#999999',
+                500: '#808080',
+                600: '#666666',
+                700: '#4d4d4d',
+                800: '#333333',
+                900: '#1a1a1a',
+                950: '#0d0d0d'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif']
             }
           }
-          
-          .metric-value {
-            font-size: 3rem;
-            font-weight: 800;
-            line-height: 1;
-            background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          
-          .charging-curve {
-            height: 200px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-          
-          .locked-feature {
-            filter: blur(4px);
-            pointer-events: none;
-            opacity: 0.5;
-          }
-          
-          .feature-comparison {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-            margin: 24px 0;
-          }
-          
-          @media (max-width: 768px) {
-            .feature-comparison {
-              grid-template-columns: 1fr;
-            }
-          }
-        </style>
-    </head>
-    <body>
-        <!-- Header -->
-        <header class="py-6 px-4 border-b border-white/10">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      .tesla-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .premium-badge {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+      
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .animate-slide-up {
+        animation: slideUp 0.6s ease-out;
+      }
+      
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .result-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .result-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      }
+      
+      .premium-blur {
+        filter: blur(4px);
+        pointer-events: none;
+      }
+      
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+      }
+      
+      input[type="range"]::-webkit-slider-track {
+        background: #334155;
+        height: 6px;
+        border-radius: 3px;
+      }
+      
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        margin-top: -7px;
+      }
+      
+      input[type="range"]::-moz-range-track {
+        background: #334155;
+        height: 6px;
+        border-radius: 3px;
+      }
+      
+      input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        border: none;
+      }
+      
+      .charging-curve {
+        position: relative;
+        height: 200px;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 12px;
+        padding: 20px;
+      }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-charging-station text-blue-400 text-3xl"></i>
-                    <h1 class="text-2xl font-bold">EV Charger Pro</h1>
+                    <i class="fas fa-bolt text-3xl tesla-gradient bg-clip-text text-transparent"></i>
+                    <span class="text-xl font-bold">EV Charge Calculator</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button id="tierToggle" class="btn-premium">
-                        <i class="fas fa-crown mr-2"></i>
-                        Upgrade naar Premium
+                    <button id="compareBtn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                        <i class="fas fa-exchange-alt mr-2"></i>Compare
+                    </button>
+                    <button id="upgradeBtnNav" class="px-4 py-2 premium-badge text-white rounded-lg hover:opacity-90 transition-opacity">
+                        <i class="fas fa-crown mr-2"></i>Upgrade
                     </button>
                 </div>
             </div>
-        </header>
+        </div>
+    </nav>
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 py-12">
-            <!-- Hero Section -->
-            <div class="text-center mb-16">
-                <h2 class="text-5xl font-bold mb-4">
-                    Bereken Uw <span class="text-blue-400">Laadsnelheid</span>
-                </h2>
-                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
-                    Ontdek hoeveel kilometers per uur uw elektrische voertuig laadt aan elke laadpaal. 
-                    Geavanceerde berekeningen met real-world laadcurves.
-                </p>
+    <!-- Hero Section -->
+    <div class="pt-24 pb-12 px-4">
+        <div class="max-w-4xl mx-auto text-center animate-fade-in">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                Calculate Your <br>
+                <span class="tesla-gradient bg-clip-text text-transparent">EV Charging Speed</span>
+            </h1>
+            <p class="text-xl text-gray-300 mb-8">
+                Discover how fast your electric vehicle charges at any power station
+            </p>
+            <div class="flex justify-center items-center space-x-6 text-sm text-gray-400">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                    <span id="vehicleCount">110+</span> Vehicles
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                    Real-world Data
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                    Charging Curves
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Section -->
+    <div class="max-w-4xl mx-auto px-4 pb-12">
+        <div class="glass rounded-3xl p-8 md:p-12 animate-slide-up">
+            <!-- Subscription Tier Indicator -->
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <span class="text-sm text-gray-400">Current Plan:</span>
+                    <span id="currentTier" class="ml-2 px-3 py-1 bg-slate-700 rounded-full text-sm font-medium">Free</span>
+                </div>
+                <button id="upgradeBtnCalc" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                    <i class="fas fa-arrow-up mr-1"></i>Upgrade for more features
+                </button>
             </div>
 
-            <!-- Calculator Section -->
-            <div class="grid lg:grid-cols-2 gap-8 mb-12">
-                <!-- Input Section -->
-                <div class="glass-card p-8">
-                    <h3 class="text-2xl font-bold mb-6 flex items-center">
-                        <i class="fas fa-calculator text-blue-400 mr-3"></i>
-                        Calculator
+            <!-- Vehicle Selection -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium mb-3">
+                    <i class="fas fa-car mr-2"></i>Select Your Vehicle
+                </label>
+                <div class="relative">
+                    <select id="vehicleSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer">
+                        <option value="">Loading vehicles...</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                </div>
+                <div id="premiumVehicleNotice" class="hidden mt-2 p-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-lg">
+                    <i class="fas fa-crown text-yellow-400 mr-2"></i>
+                    <span class="text-sm">Want access to premium vehicles? <button class="text-blue-400 hover:text-blue-300 font-medium">Upgrade now</button></span>
+                </div>
+            </div>
+
+            <!-- Charger Power Input -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium mb-3">
+                    <i class="fas fa-charging-station mr-2"></i>Charger Power
+                </label>
+                <div class="flex items-center space-x-4">
+                    <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="flex-1">
+                    <div class="flex items-center bg-slate-800 rounded-xl px-4 py-3 min-w-[120px]">
+                        <input type="number" id="chargerPowerInput" value="50" min="1" max="350" 
+                               class="bg-transparent border-none outline-none text-white text-right w-full">
+                        <span class="text-gray-400 ml-2">kW</span>
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-between text-xs text-gray-400">
+                    <span>Slow (7 kW)</span>
+                    <span>Fast (50 kW)</span>
+                    <span>Ultra (350 kW)</span>
+                </div>
+            </div>
+
+            <!-- SOC Slider (Premium Feature) -->
+            <div id="socSlider" class="mb-8 hidden">
+                <label class="block text-sm font-medium mb-3">
+                    <i class="fas fa-battery-half mr-2"></i>Battery State of Charge (SOC)
+                    <span class="ml-2 px-2 py-1 text-xs premium-badge rounded-full">PREMIUM</span>
+                </label>
+                <div class="flex items-center space-x-4">
+                    <input type="range" id="socRange" min="0" max="100" value="50" class="flex-1">
+                    <div class="flex items-center bg-slate-800 rounded-xl px-4 py-3 min-w-[100px]">
+                        <span id="socValue" class="text-white font-medium">50</span>
+                        <span class="text-gray-400 ml-1">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculate Button -->
+            <button id="calculateBtn" class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                <i class="fas fa-calculator mr-2"></i>Calculate Charging Speed
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden mt-8 animate-fade-in">
+            <div class="glass rounded-3xl p-8 md:p-12 result-card">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold mb-2">Charging Speed</h2>
+                    <p class="text-gray-400" id="vehicleName">-</p>
+                </div>
+
+                <!-- Main Result -->
+                <div class="text-center mb-12">
+                    <div class="inline-block">
+                        <div class="text-7xl md:text-8xl font-bold tesla-gradient bg-clip-text text-transparent mb-2" id="speedResult">
+                            -
+                        </div>
+                        <div class="text-2xl text-gray-400">km/h</div>
+                    </div>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
+                        <i class="fas fa-bolt text-3xl text-yellow-400 mb-3"></i>
+                        <div class="text-2xl font-bold" id="effectivePower">-</div>
+                        <div class="text-sm text-gray-400 mt-1">Effective Power (kW)</div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
+                        <i class="fas fa-clock text-3xl text-blue-400 mb-3"></i>
+                        <div class="text-2xl font-bold" id="chargingTime">-</div>
+                        <div class="text-sm text-gray-400 mt-1">Time 20-80% (min)</div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
+                        <i class="fas fa-road text-3xl text-green-400 mb-3"></i>
+                        <div class="text-2xl font-bold" id="rangePerHour">-</div>
+                        <div class="text-sm text-gray-400 mt-1">Range/Hour (km)</div>
+                    </div>
+                </div>
+
+                <!-- Charging Curve (Premium) -->
+                <div id="chargingCurve" class="hidden mb-8">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        Charging Curve Analysis
+                        <span class="ml-2 px-2 py-1 text-xs premium-badge rounded-full">PREMIUM</span>
                     </h3>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-semibold mb-2 text-gray-300">
-                                Selecteer Uw Voertuig
-                            </label>
-                            <select id="vehicleSelect" class="text-lg">
-                                <option value="">Laden...</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold mb-2 text-gray-300">
-                                Laadpaal Vermogen (kW)
-                            </label>
-                            <input 
-                                type="number" 
-                                id="chargerPower" 
-                                value="50" 
-                                min="1" 
-                                max="350" 
-                                step="0.5"
-                                class="text-lg"
-                                placeholder="50"
-                            />
-                            <div class="flex gap-2 mt-3">
-                                <button class="px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10" onclick="setChargerPower(7.4)">7.4 kW</button>
-                                <button class="px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10" onclick="setChargerPower(11)">11 kW</button>
-                                <button class="px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10" onclick="setChargerPower(22)">22 kW</button>
-                                <button class="px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10" onclick="setChargerPower(50)">50 kW</button>
-                                <button class="px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10" onclick="setChargerPower(150)">150 kW</button>
-                            </div>
-                        </div>
-
-                        <div id="socSection" class="hidden">
-                            <label class="block text-sm font-semibold mb-2 text-gray-300 flex items-center">
-                                State of Charge (%)
-                                <span class="premium-badge ml-2">Premium</span>
-                            </label>
-                            <input 
-                                type="range" 
-                                id="socSlider" 
-                                value="20" 
-                                min="0" 
-                                max="100" 
-                                class="w-full"
-                            />
-                            <div class="flex justify-between text-sm text-gray-400 mt-1">
-                                <span>0%</span>
-                                <span id="socValue">20%</span>
-                                <span>100%</span>
-                            </div>
-                        </div>
-
-                        <button onclick="calculate()" class="btn-primary w-full text-lg">
-                            <i class="fas fa-bolt mr-2"></i>
-                            Bereken Laadsnelheid
-                        </button>
+                    <div class="charging-curve">
+                        <canvas id="curveCanvas" width="600" height="160"></canvas>
                     </div>
                 </div>
 
-                <!-- Results Section -->
-                <div class="glass-card p-8">
-                    <h3 class="text-2xl font-bold mb-6 flex items-center">
-                        <i class="fas fa-chart-line text-green-400 mr-3"></i>
-                        Resultaten
-                    </h3>
-                    
-                    <div id="results" class="space-y-6">
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-arrow-left text-4xl mb-4 opacity-30"></i>
-                            <p>Selecteer een voertuig en vermogen om te starten</p>
-                        </div>
-                    </div>
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">
+                        <i class="fas fa-redo mr-2"></i>New Calculation
+                    </button>
+                    <button id="compareFromResult" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors">
+                        <i class="fas fa-exchange-alt mr-2"></i>Compare Vehicles
+                    </button>
+                    <button class="px-6 py-3 premium-badge hover:opacity-90 rounded-xl transition-opacity">
+                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Feature Comparison -->
-            <div class="glass-card p-8 mb-12">
-                <h3 class="text-3xl font-bold mb-8 text-center">
-                    Kies Uw Plan
-                </h3>
-                
-                <div class="feature-comparison">
-                    <!-- Free Plan -->
-                    <div class="glass-card p-6">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-car text-gray-400 text-3xl mb-3"></i>
-                            <h4 class="text-xl font-bold mb-2">Gratis</h4>
-                            <p class="text-3xl font-bold">€0<span class="text-sm text-gray-400">/maand</span></p>
-                        </div>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>8 populaire voertuigen</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Basis laadsnelheid berekening</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Vergelijk tot 2 voertuigen</span>
-                            </li>
-                            <li class="flex items-start opacity-30">
-                                <i class="fas fa-times text-gray-400 mr-2 mt-1"></i>
-                                <span>Geen laadcurve data</span>
-                            </li>
-                            <li class="flex items-start opacity-30">
-                                <i class="fas fa-times text-gray-400 mr-2 mt-1"></i>
-                                <span>Geen geschiedenis</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Premium Plan -->
-                    <div class="glass-card p-6 border-2 border-yellow-500">
-                        <div class="premium-badge mx-auto mb-4 text-center">Meest Populair</div>
-                        <div class="text-center mb-4">
-                            <i class="fas fa-bolt text-yellow-400 text-3xl mb-3"></i>
-                            <h4 class="text-xl font-bold mb-2">Premium</h4>
-                            <p class="text-3xl font-bold">€4.99<span class="text-sm text-gray-400">/maand</span></p>
-                        </div>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Alle 15+ premium voertuigen</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Real-world laadcurve data</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Onbeperkte vergelijkingen</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Opslaan berekeningen</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Export naar CSV</span>
-                            </li>
-                        </ul>
-                        <button class="btn-premium w-full mt-6">
-                            <i class="fas fa-crown mr-2"></i>
-                            Upgrade Nu
-                        </button>
-                    </div>
-
-                    <!-- Pro Plan -->
-                    <div class="glass-card p-6">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-crown text-purple-400 text-3xl mb-3"></i>
-                            <h4 class="text-xl font-bold mb-2">Pro</h4>
-                            <p class="text-3xl font-bold">€9.99<span class="text-sm text-gray-400">/maand</span></p>
-                        </div>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Alles van Premium +</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>API toegang</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Bulk berekeningen</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Prioriteit support</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-400 mr-2 mt-1"></i>
-                                <span>Aangepaste voertuigen toevoegen</span>
-                            </li>
-                        </ul>
-                        <button class="btn-primary w-full mt-6">
-                            Upgrade naar Pro
-                        </button>
-                    </div>
+    <!-- Pricing Modal -->
+    <div id="pricingModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-8 md:p-12 animate-fade-in">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Choose Your Plan</h2>
+                    <p class="text-gray-400">Unlock premium features and get access to all vehicles</p>
                 </div>
+                <button id="closePricingModal" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
-            <!-- Features Section -->
-            <div class="grid md:grid-cols-3 gap-6 mb-12">
-                <div class="glass-card p-6 text-center">
-                    <i class="fas fa-tachometer-alt text-blue-400 text-4xl mb-4"></i>
-                    <h4 class="text-xl font-bold mb-2">Real-time Berekeningen</h4>
-                    <p class="text-gray-400">Directe resultaten met nauwkeurige laadcurve data voor realistische schattingen</p>
-                </div>
-                <div class="glass-card p-6 text-center">
-                    <i class="fas fa-database text-green-400 text-4xl mb-4"></i>
-                    <h4 class="text-xl font-bold mb-2">Uitgebreide Database</h4>
-                    <p class="text-gray-400">20+ elektrische voertuigen van alle grote merken met actuele specificaties</p>
-                </div>
-                <div class="glass-card p-6 text-center">
-                    <i class="fas fa-mobile-alt text-purple-400 text-4xl mb-4"></i>
-                    <h4 class="text-xl font-bold mb-2">Mobile-First Design</h4>
-                    <p class="text-gray-400">Geoptimaliseerd voor gebruik onderweg bij elke laadpaal</p>
-                </div>
+            <div id="pricingTiers" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Pricing tiers will be loaded here -->
             </div>
-        </main>
+        </div>
+    </div>
 
-        <!-- Footer -->
-        <footer class="border-t border-white/10 py-8 text-center text-gray-400">
-            <p>&copy; 2024 EV Charger Pro. Gemaakt met <i class="fas fa-heart text-red-500"></i> voor EV-rijders.</p>
-        </footer>
+    <!-- Footer -->
+    <footer class="mt-20 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-400">
+            <p class="mb-4">© 2024 EV Charge Calculator. Built with ⚡ for EV enthusiasts.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms</a>
+                <a href="#" class="hover:text-white transition-colors">Contact</a>
+            </div>
+        </div>
+    </footer>
 
-        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
-        <script src="/static/app.js"></script>
-    </body>
-    </html>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
   `)
 })
 

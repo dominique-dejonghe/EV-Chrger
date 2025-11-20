@@ -1,366 +1,422 @@
-// Global state
-let currentTier = 'free';
-let vehicles = [];
-let selectedVehicle = null;
+// EV Charge Calculator - Frontend Application
+// State management
+const state = {
+  userTier: 'free', // free, premium, pro
+  vehicles: [],
+  selectedVehicle: null,
+  chargerPower: 50,
+  soc: 50,
+  lastCalculation: null
+}
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadVehicles();
-  setupEventListeners();
-});
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp()
+  setupEventListeners()
+  loadVehicles()
+  loadPricingTiers()
+})
 
-// Load vehicles from API
+function initializeApp() {
+  // Check for saved user tier
+  const savedTier = localStorage.getItem('userTier')
+  if (savedTier) {
+    state.userTier = savedTier
+    updateTierUI()
+  }
+  
+  // Sync range inputs
+  syncRangeInputs()
+}
+
+function setupEventListeners() {
+  // Charger power controls
+  const powerRange = document.getElementById('chargerPowerRange')
+  const powerInput = document.getElementById('chargerPowerInput')
+  
+  powerRange.addEventListener('input', (e) => {
+    state.chargerPower = parseInt(e.target.value)
+    powerInput.value = state.chargerPower
+  })
+  
+  powerInput.addEventListener('input', (e) => {
+    state.chargerPower = parseInt(e.target.value) || 50
+    powerRange.value = state.chargerPower
+  })
+  
+  // SOC controls
+  const socRange = document.getElementById('socRange')
+  const socValue = document.getElementById('socValue')
+  
+  socRange.addEventListener('input', (e) => {
+    state.soc = parseInt(e.target.value)
+    socValue.textContent = state.soc
+  })
+  
+  // Vehicle selection
+  document.getElementById('vehicleSelect').addEventListener('change', (e) => {
+    const vehicleId = e.target.value
+    state.selectedVehicle = state.vehicles.find(v => v.id == vehicleId)
+    
+    // Show SOC slider for premium users
+    if (state.userTier !== 'free') {
+      document.getElementById('socSlider').classList.remove('hidden')
+    }
+  })
+  
+  // Calculate button
+  document.getElementById('calculateBtn').addEventListener('click', calculateChargingSpeed)
+  
+  // Upgrade buttons
+  document.getElementById('upgradeBtnNav').addEventListener('click', showPricingModal)
+  document.getElementById('upgradeBtnCalc').addEventListener('click', showPricingModal)
+  document.getElementById('closePricingModal').addEventListener('click', hidePricingModal)
+  
+  // Close modal on background click
+  document.getElementById('pricingModal').addEventListener('click', (e) => {
+    if (e.target.id === 'pricingModal') {
+      hidePricingModal()
+    }
+  })
+}
+
+function syncRangeInputs() {
+  // Initial sync
+  const powerRange = document.getElementById('chargerPowerRange')
+  const powerInput = document.getElementById('chargerPowerInput')
+  powerInput.value = powerRange.value
+}
+
 async function loadVehicles() {
   try {
-    const response = await axios.get(`/api/vehicles?tier=${currentTier}`);
-    vehicles = response.data;
-    populateVehicleSelect();
+    const response = await axios.get(`/api/vehicles?tier=${state.userTier}`)
+    
+    if (response.data.success) {
+      state.vehicles = response.data.vehicles
+      populateVehicleSelect()
+      updateVehicleCount(response.data.total)
+      
+      // Show premium notice if free tier
+      if (state.userTier === 'free') {
+        showPremiumNotice()
+      }
+    }
   } catch (error) {
-    console.error('Error loading vehicles:', error);
-    showError('Fout bij het laden van voertuigen');
+    console.error('Failed to load vehicles:', error)
+    showError('Failed to load vehicles. Please refresh the page.')
   }
 }
 
-// Populate vehicle select dropdown
 function populateVehicleSelect() {
-  const select = document.getElementById('vehicleSelect');
-  select.innerHTML = '<option value="">-- Selecteer een voertuig --</option>';
+  const select = document.getElementById('vehicleSelect')
+  select.innerHTML = '<option value="">Select your vehicle...</option>'
   
-  const groupedVehicles = {};
-  
-  vehicles.forEach(vehicle => {
-    const key = vehicle.make;
-    if (!groupedVehicles[key]) {
-      groupedVehicles[key] = [];
+  // Group vehicles by make
+  const grouped = state.vehicles.reduce((acc, vehicle) => {
+    if (!acc[vehicle.make]) {
+      acc[vehicle.make] = []
     }
-    groupedVehicles[key].push(vehicle);
-  });
+    acc[vehicle.make].push(vehicle)
+    return acc
+  }, {})
   
-  Object.keys(groupedVehicles).sort().forEach(make => {
-    const optgroup = document.createElement('optgroup');
-    optgroup.label = make;
+  // Add options grouped by make
+  Object.keys(grouped).sort().forEach(make => {
+    const optgroup = document.createElement('optgroup')
+    optgroup.label = make
     
-    groupedVehicles[make].forEach(vehicle => {
-      const option = document.createElement('option');
-      option.value = vehicle.id;
-      const label = `${vehicle.model} ${vehicle.variant || ''} (${vehicle.year})`;
-      option.textContent = label;
+    grouped[make].forEach(vehicle => {
+      const option = document.createElement('option')
+      option.value = vehicle.id
+      const variantText = vehicle.variant ? ` ${vehicle.variant}` : ''
+      option.textContent = `${vehicle.model}${variantText} (${vehicle.year})`
       
-      if (vehicle.is_premium && currentTier === 'free') {
-        option.textContent += ' 🔒 Premium';
-        option.disabled = true;
+      // Add premium badge
+      if (vehicle.is_premium) {
+        option.textContent += ' 👑'
       }
       
-      optgroup.appendChild(option);
-    });
+      optgroup.appendChild(option)
+    })
     
-    select.appendChild(optgroup);
-  });
+    select.appendChild(optgroup)
+  })
 }
 
-// Setup event listeners
-function setupEventListeners() {
-  const vehicleSelect = document.getElementById('vehicleSelect');
-  const chargerPower = document.getElementById('chargerPower');
-  const socSlider = document.getElementById('socSlider');
-  const tierToggle = document.getElementById('tierToggle');
-  
-  vehicleSelect.addEventListener('change', async (e) => {
-    const vehicleId = e.target.value;
-    if (vehicleId) {
-      await loadVehicleDetails(vehicleId);
-    }
-  });
-  
-  chargerPower.addEventListener('input', () => {
-    if (selectedVehicle) {
-      calculate();
-    }
-  });
-  
-  if (socSlider) {
-    socSlider.addEventListener('input', (e) => {
-      document.getElementById('socValue').textContent = e.target.value + '%';
-      if (selectedVehicle && currentTier !== 'free') {
-        calculate();
-      }
-    });
-  }
-  
-  tierToggle.addEventListener('click', toggleTier);
+function updateVehicleCount(count) {
+  document.getElementById('vehicleCount').textContent = `${count}+`
 }
 
-// Load vehicle details
-async function loadVehicleDetails(vehicleId) {
-  try {
-    const response = await axios.get(`/api/vehicles/${vehicleId}?tier=${currentTier}`);
-    selectedVehicle = response.data;
-    
-    // Show SOC section for premium users
-    if (currentTier !== 'free' && selectedVehicle.charging_curve_data) {
-      document.getElementById('socSection').classList.remove('hidden');
-    } else {
-      document.getElementById('socSection').classList.add('hidden');
-    }
-    
-    calculate();
-  } catch (error) {
-    if (error.response && error.response.status === 403) {
-      showPremiumPrompt(error.response.data.message);
-    } else {
-      showError('Fout bij het laden van voertuig details');
-    }
-  }
+function showPremiumNotice() {
+  const notice = document.getElementById('premiumVehicleNotice')
+  notice.classList.remove('hidden')
+  
+  notice.querySelector('button').addEventListener('click', showPricingModal)
 }
 
-// Calculate charging speed
-async function calculate() {
-  const vehicleId = document.getElementById('vehicleSelect').value;
-  const chargerPowerKw = parseFloat(document.getElementById('chargerPower').value);
-  const soc = currentTier !== 'free' ? parseFloat(document.getElementById('socSlider').value) : undefined;
-  
-  if (!vehicleId || !chargerPowerKw) {
-    return;
+async function calculateChargingSpeed() {
+  if (!state.selectedVehicle) {
+    showError('Please select a vehicle first')
+    return
   }
+  
+  const btn = document.getElementById('calculateBtn')
+  btn.disabled = true
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Calculating...'
   
   try {
     const response = await axios.post('/api/calculate', {
-      vehicleId,
-      chargerPowerKw,
-      soc
-    });
+      vehicleId: state.selectedVehicle.id,
+      chargerPowerKw: state.chargerPower,
+      soc: state.userTier !== 'free' ? state.soc : undefined
+    })
     
-    displayResults(response.data);
-  } catch (error) {
-    console.error('Error calculating:', error);
-    showError('Fout bij het berekenen');
-  }
-}
-
-// Display calculation results
-function displayResults(data) {
-  const resultsDiv = document.getElementById('results');
-  const { vehicle, input, results } = data;
-  
-  let socInfo = '';
-  if (input.soc !== undefined && currentTier !== 'free') {
-    socInfo = `
-      <div class="flex items-center justify-center gap-2 text-sm opacity-75 mb-4">
-        <i class="fas fa-battery-half"></i>
-        <span>Bij ${input.soc}% State of Charge</span>
-      </div>
-    `;
-  }
-  
-  resultsDiv.innerHTML = `
-    <div class="result-card">
-      <div class="text-center mb-6">
-        <h4 class="text-lg font-semibold opacity-75 mb-2">
-          ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''}
-        </h4>
-        <div class="text-sm opacity-60">@ ${input.chargerPowerKw} kW laadpaal</div>
-        ${socInfo}
-      </div>
-      
-      <div class="text-center mb-6">
-        <div class="metric-value">${results.chargingSpeedKmh}</div>
-        <div class="text-xl font-semibold mt-2">km/uur</div>
-        <div class="text-sm opacity-75 mt-1">Laadsnelheid</div>
-      </div>
-      
-      <div class="grid grid-cols-2 gap-4 mt-6 text-center">
-        <div class="bg-white/5 rounded-lg p-4">
-          <div class="text-2xl font-bold text-blue-300">${results.rangeAddedPer15Min}</div>
-          <div class="text-sm opacity-75 mt-1">km in 15 min</div>
-        </div>
-        <div class="bg-white/5 rounded-lg p-4">
-          <div class="text-2xl font-bold text-green-300">${results.rangeAddedPer30Min}</div>
-          <div class="text-sm opacity-75 mt-1">km in 30 min</div>
-        </div>
-      </div>
-      
-      <div class="mt-6 pt-6 border-t border-white/10">
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span class="opacity-75">Effectief vermogen:</span>
-            <span class="font-semibold ml-2">${results.effectivePowerKw} kW</span>
-          </div>
-          <div>
-            <span class="opacity-75">Tijd tot vol:</span>
-            <span class="font-semibold ml-2">${results.timeToFullHour}u</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    ${currentTier === 'free' ? `
-      <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-        <div class="flex items-start gap-3">
-          <i class="fas fa-star text-yellow-400 text-xl mt-1"></i>
-          <div>
-            <div class="font-semibold text-yellow-400 mb-1">Upgrade voor meer features</div>
-            <div class="text-sm opacity-75">
-              Krijg toegang tot laadcurve data, geschiedenis, vergelijkingen en meer!
-            </div>
-            <button onclick="showPremiumPrompt()" class="btn-premium mt-3 text-sm py-2 px-4">
-              <i class="fas fa-crown mr-2"></i>
-              Bekijk Premium
-            </button>
-          </div>
-        </div>
-      </div>
-    ` : ''}
-    
-    ${currentTier !== 'free' ? `
-      <div class="mt-6 flex gap-3">
-        <button onclick="saveCalculation()" class="btn-primary flex-1 text-sm py-3">
-          <i class="fas fa-save mr-2"></i>
-          Opslaan
-        </button>
-        <button onclick="exportResults()" class="btn-primary flex-1 text-sm py-3">
-          <i class="fas fa-download mr-2"></i>
-          Exporteren
-        </button>
-      </div>
-    ` : ''}
-  `;
-}
-
-// Set charger power quick buttons
-function setChargerPower(kw) {
-  document.getElementById('chargerPower').value = kw;
-  if (selectedVehicle) {
-    calculate();
-  }
-}
-
-// Toggle between free and premium tier
-async function toggleTier() {
-  if (currentTier === 'free') {
-    showPremiumPrompt('Upgrade naar Premium voor toegang tot alle features!');
-  } else {
-    currentTier = 'free';
-    document.getElementById('tierToggle').innerHTML = '<i class="fas fa-crown mr-2"></i>Upgrade naar Premium';
-    document.getElementById('tierToggle').className = 'btn-premium';
-    await loadVehicles();
-    selectedVehicle = null;
-    document.getElementById('vehicleSelect').value = '';
-    document.getElementById('results').innerHTML = `
-      <div class="text-center py-12 text-gray-500">
-        <i class="fas fa-arrow-left text-4xl mb-4 opacity-30"></i>
-        <p>Selecteer een voertuig en vermogen om te starten</p>
-      </div>
-    `;
-  }
-}
-
-// Simulate premium upgrade
-function showPremiumPrompt(message = null) {
-  const modal = document.createElement('div');
-  modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4';
-  modal.innerHTML = `
-    <div class="glass-card p-8 max-w-md w-full animate-slideIn">
-      <div class="text-center mb-6">
-        <i class="fas fa-crown text-yellow-400 text-5xl mb-4"></i>
-        <h3 class="text-2xl font-bold mb-2">Premium Features</h3>
-        <p class="text-gray-400">${message || 'Upgrade naar Premium voor volledige toegang'}</p>
-      </div>
-      
-      <div class="space-y-3 mb-6 text-left">
-        <div class="flex items-center gap-3">
-          <i class="fas fa-check text-green-400"></i>
-          <span>Alle 15+ premium voertuigen</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <i class="fas fa-check text-green-400"></i>
-          <span>Real-world laadcurve data</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <i class="fas fa-check text-green-400"></i>
-          <span>Onbeperkte vergelijkingen</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <i class="fas fa-check text-green-400"></i>
-          <span>Geschiedenis & export</span>
-        </div>
-      </div>
-      
-      <div class="space-y-3">
-        <button onclick="upgradeToPremium()" class="btn-premium w-full">
-          <i class="fas fa-crown mr-2"></i>
-          Upgrade Nu - €4.99/maand
-        </button>
-        <button onclick="closeModal()" class="w-full py-3 px-6 rounded-lg bg-white/5 hover:bg-white/10 transition">
-          Misschien Later
-        </button>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal();
+    if (response.data.success) {
+      state.lastCalculation = response.data.calculation
+      displayResults(response.data.calculation)
     }
-  });
-}
-
-// Upgrade to premium (demo mode)
-async function upgradeToPremium() {
-  closeModal();
-  
-  // Simulate upgrade
-  currentTier = 'premium';
-  document.getElementById('tierToggle').innerHTML = '<i class="fas fa-crown mr-2"></i>Premium Account';
-  document.getElementById('tierToggle').className = 'btn-primary';
-  
-  await loadVehicles();
-  
-  showSuccess('Welkom bij Premium! 🎉 Nu heeft u toegang tot alle features.');
-}
-
-// Close modal
-function closeModal() {
-  const modal = document.querySelector('.fixed.inset-0');
-  if (modal) {
-    modal.remove();
+  } catch (error) {
+    console.error('Calculation failed:', error)
+    showError('Calculation failed. Please try again.')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = '<i class="fas fa-calculator mr-2"></i>Calculate Charging Speed'
   }
 }
 
-// Save calculation (premium feature)
-async function saveCalculation() {
-  showSuccess('Berekening opgeslagen in uw geschiedenis!');
+function displayResults(calculation) {
+  // Show results section
+  const resultsSection = document.getElementById('resultsSection')
+  resultsSection.classList.remove('hidden')
+  
+  // Scroll to results
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  
+  // Update values
+  document.getElementById('vehicleName').textContent = 
+    `${calculation.vehicleMake} ${calculation.vehicleModel}`
+  
+  document.getElementById('speedResult').textContent = 
+    calculation.chargingSpeedKmh.toLocaleString()
+  
+  document.getElementById('effectivePower').textContent = 
+    `${calculation.effectivePowerKw.toFixed(1)} kW`
+  
+  document.getElementById('chargingTime').textContent = 
+    `${calculation.chargingTime20to80} min`
+  
+  document.getElementById('rangePerHour').textContent = 
+    `${calculation.rangePerHour.toLocaleString()} km`
+  
+  // Show charging curve for premium users
+  if (state.userTier !== 'free' && state.selectedVehicle.charging_curve_data) {
+    showChargingCurve(state.selectedVehicle.charging_curve_data, calculation.soc)
+  }
 }
 
-// Export results (premium feature)
-function exportResults() {
-  showSuccess('Resultaten geëxporteerd naar CSV!');
+function showChargingCurve(curveDataJson, currentSoc) {
+  const curveSection = document.getElementById('chargingCurve')
+  curveSection.classList.remove('hidden')
+  
+  try {
+    const curveData = JSON.parse(curveDataJson)
+    const canvas = document.getElementById('curveCanvas')
+    const ctx = canvas.getContext('2d')
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    
+    // Draw curve
+    if (curveData.curve && Array.isArray(curveData.curve)) {
+      drawChargingCurveOnCanvas(ctx, canvas, curveData.curve, currentSoc)
+    }
+  } catch (error) {
+    console.error('Failed to draw charging curve:', error)
+  }
 }
 
-// Show error message
+function drawChargingCurveOnCanvas(ctx, canvas, curve, currentSoc) {
+  const padding = 40
+  const width = canvas.width - padding * 2
+  const height = canvas.height - padding * 2
+  
+  // Find max power for scaling
+  const maxPower = Math.max(...curve.map(p => p.kw))
+  
+  // Draw axes
+  ctx.strokeStyle = '#475569'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(padding, padding)
+  ctx.lineTo(padding, padding + height)
+  ctx.lineTo(padding + width, padding + height)
+  ctx.stroke()
+  
+  // Draw curve
+  ctx.strokeStyle = '#667eea'
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  
+  curve.forEach((point, index) => {
+    const x = padding + (point.soc / 100) * width
+    const y = padding + height - (point.kw / maxPower) * height
+    
+    if (index === 0) {
+      ctx.moveTo(x, y)
+    } else {
+      ctx.lineTo(x, y)
+    }
+  })
+  
+  ctx.stroke()
+  
+  // Draw current SOC indicator
+  if (currentSoc !== undefined) {
+    const socX = padding + (currentSoc / 100) * width
+    
+    ctx.strokeStyle = '#f59e0b'
+    ctx.lineWidth = 2
+    ctx.setLineDash([5, 5])
+    ctx.beginPath()
+    ctx.moveTo(socX, padding)
+    ctx.lineTo(socX, padding + height)
+    ctx.stroke()
+    ctx.setLineDash([])
+    
+    // Label
+    ctx.fillStyle = '#f59e0b'
+    ctx.font = '12px Inter'
+    ctx.fillText(`${currentSoc}%`, socX - 15, padding - 10)
+  }
+  
+  // Labels
+  ctx.fillStyle = '#94a3b8'
+  ctx.font = '12px Inter'
+  ctx.fillText('0%', padding - 10, padding + height + 20)
+  ctx.fillText('100%', padding + width - 20, padding + height + 20)
+  ctx.fillText(`${maxPower.toFixed(0)} kW`, 5, padding)
+  ctx.fillText('0 kW', 5, padding + height)
+}
+
+async function loadPricingTiers() {
+  try {
+    const response = await axios.get('/api/subscription-tiers')
+    
+    if (response.data.success) {
+      populatePricingTiers(response.data.tiers)
+    }
+  } catch (error) {
+    console.error('Failed to load pricing tiers:', error)
+  }
+}
+
+function populatePricingTiers(tiers) {
+  const container = document.getElementById('pricingTiers')
+  container.innerHTML = ''
+  
+  tiers.forEach(tier => {
+    const isCurrentTier = tier.id === state.userTier
+    const isPopular = tier.popular
+    
+    const card = document.createElement('div')
+    card.className = `relative bg-slate-800/50 rounded-2xl p-8 border-2 transition-all hover:scale-105 ${
+      isPopular ? 'border-purple-500' : 'border-slate-700'
+    } ${isCurrentTier ? 'ring-4 ring-green-500' : ''}`
+    
+    card.innerHTML = `
+      ${isPopular ? '<div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-4 py-1 premium-badge text-white text-xs font-bold rounded-full">POPULAR</div>' : ''}
+      ${isCurrentTier ? '<div class="absolute top-4 right-4 text-green-400"><i class="fas fa-check-circle text-2xl"></i></div>' : ''}
+      
+      <div class="text-center mb-6">
+        <h3 class="text-2xl font-bold mb-2">${tier.name}</h3>
+        <div class="text-4xl font-bold mb-1">
+          ${tier.price === 0 ? 'Free' : `€${tier.price}`}
+        </div>
+        ${tier.period ? `<div class="text-gray-400 text-sm">per ${tier.period}</div>` : ''}
+      </div>
+      
+      <ul class="space-y-3 mb-8">
+        ${tier.features.map(feature => `
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
+            <span class="text-sm text-gray-300">${feature}</span>
+          </li>
+        `).join('')}
+      </ul>
+      
+      <button class="w-full py-3 rounded-xl font-semibold transition-all ${
+        isCurrentTier 
+          ? 'bg-green-600 text-white cursor-not-allowed' 
+          : tier.price === 0
+            ? 'bg-slate-700 hover:bg-slate-600 text-white'
+            : 'tesla-gradient text-white hover:opacity-90'
+      }" ${isCurrentTier ? 'disabled' : ''} data-tier="${tier.id}">
+        ${isCurrentTier ? 'Current Plan' : tier.price === 0 ? 'Current Plan' : 'Upgrade Now'}
+      </button>
+    `
+    
+    // Add click handler for upgrade buttons
+    const button = card.querySelector('button')
+    if (!isCurrentTier && tier.price > 0) {
+      button.addEventListener('click', () => selectPlan(tier))
+    }
+    
+    container.appendChild(card)
+  })
+}
+
+function selectPlan(tier) {
+  // Simulate upgrade (in production, this would process payment)
+  if (confirm(`Upgrade to ${tier.name} for €${tier.price}/${tier.period}?`)) {
+    state.userTier = tier.id
+    localStorage.setItem('userTier', tier.id)
+    updateTierUI()
+    hidePricingModal()
+    loadVehicles()
+    
+    // Show success message
+    showSuccess(`Successfully upgraded to ${tier.name}!`)
+  }
+}
+
+function updateTierUI() {
+  const tierBadge = document.getElementById('currentTier')
+  tierBadge.textContent = state.userTier.charAt(0).toUpperCase() + state.userTier.slice(1)
+  
+  if (state.userTier === 'premium' || state.userTier === 'pro') {
+    tierBadge.className = 'ml-2 px-3 py-1 premium-badge rounded-full text-sm font-medium'
+  }
+}
+
+function showPricingModal() {
+  document.getElementById('pricingModal').classList.remove('hidden')
+  document.body.style.overflow = 'hidden'
+}
+
+function hidePricingModal() {
+  document.getElementById('pricingModal').classList.add('hidden')
+  document.body.style.overflow = ''
+}
+
 function showError(message) {
-  const toast = document.createElement('div');
-  toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slideIn';
-  toast.innerHTML = `
-    <div class="flex items-center gap-3">
-      <i class="fas fa-exclamation-circle"></i>
-      <span>${message}</span>
-    </div>
-  `;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  // Simple error notification
+  const notification = document.createElement('div')
+  notification.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-fade-in'
+  notification.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`
+  document.body.appendChild(notification)
+  
+  setTimeout(() => {
+    notification.remove()
+  }, 5000)
 }
 
-// Show success message
 function showSuccess(message) {
-  const toast = document.createElement('div');
-  toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slideIn';
-  toast.innerHTML = `
-    <div class="flex items-center gap-3">
-      <i class="fas fa-check-circle"></i>
-      <span>${message}</span>
-    </div>
-  `;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  const notification = document.createElement('div')
+  notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-fade-in'
+  notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`
+  document.body.appendChild(notification)
+  
+  setTimeout(() => {
+    notification.remove()
+  }, 5000)
 }
