@@ -78,8 +78,8 @@ app.get('/', (c) => {
             <!-- Stats -->
             <div class="grid grid-cols-4 gap-8 max-w-3xl mx-auto">
                 <div class="text-center">
-                    <div class="text-5xl font-bold gradient-text mb-2">284+</div>
-                    <div class="text-gray-400">Voertuigen</div>
+                    <div class="text-5xl font-bold gradient-text mb-2">284</div>
+                    <div class="text-gray-400 text-sm">EV Modellen<br><span class="text-xs">(73 gratis + 211 premium)</span></div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold gradient-text mb-2">39</div>
@@ -105,10 +105,10 @@ app.get('/', (c) => {
 // API ROUTES
 // ============================================
 
-// Get all vehicles (free users see only free vehicles)
+// Get all vehicles (always return ALL vehicles, frontend will handle premium restrictions)
 app.get('/api/vehicles', async (c) => {
   const { DB } = c.env
-  const userTier = c.req.query('tier') || 'free'
+  const userTier = c.req.query('tier') || 'all'
   
   try {
     let query = `
@@ -118,9 +118,11 @@ app.get('/api/vehicles', async (c) => {
       FROM vehicles
     `
     
+    // Only filter if explicitly requesting free tier
     if (userTier === 'free') {
       query += ' WHERE is_premium = 0'
     }
+    // Otherwise return ALL vehicles (tier='all' or tier='premium')
     
     query += ' ORDER BY make, model, variant'
     
@@ -508,6 +510,30 @@ app.get('/app', (c) => {
       
       .autocomplete-item.premium:hover {
         background: rgba(167, 139, 250, 0.2);
+      }
+      
+      .autocomplete-item.locked {
+        cursor: not-allowed;
+        position: relative;
+      }
+      
+      .autocomplete-item.locked:hover {
+        background: rgba(234, 179, 8, 0.1);
+      }
+      
+      .animate-fade-in-up {
+        animation: fadeInUp 0.3s ease-out forwards;
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       
       /* Custom scrollbar for autocomplete */

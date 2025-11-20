@@ -35,14 +35,19 @@ async function initializeApp() {
 // ============================================
 async function loadVehicles() {
   try {
-    const response = await axios.get(`/api/vehicles?tier=${appState.currentTier}`)
+    // ALWAYS load ALL vehicles regardless of tier
+    const response = await axios.get('/api/vehicles?tier=all')
     
     if (response.data.success) {
       appState.vehicles = response.data.vehicles
       appState.filteredVehicles = response.data.vehicles
       
       // Update vehicle count
-      document.getElementById('vehicleCount').textContent = `${response.data.total}+`
+      const freeCount = appState.vehicles.filter(v => !v.is_premium).length
+      const premiumCount = appState.vehicles.filter(v => v.is_premium).length
+      document.getElementById('vehicleCount').textContent = `${appState.vehicles.length}+`
+      
+      console.log(`Loaded ${appState.vehicles.length} vehicles (${freeCount} free, ${premiumCount} premium)`)
     }
   } catch (error) {
     console.error('Failed to load vehicles:', error)
@@ -88,27 +93,34 @@ function displayAutocompleteResults() {
   // Limit results to 50 for performance
   const displayVehicles = appState.filteredVehicles.slice(0, 50)
   
-  resultsContainer.innerHTML = displayVehicles.map((vehicle, index) => `
-    <div class="autocomplete-item ${vehicle.is_premium ? 'premium' : ''}" 
-         data-index="${index}" 
-         data-vehicle-id="${vehicle.id}"
-         onclick="selectVehicleFromAutocomplete(${vehicle.id})">
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="font-medium">
-            ${vehicle.make} ${vehicle.model}
-            ${vehicle.variant ? `<span class="text-gray-400">${vehicle.variant}</span>` : ''}
+  resultsContainer.innerHTML = displayVehicles.map((vehicle, index) => {
+    const isPremiumLocked = vehicle.is_premium && appState.currentTier === 'free'
+    
+    return `
+      <div class="autocomplete-item ${vehicle.is_premium ? 'premium' : ''} ${isPremiumLocked ? 'locked' : ''}" 
+           data-index="${index}" 
+           data-vehicle-id="${vehicle.id}"
+           data-is-premium="${vehicle.is_premium}"
+           onclick="selectVehicleFromAutocomplete(${vehicle.id})">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 ${isPremiumLocked ? 'opacity-60' : ''}">
+            <div class="font-medium flex items-center gap-2">
+              ${vehicle.make} ${vehicle.model}
+              ${vehicle.variant ? `<span class="text-gray-400">${vehicle.variant}</span>` : ''}
+              ${isPremiumLocked ? '<i class="fas fa-lock text-xs text-yellow-500"></i>' : ''}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+              ${vehicle.battery_capacity_kwh} kWh • 
+              ${vehicle.avg_consumption_kwh_per_100km} kWh/100km • 
+              ${vehicle.max_dc_charging_kw} kW DC
+            </div>
+            ${isPremiumLocked ? '<div class="text-xs text-yellow-400 mt-1"><i class="fas fa-crown mr-1"></i>Premium Only</div>' : ''}
           </div>
-          <div class="text-xs text-gray-400 mt-1">
-            ${vehicle.battery_capacity_kwh} kWh • 
-            ${vehicle.avg_consumption_kwh_per_100km} kWh/100km • 
-            ${vehicle.max_dc_charging_kw} kW DC
-          </div>
+          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400 ml-3"></i>' : ''}
         </div>
-        ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400"></i>' : ''}
       </div>
-    </div>
-  `).join('')
+    `
+  }).join('')
   
   dropdown.classList.remove('hidden')
   appState.activeAutocompleteIndex = -1
@@ -124,9 +136,10 @@ function selectVehicleFromAutocomplete(vehicleId) {
   const vehicle = appState.vehicles.find(v => v.id === vehicleId)
   if (!vehicle) return
   
+  // Check if this is a premium vehicle and user is on free tier
   if (vehicle.is_premium && appState.currentTier === 'free') {
-    showNotification('This is a premium vehicle. Please upgrade to access it.', 'warning')
-    document.getElementById('premiumVehicleNotice').classList.remove('hidden')
+    // Show premium upgrade modal
+    showPremiumUpgradeModal(vehicle)
     return
   }
   
@@ -148,6 +161,96 @@ function selectVehicleFromAutocomplete(vehicleId) {
   }
   
   hideAutocomplete()
+}
+
+// Show premium upgrade modal when trying to select premium vehicle
+function showPremiumUpgradeModal(vehicle) {
+  // Create modal overlay
+  const modal = document.createElement('div')
+  modal.id = 'premiumUpgradeModal'
+  modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in'
+  
+  modal.innerHTML = `
+    <div class="glass rounded-3xl max-w-lg w-full p-8 animate-fade-in-up">
+      <div class="text-center mb-6">
+        <div class="w-20 h-20 mx-auto mb-4 premium-badge rounded-full flex items-center justify-center">
+          <i class="fas fa-crown text-4xl text-white"></i>
+        </div>
+        <h2 class="text-3xl font-bold mb-2">Premium Voertuig</h2>
+        <p class="text-gray-400">
+          ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} is alleen beschikbaar voor Premium leden
+        </p>
+      </div>
+      
+      <div class="bg-slate-800/50 rounded-xl p-6 mb-6">
+        <h3 class="font-semibold mb-4 flex items-center">
+          <i class="fas fa-star text-yellow-400 mr-2"></i>
+          Upgrade naar Premium voor:
+        </h3>
+        <ul class="space-y-3">
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
+            <span><strong>284+ voertuigen</strong> - Toegang tot alle merken</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
+            <span><strong>Charging curves</strong> - Gedetailleerde laadanalyse</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
+            <span><strong>Voertuig vergelijking</strong> - Side-by-side analyse</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
+            <span><strong>SOC slider</strong> - Nauwkeurige berekeningen</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
+            <span><strong>History & Export</strong> - Bewaar en deel resultaten</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="text-center mb-4">
+        <div class="text-4xl font-bold mb-2">
+          €4.99<span class="text-lg text-gray-400 font-normal">/maand</span>
+        </div>
+        <p class="text-sm text-gray-400">30 dagen geld-terug-garantie</p>
+      </div>
+      
+      <div class="flex gap-3">
+        <button onclick="closePremiumUpgradeModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-colors">
+          Terug
+        </button>
+        <button onclick="upgradeToPremium()" class="flex-1 py-3 premium-badge hover:opacity-90 rounded-xl font-semibold transition-opacity">
+          <i class="fas fa-crown mr-2"></i>Upgrade Nu
+        </button>
+      </div>
+    </div>
+  `
+  
+  document.body.appendChild(modal)
+  document.body.style.overflow = 'hidden'
+  
+  // Close on outside click
+  modal.addEventListener('click', (e) => {
+    if (e.target.id === 'premiumUpgradeModal') {
+      closePremiumUpgradeModal()
+    }
+  })
+}
+
+function closePremiumUpgradeModal() {
+  const modal = document.getElementById('premiumUpgradeModal')
+  if (modal) {
+    modal.remove()
+    document.body.style.overflow = 'auto'
+  }
+}
+
+function upgradeToPremium() {
+  closePremiumUpgradeModal()
+  showPricingModal()
 }
 
 function clearVehicleSelection() {
@@ -628,3 +731,5 @@ function formatCurrency(amount) {
 window.selectTier = selectTier
 window.selectVehicleFromAutocomplete = selectVehicleFromAutocomplete
 window.showPricingModal = showPricingModal
+window.closePremiumUpgradeModal = closePremiumUpgradeModal
+window.upgradeToPremium = upgradeToPremium
