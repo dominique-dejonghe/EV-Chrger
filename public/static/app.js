@@ -175,59 +175,59 @@ function showPremiumUpgradeModal(vehicle) {
   modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in'
   
   modal.innerHTML = `
-    <div class="glass rounded-3xl max-w-lg w-full p-8 animate-fade-in-up">
-      <div class="text-center mb-6">
-        <div class="w-20 h-20 mx-auto mb-4 premium-badge rounded-full flex items-center justify-center">
-          <i class="fas fa-crown text-4xl text-white"></i>
+    <div class="glass rounded-2xl md:rounded-3xl max-w-lg w-full p-4 sm:p-6 md:p-8 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-4 sm:mb-6">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 premium-badge rounded-full flex items-center justify-center">
+          <i class="fas fa-crown text-3xl sm:text-4xl text-white"></i>
         </div>
-        <h2 class="text-3xl font-bold mb-2">Premium Voertuig</h2>
-        <p class="text-gray-400">
+        <h2 class="text-2xl sm:text-3xl font-bold mb-2">Premium Voertuig</h2>
+        <p class="text-sm sm:text-base text-gray-400">
           ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} is alleen beschikbaar voor Premium leden
         </p>
       </div>
       
-      <div class="bg-slate-800/50 rounded-xl p-6 mb-6">
-        <h3 class="font-semibold mb-4 flex items-center">
+      <div class="bg-slate-800/50 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 class="text-sm sm:text-base font-semibold mb-3 sm:mb-4 flex items-center">
           <i class="fas fa-star text-yellow-400 mr-2"></i>
           Upgrade naar Premium voor:
         </h3>
-        <ul class="space-y-3">
+        <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base">
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span><strong>284+ voertuigen</strong> - Toegang tot alle merken</span>
+            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span><strong>284+ voertuigen</strong> - Alle merken</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span><strong>Charging curves</strong> - Gedetailleerde laadanalyse</span>
+            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span><strong>Charging curves</strong> - Gedetailleerd</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span><strong>Voertuig vergelijking</strong> - Side-by-side analyse</span>
+            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span><strong>Vergelijkingen</strong> - Side-by-side</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span><strong>SOC slider</strong> - Nauwkeurige berekeningen</span>
+            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span><strong>SOC slider</strong> - Nauwkeurig</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span><strong>History & Export</strong> - Bewaar en deel resultaten</span>
+            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span><strong>Export</strong> - Deel resultaten</span>
           </li>
         </ul>
       </div>
       
       <div class="text-center mb-4">
-        <div class="text-4xl font-bold mb-2">
-          €4.99<span class="text-lg text-gray-400 font-normal">/maand</span>
+        <div class="text-3xl sm:text-4xl font-bold mb-2">
+          €4.99<span class="text-base sm:text-lg text-gray-400 font-normal">/maand</span>
         </div>
-        <p class="text-sm text-gray-400">30 dagen geld-terug-garantie</p>
+        <p class="text-xs sm:text-sm text-gray-400">30 dagen geld-terug-garantie</p>
       </div>
       
-      <div class="flex gap-3">
-        <button onclick="closePremiumUpgradeModal()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-colors">
+      <div class="flex gap-2 sm:gap-3">
+        <button onclick="closePremiumUpgradeModal()" class="flex-1 py-2.5 sm:py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm sm:text-base font-semibold transition-colors">
           Terug
         </button>
-        <button onclick="upgradeToPremium()" class="flex-1 py-3 premium-badge hover:opacity-90 rounded-xl font-semibold transition-opacity">
-          <i class="fas fa-crown mr-2"></i>Upgrade Nu
+        <button onclick="upgradeToPremium()" class="flex-1 py-2.5 sm:py-3 premium-badge hover:opacity-90 rounded-xl text-sm sm:text-base font-semibold transition-opacity">
+          <i class="fas fa-crown mr-1 sm:mr-2"></i>Upgrade Nu
         </button>
       </div>
     </div>
@@ -357,11 +357,11 @@ function setupEventListeners() {
     appState.chargerPower = value
   })
   
-  // Start SOC slider
+  // Start SOC slider and input
   const startSocRange = document.getElementById('startSocRange')
-  const startSocValue = document.getElementById('startSocValue')
+  const startSocInput = document.getElementById('startSocInput')
   
-  if (startSocRange) {
+  if (startSocRange && startSocInput) {
     startSocRange.addEventListener('input', (e) => {
       let value = parseInt(e.target.value)
       // Ensure start SOC doesn't exceed end SOC
@@ -369,16 +369,29 @@ function setupEventListeners() {
         value = appState.endSoc - 5
         e.target.value = value
       }
-      startSocValue.textContent = value
+      startSocInput.value = value
+      appState.startSoc = value
+    })
+    
+    startSocInput.addEventListener('input', (e) => {
+      let value = parseInt(e.target.value)
+      if (isNaN(value)) value = 0
+      if (value < 0) value = 0
+      if (value > 100) value = 100
+      if (value >= appState.endSoc) {
+        value = appState.endSoc - 5
+      }
+      startSocRange.value = value
+      e.target.value = value
       appState.startSoc = value
     })
   }
   
-  // End SOC slider
+  // End SOC slider and input
   const endSocRange = document.getElementById('endSocRange')
-  const endSocValue = document.getElementById('endSocValue')
+  const endSocInput = document.getElementById('endSocInput')
   
-  if (endSocRange) {
+  if (endSocRange && endSocInput) {
     endSocRange.addEventListener('input', (e) => {
       let value = parseInt(e.target.value)
       // Ensure end SOC doesn't go below start SOC
@@ -386,7 +399,20 @@ function setupEventListeners() {
         value = appState.startSoc + 5
         e.target.value = value
       }
-      endSocValue.textContent = value
+      endSocInput.value = value
+      appState.endSoc = value
+    })
+    
+    endSocInput.addEventListener('input', (e) => {
+      let value = parseInt(e.target.value)
+      if (isNaN(value)) value = 0
+      if (value < 0) value = 0
+      if (value > 100) value = 100
+      if (value <= appState.startSoc) {
+        value = appState.startSoc + 5
+      }
+      endSocRange.value = value
+      e.target.value = value
       appState.endSoc = value
     })
   }

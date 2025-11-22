@@ -818,10 +818,11 @@ app.get('/app', (c) => {
                 <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
                     <!-- Start SOC -->
                     <div class="mb-6">
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-center mb-3">
                             <span class="text-sm text-gray-400">Start SOC</span>
-                            <div class="flex items-center bg-gradient-to-r from-orange-600 to-red-600 rounded-lg px-3 py-1 min-w-[80px] shadow-md">
-                                <span id="startSocValue" class="text-white font-bold text-lg">20</span>
+                            <div class="flex items-center bg-gradient-to-r from-orange-600 to-red-600 rounded-lg px-3 py-2 min-w-[90px] shadow-md">
+                                <input type="number" id="startSocInput" value="20" min="0" max="100" 
+                                       class="bg-transparent border-none outline-none text-white text-right w-full text-lg font-bold">
                                 <span class="text-white ml-1 text-sm font-semibold">%</span>
                             </div>
                         </div>
@@ -830,10 +831,11 @@ app.get('/app', (c) => {
                     
                     <!-- End SOC -->
                     <div>
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-center mb-3">
                             <span class="text-sm text-gray-400">Target SOC</span>
-                            <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg px-3 py-1 min-w-[80px] shadow-md">
-                                <span id="endSocValue" class="text-white font-bold text-lg">80</span>
+                            <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg px-3 py-2 min-w-[90px] shadow-md">
+                                <input type="number" id="endSocInput" value="80" min="0" max="100" 
+                                       class="bg-transparent border-none outline-none text-white text-right w-full text-lg font-bold">
                                 <span class="text-white ml-1 text-sm font-semibold">%</span>
                             </div>
                         </div>
