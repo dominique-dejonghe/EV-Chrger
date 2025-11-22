@@ -1128,6 +1128,109 @@ function hideComparisonResults() {
   updateCompareButton()
 }
 
+// ============================================
+// PWA FUNCTIONALITY
+// ============================================
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('Service Worker registered successfully:', registration.scope)
+      })
+      .catch((error) => {
+        console.log('Service Worker registration failed:', error)
+      })
+  })
+}
+
+// Install prompt
+let deferredPrompt
+let installButton
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault()
+  // Stash the event so it can be triggered later
+  deferredPrompt = e
+  // Show install button/prompt
+  showInstallPrompt()
+})
+
+function showInstallPrompt() {
+  // Create install button if it doesn't exist
+  if (document.getElementById('installAppBtn')) return
+  
+  const installPrompt = document.createElement('div')
+  installPrompt.id = 'installAppPrompt'
+  installPrompt.className = 'fixed bottom-4 right-4 z-50 animate-fade-in'
+  installPrompt.innerHTML = `
+    <div class="glass rounded-2xl p-4 shadow-2xl border border-slate-700 max-w-sm">
+      <div class="flex items-start space-x-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-mobile-alt text-white text-xl"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-bold text-sm mb-1">Installeer de App</h3>
+          <p class="text-xs text-gray-400 mb-3">Voeg EV Charge Calculator toe aan je startscherm voor snelle toegang</p>
+          <div class="flex gap-2">
+            <button id="installAppBtn" class="flex-1 px-4 py-2 tesla-gradient text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+              <i class="fas fa-download mr-1"></i>Installeer
+            </button>
+            <button id="dismissInstallBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg transition-colors">
+              Later
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+  
+  document.body.appendChild(installPrompt)
+  
+  // Setup install button click
+  document.getElementById('installAppBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return
+    
+    // Show the install prompt
+    deferredPrompt.prompt()
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice
+    console.log(`User response to the install prompt: ${outcome}`)
+    
+    // Clear the deferredPrompt
+    deferredPrompt = null
+    
+    // Hide the install prompt
+    document.getElementById('installAppPrompt').remove()
+  })
+  
+  // Setup dismiss button
+  document.getElementById('dismissInstallBtn').addEventListener('click', () => {
+    document.getElementById('installAppPrompt').remove()
+    // Store dismissed state in localStorage
+    localStorage.setItem('installPromptDismissed', Date.now())
+  })
+  
+  // Check if user dismissed recently (don't show for 7 days)
+  const dismissedTime = localStorage.getItem('installPromptDismissed')
+  if (dismissedTime && (Date.now() - dismissedTime < 7 * 24 * 60 * 60 * 1000)) {
+    document.getElementById('installAppPrompt').remove()
+  }
+}
+
+// Handle app installation
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed')
+  // Hide install prompt
+  const prompt = document.getElementById('installAppPrompt')
+  if (prompt) prompt.remove()
+  
+  // Show success notification
+  showNotification('App geïnstalleerd! Je kunt de app nu vanuit je startscherm openen.', 'success')
+})
+
 // Export for global access
 window.selectTier = selectTier
 window.selectVehicleFromAutocomplete = selectVehicleFromAutocomplete

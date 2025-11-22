@@ -11,8 +11,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 // Enable CORS for API
 app.use('/api/*', cors())
 
-// Serve static files
-app.use('/static/*', serveStatic({ root: './public' }))
+// Serve static files - Cloudflare Pages automatically serves files from dist/
+app.use('/static/*', serveStatic({ root: './' }))
 
 // ============================================
 // LANDING PAGE
@@ -405,6 +405,23 @@ app.get('/app', (c) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EV Charge Calculator - Tesla-style Premium Experience</title>
     <meta name="description" content="Calculate your EV charging speed in km/h. Premium calculator with 110+ electric vehicles, charging curves, and real-world data.">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EV Charge">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <script>
