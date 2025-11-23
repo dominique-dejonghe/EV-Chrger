@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "webapp",
+  "name": "ev-charge-calculator",
   "compatibility_date": "2025-11-20",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": [
@@ -25,7 +25,7 @@
     {
       "binding": "DB",
       "database_name": "evcharger-production",
-      "database_id": "local-dev-database"
+      "database_id": "97a44002-bd84-47ed-bf4f-afd707d9fd4b"
     }
   ],
   // "ai": {
