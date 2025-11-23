@@ -4,9 +4,10 @@ Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïn
 
 ## 🚀 URLs
 
+- **Production**: https://ev-charge-calculator.pages.dev ✨ **LIVE**
+- **Latest Deployment**: https://efcc6563.ev-charge-calculator.pages.dev
 - **Development**: https://3000-i1702d41shyqjbr05tclm-c81df28e.sandbox.novita.ai
-- **GitHub**: (To be deployed)
-- **Production**: (To be deployed to Cloudflare Pages)
+- **GitHub**: https://github.com/[username]/webapp (configure via setup_github_environment)
 
 ## ✨ Hoofdfuncties
 
@@ -153,6 +154,23 @@ npm test  # curl http://localhost:3000
 
 ## 📦 Deployment
 
+### ✅ Current Deployment Status
+
+**Production URL**: https://ev-charge-calculator.pages.dev  
+**Project Name**: ev-charge-calculator  
+**Database**: evcharger-production (D1)  
+**Database ID**: 97a44002-bd84-47ed-bf4f-afd707d9fd4b  
+**Region**: ENAM (East North America)  
+**Status**: 🟢 **ACTIVE**
+
+**Deployment Stats**:
+- ✅ 394 rows written (284+ vehicles seeded)
+- ✅ Database migrations applied successfully
+- ✅ PWA functionality enabled
+- ✅ Service worker registered
+- ✅ App icons for all platforms
+- ✅ D1 database bindings configured
+
 ### Cloudflare Pages Deployment
 ```bash
 # Build en deploy naar productie
@@ -160,16 +178,29 @@ npm run deploy:prod
 
 # Of handmatig:
 npm run build
-npx wrangler pages deploy dist --project-name evcharger
+npx wrangler pages deploy dist --project-name ev-charge-calculator --commit-dirty=true
 ```
 
 ### Database Migraties (Productie)
 ```bash
-# Migraties toepassen op productie
-npm run db:migrate:prod
+# Create production database (already done)
+npx wrangler d1 create evcharger-production
 
-# Let op: Seed data moet je handmatig toevoegen aan productie
+# Apply migrations to production (already done)
+npx wrangler d1 migrations apply evcharger-production --remote
+
+# Seed production database (already done)
+npx wrangler d1 execute evcharger-production --remote --file=./seed_full.sql
 ```
+
+### PWA Features (Deployed)
+- ✅ **Manifest.json** - App metadata configured
+- ✅ **Service Worker** - Offline caching enabled
+- ✅ **App Icons** - 12 sizes (16px to 512px)
+- ✅ **Install Prompt** - Beautiful UI for app installation
+- ✅ **Shortcuts** - Calculator and Compare quick actions
+- ✅ **Theme Color** - Purple gradient (#667eea)
+- ✅ **Standalone Mode** - Full-screen app experience
 
 ## 🎯 Gebruikershandleiding
 
@@ -206,7 +237,7 @@ npm run db:migrate:prod
 - [ ] **Payment integratie** - Stripe of Mollie voor betalingen
 - [ ] **User authenticatie** - Login/signup systeem
 - [ ] **Calculation history** - Opslaan van eerdere berekeningen
-- [ ] **Vehicle comparison** - Side-by-side vergelijking interface
+- [x] **Vehicle comparison** - ✅ Side-by-side vergelijking interface (COMPLETED)
 - [ ] **PDF export** - Genereer PDF rapporten van berekeningen
 
 ### Medium Priority
@@ -214,7 +245,7 @@ npm run db:migrate:prod
 - [ ] **Vehicle request systeem** - Gebruikers kunnen nieuwe voertuigen aanvragen
 - [ ] **Favorieten systeem** - Save favorite vehicles
 - [ ] **Dark/Light mode toggle** - Optie voor licht thema
-- [ ] **PWA features** - Offline ondersteuning, installeerbaar
+- [x] **PWA features** - ✅ Offline ondersteuning, installeerbaar (DEPLOYED)
 
 ### Low Priority
 - [ ] **Admin dashboard** - Beheer voertuigen, gebruikers, abonnementen
