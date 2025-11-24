@@ -514,123 +514,94 @@ app.get('/app', (c) => {
         pointer-events: none;
       }
       
-      /* Enhanced Range Slider Styling - FORCED VISIBILITY */
+      /* Apple iOS-style Range Sliders - Clean & Minimalist */
       input[type="range"] {
         -webkit-appearance: none !important;
         appearance: none !important;
-        background: linear-gradient(to right, #94a3b8 0%, #94a3b8 100%) !important;
+        background: #E5E7EB !important;
         width: 100%;
-        height: 24px !important;
-        border-radius: 12px !important;
+        height: 6px !important;
+        border-radius: 3px !important;
         cursor: pointer;
         outline: none !important;
-        border: 4px solid #cbd5e1 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
       }
       
       input[type="range"]::-webkit-slider-track {
         background: transparent !important;
-        height: 24px !important;
+        height: 6px !important;
         border: none !important;
       }
       
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none !important;
         appearance: none !important;
-        width: 56px !important;
-        height: 56px !important;
+        width: 28px !important;
+        height: 28px !important;
         border-radius: 50% !important;
-        background: 
-          linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M13 2L3 14h8l-1 8 10-12h-8l1-8z'/%3E%3C/svg%3E") center/60% no-repeat !important;
-        background-blend-mode: normal !important;
+        background: #FFFFFF !important;
         cursor: grab !important;
-        margin-top: -16px !important;
-        border: 5px solid #fef3c7 !important;
-        box-shadow: 0 8px 20px rgba(251, 191, 36, 0.6),
-                    0 4px 10px rgba(0, 0, 0, 0.5),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15),
+                    0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.15s ease !important;
       }
       
       input[type="range"]::-webkit-slider-thumb:hover {
-        transform: scale(1.15) !important;
-        border-color: #fef3c7 !important;
-        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
-                    0 5px 15px rgba(245, 158, 11, 0.6),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
-                    0 0 0 6px rgba(251, 191, 36, 0.4) !important;
+        transform: scale(1.1) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2),
+                    0 1px 3px rgba(0, 0, 0, 0.12) !important;
       }
       
       input[type="range"]::-webkit-slider-thumb:active {
         cursor: grabbing !important;
-        transform: scale(1.08) !important;
-        border-color: #fde68a !important;
-        box-shadow: 0 6px 16px rgba(251, 191, 36, 0.8),
-                    0 3px 8px rgba(0, 0, 0, 0.6),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.3),
-                    0 0 0 8px rgba(251, 191, 36, 0.5) !important;
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
       }
       
       /* Firefox */
       input[type="range"]::-moz-range-track {
-        background: #94a3b8 !important;
-        height: 24px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
-        border: 4px solid #cbd5e1 !important;
+        background: #E5E7EB !important;
+        height: 6px !important;
+        border-radius: 3px !important;
       }
       
       input[type="range"]::-moz-range-thumb {
-        width: 56px !important;
-        height: 56px !important;
+        width: 28px !important;
+        height: 28px !important;
         border-radius: 50% !important;
-        background: 
-          linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M13 2L3 14h8l-1 8 10-12h-8l1-8z'/%3E%3C/svg%3E") center/60% no-repeat !important;
-        background-blend-mode: normal !important;
+        background: #FFFFFF !important;
         cursor: grab !important;
-        border: 5px solid #fef3c7 !important;
-        box-shadow: 0 8px 20px rgba(251, 191, 36, 0.6),
-                    0 4px 10px rgba(0, 0, 0, 0.5),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border: none !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15),
+                    0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.15s ease !important;
       }
       
       input[type="range"]::-moz-range-thumb:hover {
-        transform: scale(1.15) !important;
-        border-color: #fef3c7 !important;
-        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
-                    0 5px 15px rgba(245, 158, 11, 0.6),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
-                    0 0 0 6px rgba(251, 191, 36, 0.4) !important;
+        transform: scale(1.1) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2),
+                    0 1px 3px rgba(0, 0, 0, 0.12) !important;
       }
       
       input[type="range"]::-moz-range-thumb:active {
         cursor: grabbing !important;
-        transform: scale(1.08) !important;
-        border-color: #fde68a !important;
+        transform: scale(1.05) !important;
       }
       
-      /* Focus state for accessibility */
+      /* Focus state */
       input[type="range"]:focus {
-        outline: none;
+        outline: none !important;
       }
       
       input[type="range"]:focus::-webkit-slider-thumb {
-        border-color: #fef3c7 !important;
-        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
-                    0 5px 15px rgba(245, 158, 11, 0.6),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
-                    0 0 0 8px rgba(251, 191, 36, 0.5) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2),
+                    0 1px 3px rgba(0, 0, 0, 0.12),
+                    0 0 0 4px rgba(59, 130, 246, 0.1) !important;
       }
       
       input[type="range"]:focus::-moz-range-thumb {
-        border-color: #fef3c7 !important;
-        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
-                    0 5px 15px rgba(245, 158, 11, 0.6),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
-                    0 0 0 8px rgba(251, 191, 36, 0.5) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2),
+                    0 1px 3px rgba(0, 0, 0, 0.12),
+                    0 0 0 4px rgba(59, 130, 246, 0.1) !important;
       }
       
       .charging-curve {
@@ -825,8 +796,8 @@ app.get('/app', (c) => {
                 </label>
                 <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
-                        <!-- Slider Container -->
-                        <div class="flex-1 bg-gray-100 rounded-xl px-6 py-5 border border-gray-200">
+                        <!-- Slider Container - Apple Style -->
+                        <div class="flex-1 px-2 py-6">
                             <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="w-full">
                         </div>
                         <div class="flex items-center bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl px-5 py-4 min-w-[140px] shadow-md">
@@ -868,7 +839,7 @@ app.get('/app', (c) => {
                             </div>
                         </div>
                         <!-- Slider Container with Dark Background for White Track Visibility -->
-                        <div class="bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                        <div class="px-2 py-6">
                             <input type="range" id="startSocRange" min="0" max="100" value="20" class="w-full">
                         </div>
                     </div>
@@ -884,7 +855,7 @@ app.get('/app', (c) => {
                             </div>
                         </div>
                         <!-- Slider Container with Dark Background for White Track Visibility -->
-                        <div class="bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                        <div class="px-2 py-6">
                             <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
                         </div>
                     </div>
@@ -905,8 +876,8 @@ app.get('/app', (c) => {
                 </label>
                 <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
                     <div class="flex items-center space-x-4 mb-2">
-                        <!-- Slider Container with Dark Background for White Track Visibility -->
-                        <div class="flex-1 bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                        <!-- Slider Container - Apple Style -->
+                        <div class="flex-1 px-2 py-6">
                             <input type="range" id="electricityPriceRange" min="0.10" max="1.00" step="0.01" value="0.30" class="w-full">
                         </div>
                         <div class="flex items-center bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
@@ -941,8 +912,8 @@ app.get('/app', (c) => {
                 </label>
                 <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
                     <div class="flex items-center space-x-4 mb-2">
-                        <!-- Slider Container with Dark Background for White Track Visibility -->
-                        <div class="flex-1 bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                        <!-- Slider Container - Apple Style -->
+                        <div class="flex-1 px-2 py-6">
                             <input type="range" id="chargingTimeRange" min="5" max="120" step="5" value="30" class="w-full">
                         </div>
                         <div class="flex items-center bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
