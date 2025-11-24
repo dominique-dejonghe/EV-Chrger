@@ -86,9 +86,9 @@ function displayAutocompleteResults() {
   
   if (appState.filteredVehicles.length === 0) {
     resultsContainer.innerHTML = `
-      <div class="p-4 text-center text-gray-400">
+      <div class="p-4 text-center text-gray-600">
         <i class="fas fa-search mb-2 text-2xl"></i>
-        <p>No vehicles found</p>
+        <p>Geen voertuigen gevonden</p>
       </div>
     `
     dropdown.classList.remove('hidden')
@@ -109,19 +109,19 @@ function displayAutocompleteResults() {
            onclick="selectVehicleFromAutocomplete(${vehicle.id})">
         <div class="flex items-center justify-between">
           <div class="flex-1 ${isPremiumLocked ? 'opacity-60' : ''}">
-            <div class="font-medium flex items-center gap-2">
+            <div class="font-medium flex items-center gap-2 text-gray-900">
               ${vehicle.make} ${vehicle.model}
-              ${vehicle.variant ? `<span class="text-gray-400">${vehicle.variant}</span>` : ''}
-              ${isPremiumLocked ? '<i class="fas fa-lock text-xs text-yellow-500"></i>' : ''}
+              ${vehicle.variant ? `<span class="text-gray-600">${vehicle.variant}</span>` : ''}
+              ${isPremiumLocked ? '<i class="fas fa-lock text-xs text-yellow-600"></i>' : ''}
             </div>
-            <div class="text-xs text-gray-400 mt-1">
+            <div class="text-xs text-gray-600 mt-1">
               ${vehicle.battery_capacity_kwh} kWh • 
               ${vehicle.avg_consumption_kwh_per_100km} kWh/100km • 
               ${vehicle.max_dc_charging_kw} kW DC
             </div>
-            ${isPremiumLocked ? '<div class="text-xs text-yellow-400 mt-1"><i class="fas fa-crown mr-1"></i>Premium Only</div>' : ''}
+            ${isPremiumLocked ? '<div class="text-xs text-yellow-700 mt-1"><i class="fas fa-crown mr-1"></i>Alleen Premium</div>' : ''}
           </div>
-          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400 ml-3"></i>' : ''}
+          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-600 ml-3"></i>' : ''}
         </div>
       </div>
     `
@@ -176,58 +176,58 @@ function showPremiumUpgradeModal(vehicle) {
   modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in'
   
   modal.innerHTML = `
-    <div class="glass rounded-2xl md:rounded-3xl max-w-lg w-full p-4 sm:p-6 md:p-8 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-2xl md:rounded-3xl max-w-lg w-full p-4 sm:p-6 md:p-8 animate-fade-in-up max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
       <div class="text-center mb-4 sm:mb-6">
-        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 premium-badge rounded-full flex items-center justify-center">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
           <i class="fas fa-crown text-3xl sm:text-4xl text-white"></i>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-bold mb-2">Premium Voertuig</h2>
-        <p class="text-sm sm:text-base text-gray-400">
+        <h2 class="text-2xl sm:text-3xl font-semibold mb-2 text-gray-900">Premium Voertuig</h2>
+        <p class="text-sm sm:text-base text-gray-600">
           ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} is alleen beschikbaar voor Premium leden
         </p>
       </div>
       
-      <div class="bg-slate-800/50 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
-        <h3 class="text-sm sm:text-base font-semibold mb-3 sm:mb-4 flex items-center">
-          <i class="fas fa-star text-yellow-400 mr-2"></i>
+      <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">
+        <h3 class="text-sm sm:text-base font-semibold mb-3 sm:mb-4 flex items-center text-gray-900">
+          <i class="fas fa-star text-yellow-600 mr-2"></i>
           Upgrade naar Premium voor:
         </h3>
-        <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base">
+        <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-700">
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>284+ voertuigen</strong> - Alle merken</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>Charging curves</strong> - Gedetailleerd</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>Vergelijkingen</strong> - Side-by-side</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>SOC slider</strong> - Nauwkeurig</span>
           </li>
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>Export</strong> - Deel resultaten</span>
           </li>
         </ul>
       </div>
       
       <div class="text-center mb-4">
-        <div class="text-3xl sm:text-4xl font-bold mb-2">
-          €4.99<span class="text-base sm:text-lg text-gray-400 font-normal">/maand</span>
+        <div class="text-3xl sm:text-4xl font-semibold mb-2 text-gray-900">
+          €4.99<span class="text-base sm:text-lg text-gray-600 font-normal">/maand</span>
         </div>
-        <p class="text-xs sm:text-sm text-gray-400">30 dagen geld-terug-garantie</p>
+        <p class="text-xs sm:text-sm text-gray-600">30 dagen geld-terug-garantie</p>
       </div>
       
       <div class="flex gap-2 sm:gap-3">
-        <button onclick="closePremiumUpgradeModal()" class="flex-1 py-2.5 sm:py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm sm:text-base font-semibold transition-colors">
+        <button onclick="closePremiumUpgradeModal()" class="flex-1 py-2.5 sm:py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-full text-sm sm:text-base font-semibold transition-colors shadow-sm">
           Terug
         </button>
-        <button onclick="upgradeToPremium()" class="flex-1 py-2.5 sm:py-3 premium-badge hover:opacity-90 rounded-xl text-sm sm:text-base font-semibold transition-opacity">
+        <button onclick="upgradeToPremium()" class="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90 text-white rounded-full text-sm sm:text-base font-semibold transition-opacity shadow-md">
           <i class="fas fa-crown mr-1 sm:mr-2"></i>Upgrade Nu
         </button>
       </div>
@@ -783,36 +783,36 @@ function displayPricingTiers(tiers) {
   
   tiers.forEach(tier => {
     const tierCard = document.createElement('div')
-    tierCard.className = `glass rounded-2xl p-6 ${tier.popular ? 'ring-2 ring-purple-500 transform scale-105' : ''} transition-all hover:scale-105`
+    tierCard.className = `bg-white border border-gray-200 shadow-lg rounded-2xl p-6 ${tier.popular ? 'ring-2 ring-blue-500 transform scale-105' : ''} transition-all hover:scale-105`
     
     tierCard.innerHTML = `
-      ${tier.popular ? '<div class="text-center mb-4"><span class="px-3 py-1 premium-badge rounded-full text-xs font-bold">MOST POPULAR</span></div>' : ''}
+      ${tier.popular ? '<div class="text-center mb-4"><span class="px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full text-xs font-bold shadow-md">POPULAIRSTE KEUZE</span></div>' : ''}
       
       <div class="text-center mb-6">
-        <h3 class="text-2xl font-bold mb-2">${tier.name}</h3>
-        <div class="text-4xl font-bold mb-1">
-          ${tier.price === 0 ? 'Free' : `€${tier.price}`}
+        <h3 class="text-2xl font-semibold mb-2 text-gray-900">${tier.name}</h3>
+        <div class="text-4xl font-semibold mb-1 text-gray-900">
+          ${tier.price === 0 ? 'Gratis' : `€${tier.price}`}
         </div>
-        ${tier.period ? `<div class="text-sm text-gray-400">per ${tier.period}</div>` : ''}
+        ${tier.period ? `<div class="text-sm text-gray-600">per ${tier.period}</div>` : ''}
       </div>
       
       <ul class="space-y-3 mb-8">
         ${tier.features.map(feature => `
           <li class="flex items-start">
-            <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-            <span class="text-sm">${feature}</span>
+            <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+            <span class="text-sm text-gray-700">${feature}</span>
           </li>
         `).join('')}
       </ul>
       
-      <button class="w-full py-3 rounded-xl font-semibold transition-all ${
+      <button class="w-full py-3 rounded-full font-semibold transition-all shadow-md hover:shadow-lg ${
         tier.id === 'free' 
-          ? 'bg-slate-700 hover:bg-slate-600' 
+          ? 'bg-gray-200 hover:bg-gray-300 text-gray-900' 
           : tier.popular
-            ? 'premium-badge hover:opacity-90'
-            : 'bg-blue-600 hover:bg-blue-700'
+            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90 text-white'
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
       }" onclick="selectTier('${tier.id}')">
-        ${tier.id === 'free' ? 'Current Plan' : 'Upgrade Now'}
+        ${tier.id === 'free' ? 'Huidig Abonnement' : 'Upgrade Nu'}
       </button>
     `
     
@@ -858,14 +858,14 @@ function hidePricingModal() {
 // ============================================
 function showNotification(message, type = 'info') {
   const colors = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    warning: 'bg-yellow-500',
-    info: 'bg-blue-500'
+    success: 'bg-green-600',
+    error: 'bg-red-600',
+    warning: 'bg-yellow-600',
+    info: 'bg-blue-600'
   }
   
   const notification = document.createElement('div')
-  notification.className = `fixed top-20 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg z-50 animate-fade-in`
+  notification.className = `fixed top-20 right-4 ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-xl z-50 animate-fade-in`
   notification.innerHTML = `
     <div class="flex items-center space-x-3">
       <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
@@ -947,9 +947,9 @@ function displayCompareAutocompleteResults() {
   
   if (appState.compareFilteredVehicles.length === 0) {
     resultsContainer.innerHTML = `
-      <div class="p-4 text-center text-gray-400">
+      <div class="p-4 text-center text-gray-600">
         <i class="fas fa-search mb-2 text-2xl"></i>
-        <p>No vehicles found</p>
+        <p>Geen voertuigen gevonden</p>
       </div>
     `
     dropdown.classList.remove('hidden')
@@ -967,16 +967,16 @@ function displayCompareAutocompleteResults() {
            onclick="addVehicleToCompareFromSearch(${vehicle.id})">
         <div class="flex items-center justify-between">
           <div class="flex-1">
-            <div class="font-semibold">
+            <div class="font-semibold text-gray-900">
               ${vehicle.make} ${vehicle.model}
-              ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400 ml-2 text-xs"></i>' : ''}
+              ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-600 ml-2 text-xs"></i>' : ''}
             </div>
-            <div class="text-xs text-gray-400 mt-1">
+            <div class="text-xs text-gray-600 mt-1">
               ${vehicle.variant || ''} ${vehicle.year ? '(' + vehicle.year + ')' : ''} • 
               ${vehicle.usable_capacity_kwh}kWh • ${vehicle.max_dc_charging_kw}kW max
             </div>
           </div>
-          ${isPremiumLocked ? '<i class="fas fa-lock text-yellow-400 ml-3"></i>' : ''}
+          ${isPremiumLocked ? '<i class="fas fa-lock text-yellow-600 ml-3"></i>' : ''}
         </div>
       </div>
     `
@@ -1034,22 +1034,22 @@ function updateCompareVehiclesList() {
   const container = document.getElementById('selectedCompareVehiclesList')
   
   if (appState.compareVehicles.length === 0) {
-    container.innerHTML = '<div class="text-sm text-gray-400 text-center py-4">No vehicles selected yet</div>'
+    container.innerHTML = '<div class="text-sm text-gray-600 text-center py-4 bg-gray-50 rounded-2xl border border-gray-200">Nog geen voertuigen geselecteerd</div>'
     return
   }
   
   container.innerHTML = appState.compareVehicles.map(vehicle => `
-    <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm">
       <div class="flex-1">
-        <div class="font-semibold text-sm">
+        <div class="font-semibold text-sm text-gray-900">
           ${vehicle.make} ${vehicle.model}
-          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-400 ml-1 text-xs"></i>' : ''}
+          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-600 ml-1 text-xs"></i>' : ''}
         </div>
-        <div class="text-xs text-gray-400 mt-1">
+        <div class="text-xs text-gray-600 mt-1">
           ${vehicle.variant || ''} • ${vehicle.usable_capacity_kwh}kWh
         </div>
       </div>
-      <button onclick="removeVehicleFromCompare(${vehicle.id})" class="ml-3 w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-colors">
+      <button onclick="removeVehicleFromCompare(${vehicle.id})" class="ml-3 w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition-colors">
         <i class="fas fa-times"></i>
       </button>
     </div>
@@ -1057,7 +1057,7 @@ function updateCompareVehiclesList() {
 }
 
 function updateCompareVehicleCount() {
-  document.getElementById('compareVehicleCount').textContent = `${appState.compareVehicles.length} vehicle${appState.compareVehicles.length !== 1 ? 's' : ''}`
+  document.getElementById('compareVehicleCount').textContent = `${appState.compareVehicles.length} voertuig${appState.compareVehicles.length !== 1 ? 'en' : ''}`
 }
 
 function updateCompareButton() {
@@ -1107,16 +1107,16 @@ function displayComparisonResults(comparisons) {
   const resultsSection = document.getElementById('comparisonResults')
   const table = document.getElementById('comparisonTable')
   
-  // Build table HTML
+  // Build table HTML - Apple Style
   let tableHTML = `
     <thead>
-      <tr class="border-b border-slate-700">
-        <th class="text-left p-4 font-semibold">Vehicle</th>
-        <th class="text-center p-4 font-semibold">Charging Speed</th>
-        <th class="text-center p-4 font-semibold">Charging Time</th>
-        <th class="text-center p-4 font-semibold">Range/Hour</th>
-        <th class="text-center p-4 font-semibold">Total Cost</th>
-        <th class="text-center p-4 font-semibold">Cost/100km</th>
+      <tr class="border-b border-gray-300">
+        <th class="text-left p-4 font-semibold text-gray-900">Voertuig</th>
+        <th class="text-center p-4 font-semibold text-gray-900">Laadsnelheid</th>
+        <th class="text-center p-4 font-semibold text-gray-900">Laadtijd</th>
+        <th class="text-center p-4 font-semibold text-gray-900">Bereik/uur</th>
+        <th class="text-center p-4 font-semibold text-gray-900">Totale kosten</th>
+        <th class="text-center p-4 font-semibold text-gray-900">Kosten/100km</th>
       </tr>
     </thead>
     <tbody>
@@ -1124,36 +1124,36 @@ function displayComparisonResults(comparisons) {
   
   comparisons.forEach((comp, index) => {
     const isFirst = index === 0
-    const rowClass = isFirst ? 'bg-green-500/10 border-2 border-green-500/30' : 'border-b border-slate-700/50'
+    const rowClass = isFirst ? 'bg-green-50 border-2 border-green-300' : 'border-b border-gray-200'
     
     tableHTML += `
       <tr class="${rowClass}">
         <td class="p-4">
-          <div class="font-semibold">
+          <div class="font-semibold text-gray-900">
             ${comp.make} ${comp.model}
-            ${isFirst ? '<i class="fas fa-trophy text-yellow-400 ml-2"></i>' : ''}
+            ${isFirst ? '<i class="fas fa-trophy text-yellow-600 ml-2"></i>' : ''}
           </div>
-          <div class="text-xs text-gray-400 mt-1">
+          <div class="text-xs text-gray-600 mt-1">
             ${comp.variant || ''} • ${comp.batteryCapacity}kWh
           </div>
         </td>
         <td class="text-center p-4">
-          <div class="text-2xl font-bold tesla-gradient bg-clip-text text-transparent">
+          <div class="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             ${comp.chargingSpeedKmh}
           </div>
-          <div class="text-xs text-gray-400">km/h</div>
+          <div class="text-xs text-gray-600">km/h</div>
         </td>
         <td class="text-center p-4">
-          <div class="text-lg font-bold">${comp.chargingTime}</div>
+          <div class="text-lg font-semibold text-gray-900">${comp.chargingTime}</div>
         </td>
         <td class="text-center p-4">
-          <div class="text-lg font-bold">${comp.rangePerHour} km</div>
+          <div class="text-lg font-semibold text-gray-900">${comp.rangePerHour} km</div>
         </td>
         <td class="text-center p-4">
-          <div class="text-lg font-bold text-orange-400">${comp.totalCost}</div>
+          <div class="text-lg font-semibold text-orange-600">${comp.totalCost}</div>
         </td>
         <td class="text-center p-4">
-          <div class="text-lg font-bold text-yellow-400">${comp.costPer100km}</div>
+          <div class="text-lg font-semibold text-yellow-700">${comp.costPer100km}</div>
         </td>
       </tr>
     `
@@ -1213,19 +1213,19 @@ function showInstallPrompt() {
   installPrompt.id = 'installAppPrompt'
   installPrompt.className = 'fixed bottom-4 right-4 z-50 animate-fade-in'
   installPrompt.innerHTML = `
-    <div class="glass rounded-2xl p-4 shadow-2xl border border-slate-700 max-w-sm">
+    <div class="bg-white rounded-2xl p-4 shadow-2xl border border-gray-200 max-w-sm">
       <div class="flex items-start space-x-3">
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
           <i class="fas fa-mobile-alt text-white text-xl"></i>
         </div>
         <div class="flex-1">
-          <h3 class="font-bold text-sm mb-1">Installeer de App</h3>
-          <p class="text-xs text-gray-400 mb-3">Voeg EV Charge Calculator toe aan je startscherm voor snelle toegang</p>
+          <h3 class="font-semibold text-sm mb-1 text-gray-900">Installeer de App</h3>
+          <p class="text-xs text-gray-600 mb-3">Voeg EV Charge Calculator toe aan je startscherm voor snelle toegang</p>
           <div class="flex gap-2">
-            <button id="installAppBtn" class="flex-1 px-4 py-2 tesla-gradient text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+            <button id="installAppBtn" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-full shadow-md hover:shadow-lg transition-all">
               <i class="fas fa-download mr-1"></i>Installeer
             </button>
-            <button id="dismissInstallBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg transition-colors">
+            <button id="dismissInstallBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 text-xs font-semibold rounded-full transition-colors shadow-sm">
               Later
             </button>
           </div>

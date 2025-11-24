@@ -34,11 +34,19 @@ app.get('/', (c) => {
       .gradient-text { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
       .gradient-bg { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); }
       .apple-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08); }
+      
+      /* Tesla Supercharger Background - Subtle & Elegant */
+      .hero-with-bg {
+        background: 
+          linear-gradient(to bottom, rgba(249, 250, 251, 0.97) 0%, rgba(249, 250, 251, 0.95) 100%),
+          url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1600&q=80') center/cover;
+        background-attachment: fixed;
+      }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-    <!-- Hero Section - Apple Style -->
-    <section class="min-h-screen flex flex-col justify-center px-6 py-20">
+    <!-- Hero Section - Apple Style with Tesla Supercharger Background -->
+    <section class="min-h-screen flex flex-col justify-center px-6 py-20 hero-with-bg">
         <div class="max-w-5xl mx-auto text-center">
             <div class="mb-12">
                 <h1 class="text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900" style="letter-spacing: -0.02em;">
@@ -616,8 +624,8 @@ app.get('/app', (c) => {
       .autocomplete-item {
         padding: 12px 16px;
         cursor: pointer;
-        transition: background-color 0.2s;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.2s;
+        border-bottom: 1px solid #e5e7eb;
       }
       
       .autocomplete-item:last-child {
@@ -626,15 +634,15 @@ app.get('/app', (c) => {
       
       .autocomplete-item:hover,
       .autocomplete-item.active {
-        background: rgba(100, 116, 139, 0.3);
+        background: #f3f4f6;
       }
       
       .autocomplete-item.premium {
-        background: rgba(167, 139, 250, 0.1);
+        background: rgba(59, 130, 246, 0.05);
       }
       
       .autocomplete-item.premium:hover {
-        background: rgba(167, 139, 250, 0.2);
+        background: rgba(59, 130, 246, 0.1);
       }
       
       .autocomplete-item.locked {
@@ -643,7 +651,7 @@ app.get('/app', (c) => {
       }
       
       .autocomplete-item.locked:hover {
-        background: rgba(234, 179, 8, 0.1);
+        background: rgba(234, 179, 8, 0.05);
       }
       
       .animate-fade-in-up {
@@ -776,7 +784,7 @@ app.get('/app', (c) => {
                                 <div class="text-xs text-gray-400" id="selectedVehicleSpecs">-</div>
                             </div>
                         </div>
-                        <button id="clearVehicleBtn" class="text-gray-400 hover:text-white transition-colors">
+                        <button id="clearVehicleBtn" class="text-gray-500 hover:text-gray-700 transition-colors">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -820,18 +828,18 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
-            <!-- SOC Range Slider (Premium Feature) -->
-            <div id="socSlider" class="mb-8 hidden">
-                <label class="block text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-battery-half text-green-400 mr-3 text-xl"></i>
-                    <span>State of Charge Range</span>
-                    <span class="ml-3 px-3 py-1 text-xs premium-badge rounded-full font-bold">PREMIUM</span>
+            <!-- SOC Range Slider (Premium Feature) - Apple Style -->
+            <div id="socSlider" class="mb-6 hidden">
+                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <i class="fas fa-battery-half text-green-600 mr-2"></i>
+                    <span>Laadpercentage bereik</span>
+                    <span class="ml-3 px-3 py-1 text-xs premium-badge text-white rounded-full font-bold">PREMIUM</span>
                 </label>
-                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <!-- Start SOC -->
                     <div class="mb-6">
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm text-gray-400">Start SOC</span>
+                            <span class="text-sm text-gray-600 font-medium">Start SOC</span>
                             <div class="flex items-center bg-gradient-to-r from-orange-600 to-red-600 rounded-lg px-3 py-2 min-w-[90px] shadow-md">
                                 <input type="number" id="startSocInput" value="20" min="0" max="100" 
                                        class="bg-transparent border-none outline-none text-white text-right w-full text-lg font-bold">
@@ -847,34 +855,34 @@ app.get('/app', (c) => {
                     <!-- End SOC -->
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm text-gray-400">Target SOC</span>
-                            <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg px-3 py-2 min-w-[90px] shadow-md">
+                            <span class="text-sm text-gray-600 font-medium">Doel SOC</span>
+                            <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl px-3 py-2 min-w-[90px] shadow-md">
                                 <input type="number" id="endSocInput" value="80" min="0" max="100" 
                                        class="bg-transparent border-none outline-none text-white text-right w-full text-lg font-bold">
                                 <span class="text-white ml-1 text-sm font-semibold">%</span>
                             </div>
                         </div>
-                        <!-- Slider Container with Dark Background for White Track Visibility -->
+                        <!-- Slider Container - Apple Style -->
                         <div class="px-2 py-6">
                             <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
                         </div>
                     </div>
                     
-                    <div class="mt-4 flex justify-between text-xs font-medium text-gray-400">
+                    <div class="mt-4 flex justify-between text-xs font-medium text-gray-500">
                         <span><i class="fas fa-battery-empty mr-1"></i>0%</span>
-                        <span class="text-yellow-400"><i class="fas fa-info-circle mr-1"></i>Optimal: 20-80%</span>
+                        <span class="text-yellow-600"><i class="fas fa-info-circle mr-1"></i>Optimaal: 20-80%</span>
                         <span><i class="fas fa-battery-full mr-1"></i>100%</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Electricity Price Input -->
-            <div class="mb-8">
-                <label class="block text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-euro-sign text-yellow-400 mr-3 text-xl"></i>
-                    <span>Electricity Price</span>
+            <!-- Electricity Price Input - Apple Style -->
+            <div class="mb-6">
+                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <i class="fas fa-euro-sign text-yellow-600 mr-2"></i>
+                    <span>Elektriciteitsprijs</span>
                 </label>
-                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
                         <!-- Slider Container - Apple Style -->
                         <div class="flex-1 px-2 py-6">
@@ -886,55 +894,55 @@ app.get('/app', (c) => {
                                    class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
                         </div>
                     </div>
-                    <div class="mt-4 flex justify-between text-sm font-medium">
-                        <span class="text-gray-400">
-                            <i class="fas fa-home mr-1"></i>Home (€0.10)
+                    <div class="mt-4 flex justify-between text-xs font-medium">
+                        <span class="text-gray-500">
+                            <i class="fas fa-home mr-1"></i>Thuis (€0.10)
                         </span>
-                        <span class="text-yellow-400">
-                            <i class="fas fa-plug mr-1"></i>Average (€0.30)
+                        <span class="text-yellow-600">
+                            <i class="fas fa-plug mr-1"></i>Gemiddeld (€0.30)
                         </span>
-                        <span class="text-orange-400">
-                            <i class="fas fa-bolt mr-1"></i>Fast (€0.70)
+                        <span class="text-orange-600">
+                            <i class="fas fa-bolt mr-1"></i>Snel (€0.70)
                         </span>
                     </div>
-                    <div class="mt-3 text-xs text-gray-500 text-center">
-                        Price per kWh (incl. taxes & fees)
+                    <div class="mt-3 text-xs text-gray-400 text-center">
+                        Prijs per kWh (incl. btw en kosten)
                     </div>
                 </div>
             </div>
 
-            <!-- Available Charging Time Input (NEW) -->
-            <div class="mb-8">
-                <label class="block text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-clock text-cyan-400 mr-3 text-xl"></i>
-                    <span>Available Charging Time</span>
-                    <span class="ml-3 text-xs text-gray-400">(Optional - for range calculation)</span>
+            <!-- Available Charging Time Input - Apple Style -->
+            <div class="mb-6">
+                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <i class="fas fa-clock text-cyan-600 mr-2"></i>
+                    <span>Beschikbare laadtijd</span>
+                    <span class="ml-3 text-xs text-gray-400 font-normal">(Optioneel - voor bereikberekening)</span>
                 </label>
-                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
                         <!-- Slider Container - Apple Style -->
                         <div class="flex-1 px-2 py-6">
                             <input type="range" id="chargingTimeRange" min="5" max="120" step="5" value="30" class="w-full">
                         </div>
-                        <div class="flex items-center bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
+                        <div class="flex items-center bg-gradient-to-r from-cyan-600 to-blue-700 rounded-2xl px-5 py-4 min-w-[140px] shadow-md">
                             <input type="number" id="chargingTimeInput" value="30" min="5" max="120" step="5" 
                                    class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
                             <span class="text-white ml-2 text-lg font-semibold">min</span>
                         </div>
                     </div>
-                    <div class="mt-4 flex justify-between text-sm font-medium">
-                        <span class="text-gray-400">
-                            <i class="fas fa-coffee mr-1"></i>Quick (5 min)
+                    <div class="mt-4 flex justify-between text-xs font-medium">
+                        <span class="text-gray-500">
+                            <i class="fas fa-coffee mr-1"></i>Snel (5 min)
                         </span>
-                        <span class="text-cyan-400">
-                            <i class="fas fa-shopping-cart mr-1"></i>Shopping (30 min)
+                        <span class="text-cyan-600">
+                            <i class="fas fa-shopping-cart mr-1"></i>Boodschappen (30 min)
                         </span>
-                        <span class="text-blue-400">
+                        <span class="text-blue-600">
                             <i class="fas fa-utensils mr-1"></i>Lunch (120 min)
                         </span>
                     </div>
-                    <div class="mt-3 text-xs text-gray-500 text-center">
-                        How much time do you have for charging?
+                    <div class="mt-3 text-xs text-gray-400 text-center">
+                        Hoeveel tijd heb je om te laden?
                     </div>
                 </div>
             </div>
@@ -945,169 +953,169 @@ app.get('/app', (c) => {
             </button>
         </div>
 
-        <!-- Results Section -->
+        <!-- Results Section - Apple Style -->
         <div id="resultsSection" class="hidden mt-8 animate-fade-in">
-            <div class="glass rounded-3xl p-8 md:p-12 result-card">
+            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200">
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold mb-2">Charging Speed</h2>
-                    <p class="text-gray-400" id="vehicleName">-</p>
+                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Laadsnelheid</h2>
+                    <p class="text-gray-600 text-lg" id="vehicleName">-</p>
                 </div>
 
                 <!-- Main Result -->
                 <div class="text-center mb-12">
                     <div class="inline-block">
-                        <div class="text-7xl md:text-8xl font-bold tesla-gradient bg-clip-text text-transparent mb-2" id="speedResult">
+                        <div class="text-7xl md:text-8xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2" id="speedResult">
                             -
                         </div>
-                        <div class="text-2xl text-gray-400">km/h</div>
+                        <div class="text-2xl text-gray-600 font-medium">km/h</div>
                     </div>
                 </div>
 
-                <!-- Details Grid -->
+                <!-- Details Grid - Apple Style Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
-                        <i class="fas fa-bolt text-3xl text-yellow-400 mb-3"></i>
-                        <div class="text-2xl font-bold" id="effectivePower">-</div>
-                        <div class="text-sm text-gray-400 mt-1">Effective Power (kW)</div>
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
+                        <i class="fas fa-bolt text-3xl text-yellow-600 mb-3"></i>
+                        <div class="text-2xl font-semibold text-gray-900" id="effectivePower">-</div>
+                        <div class="text-sm text-gray-600 mt-1">Effectief vermogen (kW)</div>
                     </div>
-                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
-                        <i class="fas fa-clock text-3xl text-blue-400 mb-3"></i>
-                        <div class="text-2xl font-bold" id="chargingTime">-</div>
-                        <div class="text-sm text-gray-400 mt-1">Charging Time</div>
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
+                        <i class="fas fa-clock text-3xl text-blue-600 mb-3"></i>
+                        <div class="text-2xl font-semibold text-gray-900" id="chargingTime">-</div>
+                        <div class="text-sm text-gray-600 mt-1">Laadtijd</div>
                     </div>
-                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
-                        <i class="fas fa-road text-3xl text-green-400 mb-3"></i>
-                        <div class="text-2xl font-bold" id="rangePerHour">-</div>
-                        <div class="text-sm text-gray-400 mt-1">Range/Hour (km)</div>
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
+                        <i class="fas fa-road text-3xl text-green-600 mb-3"></i>
+                        <div class="text-2xl font-semibold text-gray-900" id="rangePerHour">-</div>
+                        <div class="text-sm text-gray-600 mt-1">Bereik/uur (km)</div>
                     </div>
-                    <div class="bg-slate-800/50 rounded-xl p-6 text-center">
-                        <i class="fas fa-euro-sign text-3xl text-orange-400 mb-3"></i>
-                        <div class="text-2xl font-bold" id="chargingCost">-</div>
-                        <div class="text-sm text-gray-400 mt-1">Charging Cost</div>
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
+                        <i class="fas fa-euro-sign text-3xl text-orange-600 mb-3"></i>
+                        <div class="text-2xl font-semibold text-gray-900" id="chargingCost">-</div>
+                        <div class="text-sm text-gray-600 mt-1">Laadkosten</div>
                     </div>
                 </div>
                 
-                <!-- NEW: Estimated Range with Available Time -->
-                <div id="rangeEstimate" class="mb-8 p-8 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl">
+                <!-- Estimated Range with Available Time - Apple Style -->
+                <div id="rangeEstimate" class="mb-8 p-8 bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-2xl shadow-sm">
                     <div class="text-center">
-                        <h3 class="text-xl font-semibold mb-4 flex items-center justify-center">
-                            <i class="fas fa-route text-cyan-400 mr-2"></i>
-                            Estimated Range with Available Time
+                        <h3 class="text-xl font-semibold mb-4 flex items-center justify-center text-gray-900">
+                            <i class="fas fa-route text-cyan-600 mr-2"></i>
+                            Geschat bereik met beschikbare tijd
                         </h3>
                         <div class="text-center mb-4">
                             <div class="inline-block">
-                                <div class="text-6xl md:text-7xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2" id="estimatedRange">
+                                <div class="text-6xl md:text-7xl font-semibold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2" id="estimatedRange">
                                     -
                                 </div>
-                                <div class="text-2xl text-gray-400">kilometers</div>
+                                <div class="text-2xl text-gray-600 font-medium">kilometers</div>
                             </div>
                         </div>
-                        <div class="text-sm text-gray-400">
-                            Based on <span class="text-cyan-400 font-semibold" id="displayChargingTime">-</span> minutes of charging
+                        <div class="text-sm text-gray-600">
+                            Gebaseerd op <span class="text-cyan-700 font-semibold" id="displayChargingTime">-</span> minuten laden
                         </div>
                         <div class="mt-4 grid grid-cols-2 gap-4">
-                            <div class="bg-slate-800/50 rounded-xl p-4">
-                                <div class="text-sm text-gray-400 mb-1">Energy Added</div>
-                                <div class="text-xl font-bold text-cyan-400" id="energyAdded">-</div>
+                            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+                                <div class="text-sm text-gray-600 mb-1 font-medium">Toegevoegde energie</div>
+                                <div class="text-xl font-semibold text-cyan-700" id="energyAdded">-</div>
                             </div>
-                            <div class="bg-slate-800/50 rounded-xl p-4">
-                                <div class="text-sm text-gray-400 mb-1">Final SOC</div>
-                                <div class="text-xl font-bold text-green-400" id="finalSOC">-</div>
+                            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+                                <div class="text-sm text-gray-600 mb-1 font-medium">Eindniveau SOC</div>
+                                <div class="text-xl font-semibold text-green-700" id="finalSOC">-</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Additional Cost Details -->
-                <div id="costDetails" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl">
+                <!-- Additional Cost Details - Apple Style -->
+                <div id="costDetails" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-2xl shadow-sm">
                     <div class="text-center">
-                        <div class="text-sm text-gray-400 mb-1">Energy Used</div>
-                        <div class="text-xl font-bold" id="energyUsed">-</div>
+                        <div class="text-sm text-gray-600 mb-1 font-medium">Verbruikte energie</div>
+                        <div class="text-xl font-semibold text-gray-900" id="energyUsed">-</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-sm text-gray-400 mb-1">Cost per Hour</div>
-                        <div class="text-xl font-bold" id="costPerHour">-</div>
+                        <div class="text-sm text-gray-600 mb-1 font-medium">Kosten per uur</div>
+                        <div class="text-xl font-semibold text-gray-900" id="costPerHour">-</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-sm text-gray-400 mb-1">Cost per 100km</div>
-                        <div class="text-xl font-bold" id="costPer100km">-</div>
+                        <div class="text-sm text-gray-600 mb-1 font-medium">Kosten per 100km</div>
+                        <div class="text-xl font-semibold text-gray-900" id="costPer100km">-</div>
                     </div>
                 </div>
 
-                <!-- Charging Curve (Premium) -->
+                <!-- Charging Curve (Premium) - Apple Style -->
                 <div id="chargingCurve" class="hidden mb-8">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
-                        <i class="fas fa-chart-line mr-2"></i>
-                        Charging Curve Analysis
-                        <span class="ml-2 px-2 py-1 text-xs premium-badge rounded-full">PREMIUM</span>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center text-gray-900">
+                        <i class="fas fa-chart-line mr-2 text-purple-600"></i>
+                        Laadcurve analyse
+                        <span class="ml-2 px-2 py-1 text-xs bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-medium">PREMIUM</span>
                     </h3>
-                    <div class="charging-curve">
+                    <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
                         <canvas id="curveCanvas" width="600" height="160"></canvas>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- Action Buttons - Apple Style -->
                 <div class="flex justify-center">
-                    <button id="compareFromResult" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all transform hover:scale-105 font-semibold text-lg">
-                        <i class="fas fa-exchange-alt mr-2"></i>Compare Vehicles
+                    <button id="compareFromResult" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all transform hover:scale-105 font-semibold text-lg shadow-md hover:shadow-lg">
+                        <i class="fas fa-exchange-alt mr-2"></i>Voertuigen vergelijken
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Compare Vehicles Modal -->
-    <div id="compareModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glass rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 animate-fade-in">
+    <!-- Compare Vehicles Modal - Apple Style -->
+    <div id="compareModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 animate-fade-in shadow-2xl border border-gray-200">
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h2 class="text-3xl font-bold mb-2">Compare Vehicles</h2>
-                    <p class="text-gray-400">Select vehicles to compare charging performance</p>
+                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Voertuigen vergelijken</h2>
+                    <p class="text-gray-600">Selecteer voertuigen om laadprestaties te vergelijken</p>
                 </div>
-                <button id="closeCompareModal" class="text-gray-400 hover:text-white text-2xl">
+                <button id="closeCompareModal" class="text-gray-500 hover:text-gray-700 text-2xl">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
-            <!-- Current Settings Display -->
-            <div class="mb-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+            <!-- Current Settings Display - Apple Style -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                        <span class="text-gray-400">Charger:</span>
-                        <span class="ml-2 font-bold" id="compareChargerPower">50 kW</span>
+                        <span class="text-gray-600">Lader:</span>
+                        <span class="ml-2 font-semibold text-gray-900" id="compareChargerPower">50 kW</span>
                     </div>
                     <div>
-                        <span class="text-gray-400">SOC:</span>
-                        <span class="ml-2 font-bold" id="compareSOCRange">20-80%</span>
+                        <span class="text-gray-600">SOC:</span>
+                        <span class="ml-2 font-semibold text-gray-900" id="compareSOCRange">20-80%</span>
                     </div>
                     <div>
-                        <span class="text-gray-400">Price:</span>
-                        <span class="ml-2 font-bold" id="compareElectricityPrice">€0.30/kWh</span>
+                        <span class="text-gray-600">Prijs:</span>
+                        <span class="ml-2 font-semibold text-gray-900" id="compareElectricityPrice">€0.30/kWh</span>
                     </div>
                     <div>
-                        <span class="text-gray-400">Selected:</span>
-                        <span class="ml-2 font-bold text-blue-400" id="compareVehicleCount">0 vehicles</span>
+                        <span class="text-gray-600">Geselecteerd:</span>
+                        <span class="ml-2 font-semibold text-blue-600" id="compareVehicleCount">0 voertuigen</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Vehicle Search for Comparison -->
+            <!-- Vehicle Search for Comparison - Apple Style -->
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-3">
-                    <i class="fas fa-search mr-2"></i>Search Vehicles to Compare (max 4)
+                <label class="block text-sm font-semibold mb-3 text-gray-900">
+                    <i class="fas fa-search mr-2 text-blue-600"></i>Zoek voertuigen om te vergelijken (max 4)
                 </label>
                 <div class="relative">
                     <input 
                         type="text" 
                         id="compareVehicleSearch" 
-                        placeholder="Type to search..." 
-                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        placeholder="Type om te zoeken..." 
+                        class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         autocomplete="off"
                     >
                     <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                     
-                    <!-- Autocomplete Dropdown for Comparison -->
-                    <div id="compareAutocompleteDropdown" class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
+                    <!-- Autocomplete Dropdown for Comparison - Apple Style -->
+                    <div id="compareAutocompleteDropdown" class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto">
                         <div id="compareAutocompleteResults" class="py-2">
                             <!-- Results will be populated here -->
                         </div>
@@ -1115,27 +1123,27 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
-            <!-- Selected Vehicles for Comparison -->
+            <!-- Selected Vehicles for Comparison - Apple Style -->
             <div id="selectedCompareVehicles" class="mb-6">
-                <h3 class="text-sm font-medium mb-3">Selected Vehicles:</h3>
+                <h3 class="text-sm font-semibold mb-3 text-gray-900">Geselecteerde voertuigen:</h3>
                 <div id="selectedCompareVehiclesList" class="space-y-2">
-                    <div class="text-sm text-gray-400 text-center py-4">No vehicles selected yet</div>
+                    <div class="text-sm text-gray-600 text-center py-4 bg-gray-50 rounded-2xl border border-gray-200">Nog geen voertuigen geselecteerd</div>
                 </div>
             </div>
 
-            <!-- Compare Button -->
-            <button id="startCompareBtn" disabled class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-exchange-alt mr-2"></i>Compare Selected Vehicles
+            <!-- Compare Button - Apple Style -->
+            <button id="startCompareBtn" disabled class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-exchange-alt mr-2"></i>Vergelijk geselecteerde voertuigen
             </button>
         </div>
     </div>
 
-    <!-- Comparison Results Section -->
+    <!-- Comparison Results Section - Apple Style -->
     <div id="comparisonResults" class="hidden max-w-6xl mx-auto px-4 pb-12 mt-8">
-        <div class="glass rounded-3xl p-8 md:p-12">
+        <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-200">
             <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold mb-2">Vehicle Comparison</h2>
-                <p class="text-gray-400">Side-by-side charging performance analysis</p>
+                <h2 class="text-3xl font-semibold mb-2 text-gray-900">Voertuigvergelijking</h2>
+                <p class="text-gray-600">Laadprestaties naast elkaar</p>
             </div>
 
             <!-- Comparison Table -->
@@ -1145,24 +1153,24 @@ app.get('/app', (c) => {
                 </table>
             </div>
 
-            <!-- Back Button -->
+            <!-- Back Button - Apple Style -->
             <div class="mt-8 text-center">
-                <button id="closeComparisonResults" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Calculator
+                <button id="closeComparisonResults" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium rounded-full transition-colors shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Terug naar calculator
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Pricing Modal -->
-    <div id="pricingModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glass rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-8 md:p-12 animate-fade-in">
+    <!-- Pricing Modal - Apple Style -->
+    <div id="pricingModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-8 md:p-12 animate-fade-in shadow-2xl border border-gray-200">
             <div class="flex justify-between items-start mb-8">
                 <div>
-                    <h2 class="text-3xl font-bold mb-2">Choose Your Plan</h2>
-                    <p class="text-gray-400">Unlock premium features and get access to all vehicles</p>
+                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Kies je abonnement</h2>
+                    <p class="text-gray-600">Ontgrendel premium functies en krijg toegang tot alle voertuigen</p>
                 </div>
-                <button id="closePricingModal" class="text-gray-400 hover:text-white text-2xl">
+                <button id="closePricingModal" class="text-gray-500 hover:text-gray-700 text-2xl">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1173,14 +1181,14 @@ app.get('/app', (c) => {
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="mt-20 py-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 text-center text-gray-400">
+    <!-- Footer - Apple Style -->
+    <footer class="mt-20 py-12 border-t border-gray-200 bg-white">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-600">
             <p class="mb-4">© 2024 EV Charge Calculator. Built with ⚡ for EV enthusiasts.</p>
             <div class="flex justify-center space-x-6">
-                <a href="#" class="hover:text-white transition-colors">Privacy</a>
-                <a href="#" class="hover:text-white transition-colors">Terms</a>
-                <a href="#" class="hover:text-white transition-colors">Contact</a>
+                <a href="#" class="hover:text-blue-600 transition-colors">Privacy</a>
+                <a href="#" class="hover:text-blue-600 transition-colors">Voorwaarden</a>
+                <a href="#" class="hover:text-blue-600 transition-colors">Contact</a>
             </div>
         </div>
     </footer>
