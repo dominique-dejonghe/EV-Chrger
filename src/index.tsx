@@ -512,89 +512,102 @@ app.get('/app', (c) => {
         pointer-events: none;
       }
       
-      /* Enhanced Range Slider Styling */
+      /* Enhanced Range Slider Styling - FORCED VISIBILITY */
       input[type="range"] {
-        -webkit-appearance: none;
-        appearance: none;
-        background: transparent;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        background: linear-gradient(to right, #94a3b8 0%, #94a3b8 100%) !important;
         width: 100%;
-        height: 40px;
+        height: 24px !important;
+        border-radius: 12px !important;
         cursor: pointer;
+        outline: none !important;
+        border: 4px solid #cbd5e1 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
       }
       
       input[type="range"]::-webkit-slider-track {
-        background: linear-gradient(to right, 
-          #1e293b 0%, 
-          #334155 50%, 
-          #475569 100%
-        );
-        height: 10px;
-        border-radius: 6px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: transparent !important;
+        height: 24px !important;
+        border: none !important;
       }
       
       input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        cursor: grab;
-        margin-top: -9px;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5),
-                    0 0 0 4px rgba(102, 126, 234, 0.2);
-        transition: all 0.2s ease;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        background: 
+          linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M13 2L3 14h8l-1 8 10-12h-8l1-8z'/%3E%3C/svg%3E") center/60% no-repeat !important;
+        background-blend-mode: normal !important;
+        cursor: grab !important;
+        margin-top: -16px !important;
+        border: 5px solid #fef3c7 !important;
+        box-shadow: 0 8px 20px rgba(251, 191, 36, 0.6),
+                    0 4px 10px rgba(0, 0, 0, 0.5),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
       }
       
       input[type="range"]::-webkit-slider-thumb:hover {
-        transform: scale(1.15);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.7),
-                    0 0 0 6px rgba(102, 126, 234, 0.3);
+        transform: scale(1.15) !important;
+        border-color: #fef3c7 !important;
+        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
+                    0 5px 15px rgba(245, 158, 11, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+                    0 0 0 6px rgba(251, 191, 36, 0.4) !important;
       }
       
       input[type="range"]::-webkit-slider-thumb:active {
-        cursor: grabbing;
-        transform: scale(1.05);
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.6),
-                    0 0 0 8px rgba(102, 126, 234, 0.2);
+        cursor: grabbing !important;
+        transform: scale(1.08) !important;
+        border-color: #fde68a !important;
+        box-shadow: 0 6px 16px rgba(251, 191, 36, 0.8),
+                    0 3px 8px rgba(0, 0, 0, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+                    0 0 0 8px rgba(251, 191, 36, 0.5) !important;
       }
       
       /* Firefox */
       input[type="range"]::-moz-range-track {
-        background: linear-gradient(to right, 
-          #1e293b 0%, 
-          #334155 50%, 
-          #475569 100%
-        );
-        height: 10px;
-        border-radius: 6px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #94a3b8 !important;
+        height: 24px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+        border: 4px solid #cbd5e1 !important;
       }
       
       input[type="range"]::-moz-range-thumb {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        cursor: grab;
-        border: none;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5),
-                    0 0 0 4px rgba(102, 126, 234, 0.2);
-        transition: all 0.2s ease;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        background: 
+          linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e293b'%3E%3Cpath d='M13 2L3 14h8l-1 8 10-12h-8l1-8z'/%3E%3C/svg%3E") center/60% no-repeat !important;
+        background-blend-mode: normal !important;
+        cursor: grab !important;
+        border: 5px solid #fef3c7 !important;
+        box-shadow: 0 8px 20px rgba(251, 191, 36, 0.6),
+                    0 4px 10px rgba(0, 0, 0, 0.5),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
       }
       
       input[type="range"]::-moz-range-thumb:hover {
-        transform: scale(1.15);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.7),
-                    0 0 0 6px rgba(102, 126, 234, 0.3);
+        transform: scale(1.15) !important;
+        border-color: #fef3c7 !important;
+        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
+                    0 5px 15px rgba(245, 158, 11, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+                    0 0 0 6px rgba(251, 191, 36, 0.4) !important;
       }
       
       input[type="range"]::-moz-range-thumb:active {
-        cursor: grabbing;
-        transform: scale(1.05);
+        cursor: grabbing !important;
+        transform: scale(1.08) !important;
+        border-color: #fde68a !important;
       }
       
       /* Focus state for accessibility */
@@ -603,13 +616,19 @@ app.get('/app', (c) => {
       }
       
       input[type="range"]:focus::-webkit-slider-thumb {
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8),
-                    0 0 0 6px rgba(102, 126, 234, 0.4);
+        border-color: #fef3c7 !important;
+        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
+                    0 5px 15px rgba(245, 158, 11, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+                    0 0 0 8px rgba(251, 191, 36, 0.5) !important;
       }
       
       input[type="range"]:focus::-moz-range-thumb {
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8),
-                    0 0 0 6px rgba(102, 126, 234, 0.4);
+        border-color: #fef3c7 !important;
+        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.9),
+                    0 5px 15px rgba(245, 158, 11, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+                    0 0 0 8px rgba(251, 191, 36, 0.5) !important;
       }
       
       .charging-curve {
@@ -804,7 +823,10 @@ app.get('/app', (c) => {
                 </label>
                 <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
                     <div class="flex items-center space-x-4 mb-2">
-                        <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="flex-1">
+                        <!-- Slider Container with Dark Background for White Track Visibility -->
+                        <div class="flex-1 bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                            <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="w-full">
+                        </div>
                         <div class="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
                             <input type="number" id="chargerPowerInput" value="50" min="1" max="350" 
                                    class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
@@ -843,7 +865,10 @@ app.get('/app', (c) => {
                                 <span class="text-white ml-1 text-sm font-semibold">%</span>
                             </div>
                         </div>
-                        <input type="range" id="startSocRange" min="0" max="100" value="20" class="w-full">
+                        <!-- Slider Container with Dark Background for White Track Visibility -->
+                        <div class="bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                            <input type="range" id="startSocRange" min="0" max="100" value="20" class="w-full">
+                        </div>
                     </div>
                     
                     <!-- End SOC -->
@@ -856,7 +881,10 @@ app.get('/app', (c) => {
                                 <span class="text-white ml-1 text-sm font-semibold">%</span>
                             </div>
                         </div>
-                        <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
+                        <!-- Slider Container with Dark Background for White Track Visibility -->
+                        <div class="bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                            <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
+                        </div>
                     </div>
                     
                     <div class="mt-4 flex justify-between text-xs font-medium text-gray-400">
@@ -875,7 +903,10 @@ app.get('/app', (c) => {
                 </label>
                 <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
                     <div class="flex items-center space-x-4 mb-2">
-                        <input type="range" id="electricityPriceRange" min="0.10" max="1.00" step="0.01" value="0.30" class="flex-1">
+                        <!-- Slider Container with Dark Background for White Track Visibility -->
+                        <div class="flex-1 bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                            <input type="range" id="electricityPriceRange" min="0.10" max="1.00" step="0.01" value="0.30" class="w-full">
+                        </div>
                         <div class="flex items-center bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
                             <span class="text-white mr-1 text-lg font-semibold">€</span>
                             <input type="number" id="electricityPriceInput" value="0.30" min="0.10" max="1.00" step="0.01" 
@@ -899,9 +930,45 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
+            <!-- Available Charging Time Input (NEW) -->
+            <div class="mb-8">
+                <label class="block text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-clock text-cyan-400 mr-3 text-xl"></i>
+                    <span>Available Charging Time</span>
+                    <span class="ml-3 text-xs text-gray-400">(Optional - for range calculation)</span>
+                </label>
+                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                    <div class="flex items-center space-x-4 mb-2">
+                        <!-- Slider Container with Dark Background for White Track Visibility -->
+                        <div class="flex-1 bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                            <input type="range" id="chargingTimeRange" min="5" max="120" step="5" value="30" class="w-full">
+                        </div>
+                        <div class="flex items-center bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
+                            <input type="number" id="chargingTimeInput" value="30" min="5" max="120" step="5" 
+                                   class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
+                            <span class="text-white ml-2 text-lg font-semibold">min</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between text-sm font-medium">
+                        <span class="text-gray-400">
+                            <i class="fas fa-coffee mr-1"></i>Quick (5 min)
+                        </span>
+                        <span class="text-cyan-400">
+                            <i class="fas fa-shopping-cart mr-1"></i>Shopping (30 min)
+                        </span>
+                        <span class="text-blue-400">
+                            <i class="fas fa-utensils mr-1"></i>Lunch (120 min)
+                        </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 text-center">
+                        How much time do you have for charging?
+                    </div>
+                </div>
+            </div>
+
             <!-- Calculate Button -->
             <button id="calculateBtn" class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
-                <i class="fas fa-calculator mr-2"></i>Calculate Charging Speed
+                <i class="fas fa-calculator mr-2"></i>Calculate Charging Speed & Range
             </button>
         </div>
 
@@ -947,6 +1014,37 @@ app.get('/app', (c) => {
                     </div>
                 </div>
                 
+                <!-- NEW: Estimated Range with Available Time -->
+                <div id="rangeEstimate" class="mb-8 p-8 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl">
+                    <div class="text-center">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center justify-center">
+                            <i class="fas fa-route text-cyan-400 mr-2"></i>
+                            Estimated Range with Available Time
+                        </h3>
+                        <div class="text-center mb-4">
+                            <div class="inline-block">
+                                <div class="text-6xl md:text-7xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2" id="estimatedRange">
+                                    -
+                                </div>
+                                <div class="text-2xl text-gray-400">kilometers</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            Based on <span class="text-cyan-400 font-semibold" id="displayChargingTime">-</span> minutes of charging
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-4">
+                            <div class="bg-slate-800/50 rounded-xl p-4">
+                                <div class="text-sm text-gray-400 mb-1">Energy Added</div>
+                                <div class="text-xl font-bold text-cyan-400" id="energyAdded">-</div>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-xl p-4">
+                                <div class="text-sm text-gray-400 mb-1">Final SOC</div>
+                                <div class="text-xl font-bold text-green-400" id="finalSOC">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Additional Cost Details -->
                 <div id="costDetails" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl">
                     <div class="text-center">

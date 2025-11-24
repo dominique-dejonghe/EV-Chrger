@@ -10,6 +10,7 @@ let appState = {
   startSoc: 20,
   endSoc: 80,
   electricityPrice: 0.30,
+  chargingTime: 30, // NEW: Available charging time in minutes
   lastCalculation: null,
   activeAutocompleteIndex: -1,
   compareVehicles: [], // Array of selected vehicles for comparison (max 4)
@@ -434,6 +435,23 @@ function setupEventListeners() {
     appState.electricityPrice = value
   })
   
+  // Charging time slider (NEW)
+  const timeRange = document.getElementById('chargingTimeRange')
+  const timeInput = document.getElementById('chargingTimeInput')
+  
+  timeRange.addEventListener('input', (e) => {
+    timeInput.value = e.target.value
+    appState.chargingTime = parseInt(e.target.value)
+  })
+  
+  timeInput.addEventListener('input', (e) => {
+    let value = parseInt(e.target.value)
+    if (value < 5) value = 5
+    if (value > 120) value = 120
+    timeRange.value = value
+    appState.chargingTime = value
+  })
+  
   // Calculate button
   document.getElementById('calculateBtn').addEventListener('click', calculateChargingSpeed)
   
@@ -555,6 +573,9 @@ function displayResults(calculation) {
     document.getElementById('costPer100km').textContent = calculation.costPer100km || 'N/A'
   }
   
+  // NEW: Calculate and display range estimate based on available charging time
+  calculateRangeEstimate(calculation)
+  
   // Check if charger power exceeds vehicle maximum - SHOW RED WARNING
   const isLimited = calculation.chargerPowerKw > appState.selectedVehicle.max_dc_charging_kw
   
@@ -599,6 +620,33 @@ function displayResults(calculation) {
   if (appState.currentTier !== 'free' && appState.selectedVehicle.charging_curve_data) {
     displayChargingCurve()
   }
+}
+
+// NEW: Calculate range based on available charging time
+function calculateRangeEstimate(calculation) {
+  const chargingTimeMinutes = appState.chargingTime
+  const chargingTimeHours = chargingTimeMinutes / 60
+  
+  // Calculate energy that can be added in the available time
+  const effectivePowerKw = calculation.effectivePowerKw
+  const energyAddedKwh = effectivePowerKw * chargingTimeHours
+  
+  // Calculate range based on vehicle consumption
+  const consumptionPer100km = appState.selectedVehicle.avg_consumption_kwh_per_100km
+  const estimatedRangeKm = Math.round((energyAddedKwh / consumptionPer100km) * 100)
+  
+  // Calculate final SOC (don't exceed 100%)
+  const batteryCapacity = appState.selectedVehicle.usable_capacity_kwh
+  const startSoc = appState.currentTier !== 'free' ? appState.startSoc : 20
+  const currentEnergyKwh = (startSoc / 100) * batteryCapacity
+  const finalEnergyKwh = Math.min(currentEnergyKwh + energyAddedKwh, batteryCapacity)
+  const finalSocPercent = Math.round((finalEnergyKwh / batteryCapacity) * 100)
+  
+  // Display results
+  document.getElementById('estimatedRange').textContent = estimatedRangeKm
+  document.getElementById('displayChargingTime').textContent = chargingTimeMinutes
+  document.getElementById('energyAdded').textContent = `${energyAddedKwh.toFixed(1)} kWh`
+  document.getElementById('finalSOC').textContent = `${finalSocPercent}%`
 }
 
 function displayChargingCurve() {
