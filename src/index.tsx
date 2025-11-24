@@ -20,7 +20,7 @@ app.use('/static/*', serveStatic({ root: './' }))
 app.get('/', (c) => {
   return c.html(`
 <!DOCTYPE html>
-<html lang="nl" class="dark scroll-smooth">
+<html lang="nl" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,70 +28,70 @@ app.get('/', (c) => {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: 'Inter', sans-serif; }
-      .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-      .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+      .gradient-text { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .gradient-bg { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); }
+      .apple-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-    <!-- Hero Section -->
-    <section class="min-h-screen flex flex-col justify-center px-4 py-20">
-        <div class="max-w-6xl mx-auto text-center">
-            <div class="mb-8">
-                <i class="fas fa-bolt text-7xl gradient-text mb-6"></i>
-                <h1 class="text-6xl md:text-8xl font-black mb-6">
-                    EV Charge <span class="gradient-text">Pro</span>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Hero Section - Apple Style -->
+    <section class="min-h-screen flex flex-col justify-center px-6 py-20">
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="mb-12">
+                <h1 class="text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900" style="letter-spacing: -0.02em;">
+                    Bereken je laadtijd.<br>
+                    <span class="gradient-text">Simpel en snel.</span>
                 </h1>
-                <p class="text-2xl md:text-3xl text-gray-300 mb-12 max-w-4xl mx-auto">
-                    De meest geavanceerde EV laadcalculator.<br>
-                    <span class="text-blue-400 font-semibold">284+ voertuigen • Gratis te gebruiken</span>
+                <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light">
+                    De slimste manier om je EV laadtijd en kosten te berekenen.<br>
+                    <span class="text-blue-600 font-medium">284+ voertuigen. Direct te gebruiken.</span>
                 </p>
-                <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-                    <a href="/app" class="px-10 py-5 gradient-bg text-white rounded-xl text-xl font-bold hover:opacity-90 transition-all transform hover:scale-105 shadow-2xl">
-                        <i class="fas fa-rocket mr-2"></i>Start Gratis
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+                    <a href="/app" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
+                        Start nu
                     </a>
                 </div>
             </div>
 
             <!-- Features Grid -->
-            <div class="grid md:grid-cols-3 gap-6 mb-16">
-                <div class="glass rounded-2xl p-8">
-                    <i class="fas fa-search text-4xl gradient-text mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Smart Search</h3>
-                    <p class="text-gray-400">Type en vind direct je voertuig</p>
+            <div class="grid md:grid-cols-3 gap-6 mb-20">
+                <div class="apple-card rounded-3xl p-8 border border-gray-200">
+                    <i class="fas fa-search text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Smart Search</h3>
+                    <p class="text-gray-600 text-sm">Type en vind direct je voertuig</p>
                 </div>
-                <div class="glass rounded-2xl p-8">
-                    <i class="fas fa-chart-line text-4xl gradient-text mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Charging Curves</h3>
-                    <p class="text-gray-400">Real-world laadcurves per SOC</p>
+                <div class="apple-card rounded-3xl p-8 border border-gray-200">
+                    <i class="fas fa-chart-line text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Laadcurves</h3>
+                    <p class="text-gray-600 text-sm">Real-world data per SOC</p>
                 </div>
-                <div class="glass rounded-2xl p-8">
-                    <i class="fas fa-euro-sign text-4xl gradient-text mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Kosten Calculator</h3>
-                    <p class="text-gray-400">Bereken exact je laadkosten</p>
+                <div class="apple-card rounded-3xl p-8 border border-gray-200">
+                    <i class="fas fa-euro-sign text-4xl text-green-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Kosten Calculator</h3>
+                    <p class="text-gray-600 text-sm">Bereken exact je laadkosten</p>
                 </div>
             </div>
 
             <!-- Stats -->
-            <div class="grid grid-cols-4 gap-8 max-w-3xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 <div class="text-center">
-                    <div class="text-5xl font-bold gradient-text mb-2">284</div>
-                    <div class="text-gray-400 text-sm">EV Modellen<br><span class="text-xs">(73 gratis + 211 premium)</span></div>
+                    <div class="text-5xl font-semibold gradient-text mb-2">284</div>
+                    <div class="text-gray-500 text-sm">Voertuigen</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-bold gradient-text mb-2">39</div>
-                    <div class="text-gray-400">Merken</div>
+                    <div class="text-5xl font-semibold gradient-text mb-2">39</div>
+                    <div class="text-gray-500 text-sm">Merken</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-bold gradient-text mb-2">100%</div>
-                    <div class="text-gray-400">Gratis</div>
+                    <div class="text-5xl font-semibold gradient-text mb-2">100%</div>
+                    <div class="text-gray-500 text-sm">Gratis</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-bold gradient-text mb-2">2s</div>
-                    <div class="text-gray-400">Snel</div>
+                    <div class="text-5xl font-semibold gradient-text mb-2">2s</div>
+                    <div class="text-gray-500 text-sm">Snel</div>
                 </div>
             </div>
         </div>
@@ -399,12 +399,12 @@ app.get('/api/subscription-tiers', (c) => {
 app.get('/app', (c) => {
   return c.html(`
 <!DOCTYPE html>
-<html lang="nl" class="dark">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Charge Calculator - Tesla-style Premium Experience</title>
-    <meta name="description" content="Calculate your EV charging speed in km/h. Premium calculator with 110+ electric vehicles, charging curves, and real-world data.">
+    <title>EV Charge Calculator - Apple-style Clean Experience</title>
+    <meta name="description" content="Calculate your EV charging speed and range. Clean calculator with 284+ electric vehicles.">
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#667eea">
@@ -461,23 +461,25 @@ app.get('/app', (c) => {
       }
       
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        background: #f5f5f7 !important;
       }
       
       .tesla-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
       }
       
       .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08);
       }
       
       .premium-badge {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #FF2D55 0%, #FF6B35 100%);
       }
       
       .animate-fade-in {
@@ -708,20 +710,20 @@ app.get('/app', (c) => {
       }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen">
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+    <!-- Navigation - Apple Style -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-14">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-bolt text-3xl tesla-gradient bg-clip-text text-transparent"></i>
-                    <span class="text-xl font-bold">EV Charge Calculator</span>
+                    <i class="fas fa-bolt text-2xl text-blue-600"></i>
+                    <span class="text-lg font-semibold text-gray-900">EV Charge</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button id="compareBtn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                <div class="flex items-center space-x-3">
+                    <button id="compareBtn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full transition-colors">
                         <i class="fas fa-exchange-alt mr-2"></i>Compare
                     </button>
-                    <button id="upgradeBtnNav" class="px-4 py-2 premium-badge text-white rounded-lg hover:opacity-90 transition-opacity">
+                    <button id="upgradeBtnNav" class="px-4 py-2 premium-badge text-white text-sm rounded-full hover:opacity-90 transition-opacity">
                         <i class="fas fa-crown mr-2"></i>Upgrade
                     </button>
                 </div>
@@ -729,64 +731,64 @@ app.get('/app', (c) => {
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="pt-24 pb-12 px-4">
-        <div class="max-w-4xl mx-auto text-center animate-fade-in">
-            <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                Calculate Your <br>
-                <span class="tesla-gradient bg-clip-text text-transparent">EV Charging Speed</span>
+    <!-- Hero Section - Apple Style -->
+    <div class="pt-20 pb-8 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-semibold mb-4 text-gray-900" style="letter-spacing: -0.02em;">
+                Bereken je laadsnelheid<br>
+                <span class="tesla-gradient bg-clip-text text-transparent">in enkele seconden</span>
             </h1>
-            <p class="text-xl text-gray-300 mb-8">
-                Discover how fast your electric vehicle charges at any power station
+            <p class="text-lg text-gray-600 mb-8 font-light">
+                Kies je voertuig en ontdek hoeveel km je per uur kunt laden
             </p>
-            <div class="flex justify-center items-center space-x-6 text-sm text-gray-400">
+            <div class="flex justify-center items-center space-x-6 text-sm text-gray-500">
                 <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
-                    <span id="vehicleCount">110+</span> Vehicles
+                    <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                    <span id="vehicleCount">284</span> Voertuigen
                 </div>
                 <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
-                    Real-world Data
+                    <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                    Real-time data
                 </div>
                 <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-400 mr-2"></i>
-                    Charging Curves
+                    <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                    Laadcurves
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Calculator Section -->
-    <div class="max-w-4xl mx-auto px-4 pb-12">
-        <div class="glass rounded-3xl p-8 md:p-12 animate-slide-up">
+    <!-- Calculator Section - Apple Style -->
+    <div class="max-w-4xl mx-auto px-6 pb-12">
+        <div class="glass rounded-3xl p-6 md:p-10 shadow-xl">
             <!-- Subscription Tier Indicator -->
             <div class="mb-8 flex justify-between items-center">
                 <div>
-                    <span class="text-sm text-gray-400">Current Plan:</span>
-                    <span id="currentTier" class="ml-2 px-3 py-1 bg-slate-700 rounded-full text-sm font-medium">Free</span>
+                    <span class="text-sm text-gray-500">Huidig abonnement:</span>
+                    <span id="currentTier" class="ml-2 px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-sm font-medium text-gray-700">Gratis</span>
                 </div>
-                <button id="upgradeBtnCalc" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                    <i class="fas fa-arrow-up mr-1"></i>Upgrade for more features
+                <button id="upgradeBtnCalc" class="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
+                    <i class="fas fa-arrow-up mr-1"></i>Upgrade
                 </button>
             </div>
 
             <!-- Vehicle Selection with Search -->
             <div class="mb-8">
-                <label class="block text-sm font-medium mb-3">
-                    <i class="fas fa-car mr-2"></i>Search Your Vehicle
+                <label class="block text-sm font-semibold mb-3 text-gray-900">
+                    <i class="fas fa-car mr-2 text-blue-600"></i>Kies je voertuig
                 </label>
                 <div class="relative">
                     <input 
                         type="text" 
                         id="vehicleSearch" 
-                        placeholder="Type to search... (e.g., Tesla Model 3, Dacia Spring)" 
-                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-4 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        placeholder="Zoek je voertuig (bijv. Tesla Model 3, Dacia Spring)" 
+                        class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-4 pr-12 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         autocomplete="off"
                     >
                     <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                     
                     <!-- Autocomplete Dropdown -->
-                    <div id="autocompleteDropdown" class="hidden absolute z-50 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
+                    <div id="autocompleteDropdown" class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl max-h-96 overflow-y-auto">
                         <div id="autocompleteResults" class="py-2">
                             <!-- Results will be populated here -->
                         </div>
@@ -815,32 +817,32 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
-            <!-- Charger Power Input -->
-            <div class="mb-8">
-                <label class="block text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-charging-station text-blue-400 mr-3 text-xl"></i>
-                    <span>Charger Power</span>
+            <!-- Charger Power Input - Apple Style -->
+            <div class="mb-6">
+                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <i class="fas fa-charging-station text-blue-600 mr-2"></i>
+                    <span>Laadvermogen</span>
                 </label>
-                <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
-                        <!-- Slider Container with Dark Background for White Track Visibility -->
-                        <div class="flex-1 bg-slate-900 rounded-xl px-6 py-5 border border-slate-700">
+                        <!-- Slider Container -->
+                        <div class="flex-1 bg-gray-100 rounded-xl px-6 py-5 border border-gray-200">
                             <input type="range" id="chargerPowerRange" min="1" max="350" value="50" class="w-full">
                         </div>
-                        <div class="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
+                        <div class="flex items-center bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl px-5 py-4 min-w-[140px] shadow-md">
                             <input type="number" id="chargerPowerInput" value="50" min="1" max="350" 
                                    class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
                             <span class="text-white ml-2 text-lg font-semibold">kW</span>
                         </div>
                     </div>
-                    <div class="mt-4 flex justify-between text-sm font-medium">
-                        <span class="text-gray-400">
-                            <i class="fas fa-plug mr-1"></i>Slow (7 kW)
+                    <div class="mt-4 flex justify-between text-xs font-medium">
+                        <span class="text-gray-500">
+                            <i class="fas fa-plug mr-1"></i>Langzaam (7 kW)
                         </span>
-                        <span class="text-blue-400">
-                            <i class="fas fa-bolt mr-1"></i>Fast (50 kW)
+                        <span class="text-blue-600">
+                            <i class="fas fa-bolt mr-1"></i>Snel (50 kW)
                         </span>
-                        <span class="text-purple-400">
+                        <span class="text-purple-600">
                             <i class="fas fa-rocket mr-1"></i>Ultra (350 kW)
                         </span>
                     </div>
