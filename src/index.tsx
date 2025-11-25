@@ -1,9 +1,12 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
+import authRoutes from './auth-routes'
+import { authMiddleware, optionalAuthMiddleware } from './middleware'
 
 type Bindings = {
   DB: D1Database
+  JWT_SECRET?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -13,6 +16,9 @@ app.use('/api/*', cors())
 
 // Serve static files - Cloudflare Pages automatically serves files from dist/
 app.use('/static/*', serveStatic({ root: './' }))
+
+// Mount authentication routes
+app.route('/api/auth', authRoutes)
 
 // ============================================
 // LANDING PAGE
