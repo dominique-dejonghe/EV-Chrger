@@ -259,9 +259,12 @@ app.get('/', (c) => {
                     <span class="text-blue-600 font-medium">129 vehicles. Ready to use.</span>
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
-                    <a href="/app" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
-                        Start now
-                    </a>
+                    <button onclick="showLoginModal()" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Start now - Login
+                    </button>
+                    <button onclick="showRegisterModal()" class="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-full text-lg font-medium hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
+                        <i class="fas fa-user-plus mr-2"></i>Sign up free
+                    </button>
                 </div>
             </div>
 
@@ -324,6 +327,279 @@ app.get('/', (c) => {
             </div>
         </div>
     </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 animate-fade-in shadow-2xl border border-gray-200">
+            <div class="text-center mb-6">
+                <i class="fas fa-bolt text-5xl text-blue-600 mb-4"></i>
+                <h2 class="text-3xl font-semibold mb-2 text-gray-900">Welcome Back</h2>
+                <p class="text-gray-600">Login to access your EV calculator</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-900">Email</label>
+                    <input type="email" id="loginEmail" required 
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-900">Password</label>
+                    <input type="password" id="loginPassword" required 
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div id="loginError" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+                
+                <button type="submit" id="loginButton" 
+                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">
+                    Don't have an account? 
+                    <button onclick="switchToRegister()" class="text-blue-600 hover:text-blue-700 font-semibold">Sign up</button>
+                </p>
+                <button onclick="closeLoginModal()" class="mt-4 text-sm text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times mr-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 animate-fade-in shadow-2xl border border-gray-200">
+            <div class="text-center mb-6">
+                <i class="fas fa-user-plus text-5xl text-blue-600 mb-4"></i>
+                <h2 class="text-3xl font-semibold mb-2 text-gray-900">Create Account</h2>
+                <p class="text-gray-600">Start calculating your EV charging</p>
+            </div>
+            
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-900">Name</label>
+                    <input type="text" id="registerName" required 
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-900">Email</label>
+                    <input type="email" id="registerEmail" required 
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-900">Password</label>
+                    <input type="password" id="registerPassword" required 
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Min 8 characters, 1 uppercase, 1 lowercase, 1 number</p>
+                </div>
+                
+                <div id="registerError" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+                
+                <button type="submit" id="registerButton" 
+                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg">
+                    <i class="fas fa-user-plus mr-2"></i>Create Account
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account? 
+                    <button onclick="switchToLogin()" class="text-blue-600 hover:text-blue-700 font-semibold">Login</button>
+                </p>
+                <button onclick="closeRegisterModal()" class="mt-4 text-sm text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times mr-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication JavaScript -->
+    <script>
+        // Modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchToRegister() {
+            closeLoginModal();
+            showRegisterModal();
+        }
+
+        function switchToLogin() {
+            closeRegisterModal();
+            showLoginModal();
+        }
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const button = document.getElementById('loginButton');
+            const errorDiv = document.getElementById('loginError');
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            // Client-side validation
+            if (!email || !password) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please fill in all fields';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter a valid email address';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging in...';
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message briefly before redirect
+                    button.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Success!';
+                    button.className = button.className.replace('bg-blue-600', 'bg-green-600');
+                    setTimeout(() => {
+                        window.location.href = '/app';
+                    }, 500);
+                } else {
+                    // Show specific error messages
+                    const errorMsg = data.error || 'Login failed';
+                    let icon = 'fa-exclamation-circle';
+                    
+                    if (errorMsg.toLowerCase().includes('invalid') || errorMsg.toLowerCase().includes('incorrect')) {
+                        icon = 'fa-times-circle';
+                    }
+                    
+                    errorDiv.innerHTML = '<i class="fas ' + icon + ' mr-2"></i>' + errorMsg;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.innerHTML = '<i class="fas fa-wifi mr-2"></i>Network error. Please check your connection and try again.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                if (!button.innerHTML.includes('Success')) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Login';
+                }
+            }
+        });
+
+        // Register form handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const button = document.getElementById('registerButton');
+            const errorDiv = document.getElementById('registerError');
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            
+            // Client-side validation
+            if (!name || !email || !password) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please fill in all fields';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter a valid email address';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (password.length < 8) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Password must be at least 8 characters long';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating account...';
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message briefly before redirect
+                    button.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Account Created!';
+                    button.className = button.className.replace('bg-blue-600', 'bg-green-600');
+                    setTimeout(() => {
+                        window.location.href = '/app';
+                    }, 500);
+                } else {
+                    // Show specific error messages
+                    const errorMsg = data.error || 'Registration failed';
+                    let icon = 'fa-exclamation-circle';
+                    
+                    if (errorMsg.toLowerCase().includes('exists') || errorMsg.toLowerCase().includes('already')) {
+                        icon = 'fa-user-times';
+                    } else if (errorMsg.toLowerCase().includes('invalid')) {
+                        icon = 'fa-times-circle';
+                    }
+                    
+                    errorDiv.innerHTML = '<i class="fas ' + icon + ' mr-2"></i>' + errorMsg;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.innerHTML = '<i class="fas fa-wifi mr-2"></i>Network error. Please check your connection and try again.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                if (!button.innerHTML.includes('Created')) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
+                }
+            }
+        });
+
+        // Close modals on outside click
+        document.getElementById('loginModal').addEventListener('click', (e) => {
+            if (e.target.id === 'loginModal') closeLoginModal();
+        });
+
+        document.getElementById('registerModal').addEventListener('click', (e) => {
+            if (e.target.id === 'registerModal') closeRegisterModal();
+        });
+    </script>
 </body>
 </html>
   `)
@@ -624,7 +900,8 @@ app.get('/api/subscription-tiers', (c) => {
 // MAIN APP ROUTES
 // ============================================
 // Main calculator app
-app.get('/app', (c) => {
+app.get('/app', optionalAuthMiddleware, (c) => {
+  const user = c.get('user')
   return c.html(`
 <!DOCTYPE html>
 <html lang="en">
@@ -925,6 +1202,17 @@ app.get('/app', (c) => {
                     <button id="upgradeBtnNav" class="px-4 py-2 premium-badge text-white text-sm rounded-full hover:opacity-90 transition-opacity">
                         <i class="fas fa-crown mr-2"></i>Upgrade
                     </button>
+                    <!-- User Profile (shown when logged in) -->
+                    <div id="userProfile" class="hidden flex items-center space-x-3">
+                        <div class="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-full">
+                            <i class="fas fa-user-circle text-blue-600"></i>
+                            <span id="userName" class="text-sm font-medium text-gray-900"></span>
+                            <span id="userTier" class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full"></span>
+                        </div>
+                        <button id="logoutBtn" class="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-full transition-colors">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1366,6 +1654,70 @@ app.get('/app', (c) => {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    
+    <!-- Authentication Check Script -->
+    <script>
+        // Check if user is authenticated on page load
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/me');
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    // User is authenticated
+                    const user = data.user;
+                    
+                    // Show user profile
+                    document.getElementById('userProfile').classList.remove('hidden');
+                    document.getElementById('userName').textContent = user.name || user.email.split('@')[0];
+                    document.getElementById('userTier').textContent = user.role.toUpperCase();
+                    
+                    // Store user in global state for app.js
+                    window.currentUser = user;
+                    
+                    // Update tier badge color
+                    const tierBadge = document.getElementById('userTier');
+                    if (user.role === 'premium') {
+                        tierBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full';
+                    } else if (user.role === 'pro') {
+                        tierBadge.className = 'text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full';
+                    }
+                    
+                    // Dispatch event to notify app.js that auth is complete
+                    window.dispatchEvent(new CustomEvent('authReady', { detail: { user } }));
+                    
+                    return true;
+                } else {
+                    // User not authenticated - redirect to landing page
+                    window.location.href = '/';
+                    return false;
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // On error, redirect to landing page
+                window.location.href = '/';
+                return false;
+            }
+        }
+        
+        // Logout function
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                window.location.href = '/';
+            }
+        }
+        
+        // Setup logout button
+        document.getElementById('logoutBtn')?.addEventListener('click', logout);
+        
+        // Run auth check immediately
+        checkAuth();
+    </script>
+    
     <script src="/static/app.js"></script>
 </body>
 </html>

@@ -2,7 +2,8 @@
 // STATE MANAGEMENT
 // ============================================
 let appState = {
-  currentTier: 'free',
+  currentTier: 'free', // Will be updated from window.currentUser
+  currentUser: null, // Will be set from window.currentUser
   vehicles: [],
   filteredVehicles: [],
   selectedVehicle: null,
@@ -21,10 +22,22 @@ let appState = {
 // INITIALIZATION
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-  initializeApp()
+  // Wait for authentication to complete before initializing
+  if (window.currentUser) {
+    // Auth already complete
+    initializeApp()
+  } else {
+    // Wait for authReady event
+    window.addEventListener('authReady', () => {
+      initializeApp()
+    }, { once: true })
+  }
 })
 
 async function initializeApp() {
+  // Sync user from authentication
+  syncUserFromAuth()
+  
   // Load vehicles
   await loadVehicles()
   
@@ -35,13 +48,25 @@ async function initializeApp() {
   await loadSubscriptionTiers()
 }
 
+// Sync user data from authentication check
+function syncUserFromAuth() {
+  if (window.currentUser) {
+    appState.currentUser = window.currentUser
+    appState.currentTier = window.currentUser.role
+    console.log(`User authenticated: ${window.currentUser.email} (${window.currentUser.role})`)
+  } else {
+    console.log('User not authenticated or auth check pending')
+  }
+}
+
 // ============================================
 // VEHICLE LOADING
 // ============================================
 async function loadVehicles() {
   try {
-    // ALWAYS load ALL vehicles regardless of tier
-    const response = await axios.get('/api/vehicles?tier=all')
+    // Load vehicles based on user tier
+    const tier = appState.currentTier === 'free' ? 'free' : 'all'
+    const response = await axios.get(`/api/vehicles?tier=${tier}`)
     
     if (response.data.success) {
       appState.vehicles = response.data.vehicles
@@ -50,9 +75,20 @@ async function loadVehicles() {
       // Update vehicle count
       const freeCount = appState.vehicles.filter(v => !v.is_premium).length
       const premiumCount = appState.vehicles.filter(v => v.is_premium).length
-      document.getElementById('vehicleCount').textContent = `${appState.vehicles.length}+`
       
-      console.log(`Loaded ${appState.vehicles.length} vehicles (${freeCount} free, ${premiumCount} premium)`)
+      // Display count based on tier
+      if (appState.currentTier === 'free') {
+        document.getElementById('vehicleCount').textContent = `${freeCount}`
+      } else {
+        document.getElementById('vehicleCount').textContent = `${appState.vehicles.length}+`
+      }
+      
+      console.log(`Loaded ${appState.vehicles.length} vehicles (${freeCount} free, ${premiumCount} premium) for tier: ${appState.currentTier}`)
+      
+      // Show upgrade banner for free users
+      if (appState.currentTier === 'free') {
+        showFreeUserBanner()
+      }
     }
   } catch (error) {
     console.error('Failed to load vehicles:', error)
@@ -812,18 +848,19 @@ function selectTier(tierId) {
     return
   }
   
-  // In a real app, this would redirect to payment
-  showNotification('Payment integration coming soon! This is a demo.', 'info')
-  
-  // For demo purposes, simulate upgrade
-  if (confirm(`Upgrade to ${tierId} plan? (Demo mode)`)) {
-    appState.currentTier = tierId
-    document.getElementById('currentTier').textContent = tierId.charAt(0).toUpperCase() + tierId.slice(1)
-    document.getElementById('currentTier').className = 'ml-2 px-3 py-1 premium-badge rounded-full text-sm font-medium'
-    hidePricingModal()
-    loadVehicles() // Reload with all vehicles
-    showNotification('Successfully upgraded! You now have access to all features.', 'success')
+  // Check if user is authenticated
+  if (!appState.currentUser) {
+    showNotification('Please login to upgrade', 'warning')
+    window.location.href = '/'
+    return
   }
+  
+  // In a real app, this would redirect to Stripe checkout
+  showNotification('Stripe payment integration coming in Phase 3!', 'info')
+  hidePricingModal()
+  
+  // TODO Phase 3: Redirect to Stripe checkout
+  // window.location.href = `/api/stripe/create-checkout-session?tier=${tierId}`
 }
 
 // ============================================
@@ -837,6 +874,40 @@ function showPricingModal() {
 function hidePricingModal() {
   document.getElementById('pricingModal').classList.add('hidden')
   document.body.style.overflow = 'auto'
+}
+
+// Show free user banner with upgrade prompt
+function showFreeUserBanner() {
+  // Check if banner already exists
+  if (document.getElementById('freeUserBanner')) return
+  
+  const banner = document.createElement('div')
+  banner.id = 'freeUserBanner'
+  banner.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-40 animate-fade-in'
+  banner.innerHTML = `
+    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-4">
+      <i class="fas fa-info-circle text-xl"></i>
+      <span class="font-semibold">Free Tier: ${appState.vehicles.length} vehicles available</span>
+      <button onclick="showPricingModal()" class="ml-4 px-4 py-1 bg-white text-orange-600 rounded-full font-bold hover:bg-gray-100 transition-colors shadow-md text-sm">
+        <i class="fas fa-crown mr-1"></i>Upgrade
+      </button>
+      <button onclick="closeFreeUserBanner()" class="ml-2 w-6 h-6 rounded-full hover:bg-white/20 transition-colors">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+  `
+  
+  document.body.appendChild(banner)
+}
+
+function closeFreeUserBanner() {
+  const banner = document.getElementById('freeUserBanner')
+  if (banner) {
+    banner.style.opacity = '0'
+    banner.style.transform = 'translate(-50%, -20px)'
+    banner.style.transition = 'all 0.3s ease-out'
+    setTimeout(() => banner.remove(), 300)
+  }
 }
 
 // ============================================
@@ -1273,3 +1344,4 @@ window.closePremiumUpgradeModal = closePremiumUpgradeModal
 window.upgradeToPremium = upgradeToPremium
 window.addVehicleToCompareFromSearch = addVehicleToCompareFromSearch
 window.removeVehicleFromCompare = removeVehicleFromCompare
+window.closeFreeUserBanner = closeFreeUserBanner
