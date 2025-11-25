@@ -194,10 +194,6 @@ function showPremiumUpgradeModal(vehicle) {
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>Charging curves</strong> - Gedetailleerd</span>
-          </li>
-          <li class="flex items-start">
-            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>Vergelijkingen</strong> - Side-by-side</span>
           </li>
           <li class="flex items-start">

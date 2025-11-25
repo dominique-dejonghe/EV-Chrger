@@ -65,16 +65,11 @@ app.get('/', (c) => {
             </div>
 
             <!-- Features Grid -->
-            <div class="grid md:grid-cols-3 gap-6 mb-20">
+            <div class="grid md:grid-cols-2 gap-6 mb-20 max-w-2xl mx-auto">
                 <div class="apple-card rounded-3xl p-8 border border-gray-200">
                     <i class="fas fa-search text-4xl text-blue-600 mb-4"></i>
                     <h3 class="text-lg font-semibold mb-2 text-gray-900">Smart Search</h3>
                     <p class="text-gray-600 text-sm">Type en vind direct je voertuig</p>
-                </div>
-                <div class="apple-card rounded-3xl p-8 border border-gray-200">
-                    <i class="fas fa-chart-line text-4xl text-purple-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Laadcurves</h3>
-                    <p class="text-gray-600 text-sm">Real-world data per SOC</p>
                 </div>
                 <div class="apple-card rounded-3xl p-8 border border-gray-200">
                     <i class="fas fa-euro-sign text-4xl text-green-600 mb-4"></i>
@@ -731,7 +726,7 @@ app.get('/app', (c) => {
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-check-circle text-blue-600 mr-2"></i>
-                    Laadcurves
+                    Snelle berekeningen
                 </div>
             </div>
         </div>
@@ -991,18 +986,6 @@ app.get('/app', (c) => {
                     <div class="text-center">
                         <div class="text-sm text-gray-600 mb-1 font-medium">Kosten per 100km</div>
                         <div class="text-xl font-semibold text-gray-900" id="costPer100km">-</div>
-                    </div>
-                </div>
-
-                <!-- Charging Curve (Premium) - Apple Style -->
-                <div id="chargingCurve" class="hidden mb-8">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center text-gray-900">
-                        <i class="fas fa-chart-line mr-2 text-purple-600"></i>
-                        Laadcurve analyse
-                        <span class="ml-2 px-2 py-1 text-xs bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-medium">PREMIUM</span>
-                    </h3>
-                    <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
-                        <canvas id="curveCanvas" width="600" height="160"></canvas>
                     </div>
                 </div>
 
