@@ -160,11 +160,6 @@ function selectVehicleFromAutocomplete(vehicleId) {
   document.getElementById('selectedVehicleDisplay').classList.remove('hidden')
   document.getElementById('premiumVehicleNotice').classList.add('hidden')
   
-  // Show SOC slider for premium users
-  if (appState.currentTier !== 'free') {
-    document.getElementById('socSlider').classList.remove('hidden')
-  }
-  
   hideAutocomplete()
 }
 
@@ -204,10 +199,6 @@ function showPremiumUpgradeModal(vehicle) {
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
             <span><strong>Vergelijkingen</strong> - Side-by-side</span>
-          </li>
-          <li class="flex items-start">
-            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>SOC slider</strong> - Nauwkeurig</span>
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
@@ -262,7 +253,6 @@ function clearVehicleSelection() {
   appState.selectedVehicle = null
   document.getElementById('vehicleSearch').value = ''
   document.getElementById('selectedVehicleDisplay').classList.add('hidden')
-  document.getElementById('socSlider').classList.add('hidden')
   document.getElementById('resultsSection').classList.add('hidden')
 }
 

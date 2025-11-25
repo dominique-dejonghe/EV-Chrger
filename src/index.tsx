@@ -828,54 +828,6 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
-            <!-- SOC Range Slider (Premium Feature) - Apple Style -->
-            <div id="socSlider" class="mb-6 hidden">
-                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
-                    <i class="fas fa-battery-half text-green-600 mr-2"></i>
-                    <span>Laadpercentage bereik</span>
-                    <span class="ml-3 px-3 py-1 text-xs premium-badge text-white rounded-full font-bold">PREMIUM</span>
-                </label>
-                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                    <!-- Start SOC -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm text-gray-600 font-medium">Start SOC</span>
-                            <div class="flex items-center bg-gradient-to-r from-orange-600 to-red-600 rounded-lg px-3 py-2 min-w-[90px] shadow-md">
-                                <input type="number" id="startSocInput" value="20" min="0" max="100" 
-                                       class="bg-transparent border-none outline-none text-white text-right w-full text-lg font-bold">
-                                <span class="text-white ml-1 text-sm font-semibold">%</span>
-                            </div>
-                        </div>
-                        <!-- Slider Container with Dark Background for White Track Visibility -->
-                        <div class="px-2 py-6">
-                            <input type="range" id="startSocRange" min="0" max="100" value="20" class="w-full">
-                        </div>
-                    </div>
-                    
-                    <!-- End SOC -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm text-gray-600 font-medium">Doel SOC</span>
-                            <div class="flex items-center bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl px-3 py-2 min-w-[90px] shadow-md">
-                                <input type="number" id="endSocInput" value="80" min="0" max="100" 
-                                       class="bg-transparent border-none outline-none text-white text-right w-full text-lg font-bold">
-                                <span class="text-white ml-1 text-sm font-semibold">%</span>
-                            </div>
-                        </div>
-                        <!-- Slider Container - Apple Style -->
-                        <div class="px-2 py-6">
-                            <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 flex justify-between text-xs font-medium text-gray-500">
-                        <span><i class="fas fa-battery-empty mr-1"></i>0%</span>
-                        <span class="text-yellow-600"><i class="fas fa-info-circle mr-1"></i>Optimaal: 20-80%</span>
-                        <span><i class="fas fa-battery-full mr-1"></i>100%</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Electricity Price Input - Apple Style -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
