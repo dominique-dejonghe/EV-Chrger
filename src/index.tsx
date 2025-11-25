@@ -35,12 +35,50 @@ app.get('/', (c) => {
       .gradient-bg { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); }
       .apple-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08); }
       
-      /* Tesla Supercharger Background - Subtle & Elegant */
+      /* Tesla Supercharger Background - More Prominent & Visual */
       .hero-with-bg {
         background: 
-          linear-gradient(to bottom, rgba(249, 250, 251, 0.97) 0%, rgba(249, 250, 251, 0.95) 100%),
-          url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1600&q=80') center/cover;
+          linear-gradient(to bottom, rgba(249, 250, 251, 0.85) 0%, rgba(249, 250, 251, 0.90) 50%, rgba(249, 250, 251, 0.95) 100%),
+          url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=2000&q=90') center/cover;
         background-attachment: fixed;
+      }
+      
+      /* EV Brand Logo Carousel - Infinite Scroll Animation */
+      @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      
+      .logo-carousel {
+        display: flex;
+        overflow: hidden;
+        user-select: none;
+        gap: 4rem;
+        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      }
+      
+      .logo-track {
+        display: flex;
+        gap: 4rem;
+        animation: scroll 40s linear infinite;
+      }
+      
+      .logo-track:hover {
+        animation-play-state: paused;
+      }
+      
+      .brand-logo {
+        height: 48px;
+        width: auto;
+        filter: grayscale(100%) opacity(50%);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+      
+      .brand-logo:hover {
+        filter: grayscale(0%) opacity(100%);
+        transform: scale(1.1);
       }
     </style>
 </head>
@@ -79,7 +117,7 @@ app.get('/', (c) => {
             </div>
 
             <!-- Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-20">
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">129</div>
                     <div class="text-gray-500 text-sm">Voertuigen</div>
@@ -95,6 +133,49 @@ app.get('/', (c) => {
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">2s</div>
                     <div class="text-gray-500 text-sm">Snel</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- EV Brand Carousel Section -->
+    <section class="py-12 bg-white border-y border-gray-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-8">
+                Ondersteunde merken
+            </h2>
+            <div class="logo-carousel">
+                <div class="logo-track">
+                    <!-- First set of logos -->
+                    <img src="https://cdn.simpleicons.org/tesla/000000" alt="Tesla" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/renault/FFCC00" alt="Renault" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/peugeot/000000" alt="Peugeot" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/ford/00274D" alt="Ford" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volvo/000000" alt="Volvo" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/porsche/000000" alt="Porsche" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/opel/F7D507" alt="Opel" class="brand-logo" />
+                    <!-- Duplicate set for seamless loop -->
+                    <img src="https://cdn.simpleicons.org/tesla/000000" alt="Tesla" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/renault/FFCC00" alt="Renault" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/peugeot/000000" alt="Peugeot" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/ford/00274D" alt="Ford" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volvo/000000" alt="Volvo" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/porsche/000000" alt="Porsche" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/opel/F7D507" alt="Opel" class="brand-logo" />
                 </div>
             </div>
         </div>
