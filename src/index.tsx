@@ -189,10 +189,26 @@ app.get('/', (c) => {
                     <span class="gradient-text typewriter-line line2" id="typewriter2">Simple and fast.</span>
                 </h1>
                 <script>
-                    // Infinite Typewriter Loop
+                    // Rotating phrases for typewriter
+                    const phrases = [
+                        { line1: 'Calculate charging time.', line2: 'Simple and fast.' },
+                        { line1: 'Plan your EV journey.', line2: 'Smart and reliable.' },
+                        { line1: 'Compare 129 vehicles.', line2: 'Find your perfect match.' },
+                        { line1: 'Optimize charging costs.', line2: 'Save time and money.' }
+                    ];
+                    let currentPhraseIndex = 0;
+                    
+                    // Infinite Typewriter Loop with rotating text
                     function typewriterLoop() {
                         const line1 = document.getElementById('typewriter1');
                         const line2 = document.getElementById('typewriter2');
+                        
+                        // Get current phrase
+                        const currentPhrase = phrases[currentPhraseIndex];
+                        
+                        // Update text content
+                        line1.textContent = currentPhrase.line1;
+                        line2.textContent = currentPhrase.line2;
                         
                         // Reset both lines
                         line1.className = 'typewriter-line line1';
@@ -222,8 +238,9 @@ app.get('/', (c) => {
                             line2.classList.add('fade');
                         }, 6000);
                         
-                        // Loop again
+                        // Move to next phrase and loop again
                         setTimeout(() => {
+                            currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
                             typewriterLoop();
                         }, 6600);
                     }
@@ -279,19 +296,22 @@ app.get('/', (c) => {
     </section>
 
     <!-- Footer - Pensato Branding -->
-    <footer class="mt-20 py-16 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50">
+    <footer class="mt-12 py-8 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-8">
-                <h3 class="text-3xl font-bold text-gray-900 mb-2">Pensato</h3>
-                <p class="text-lg text-gray-600 mb-6">AI-Powered Solutions</p>
-                <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+            <div class="text-center mb-4">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-brain text-2xl text-blue-600 mr-2"></i>
+                    <h3 class="text-2xl font-bold text-gray-900">Pensato</h3>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">AI-Powered Solutions</p>
+                <div class="flex items-center justify-center space-x-2 text-xs text-gray-600">
                     <span>Made in Belgium with</span>
-                    <span class="text-xl" style="color: #000000;">🖤</span>
-                    <span class="text-xl" style="color: #FFD700;">💛</span>
-                    <span class="text-xl" style="color: #EF3340;">❤️</span>
+                    <span class="text-lg" style="color: #000000;">🖤</span>
+                    <span class="text-lg" style="color: #FFD700;">💛</span>
+                    <span class="text-lg" style="color: #EF3340;">❤️</span>
                 </div>
             </div>
-            <div class="flex justify-center space-x-8 text-sm">
+            <div class="flex justify-center space-x-6 text-xs">
                 <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a>
                 <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Terms</a>
                 <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
@@ -1316,19 +1336,22 @@ app.get('/app', (c) => {
     </div>
 
     <!-- Footer - Pensato Branding -->
-    <footer class="mt-20 py-16 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50">
+    <footer class="mt-12 py-8 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-8">
-                <h3 class="text-3xl font-bold text-gray-900 mb-2">Pensato</h3>
-                <p class="text-lg text-gray-600 mb-6">AI-Powered Solutions</p>
-                <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+            <div class="text-center mb-4">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-brain text-2xl text-blue-600 mr-2"></i>
+                    <h3 class="text-2xl font-bold text-gray-900">Pensato</h3>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">AI-Powered Solutions</p>
+                <div class="flex items-center justify-center space-x-2 text-xs text-gray-600">
                     <span>Made in Belgium with</span>
-                    <span class="text-xl" style="color: #000000;">🖤</span>
-                    <span class="text-xl" style="color: #FFD700;">💛</span>
-                    <span class="text-xl" style="color: #EF3340;">❤️</span>
+                    <span class="text-lg" style="color: #000000;">🖤</span>
+                    <span class="text-lg" style="color: #FFD700;">💛</span>
+                    <span class="text-lg" style="color: #EF3340;">❤️</span>
                 </div>
             </div>
-            <div class="flex justify-center space-x-8 text-sm">
+            <div class="flex justify-center space-x-6 text-xs">
                 <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a>
                 <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Terms</a>
                 <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
