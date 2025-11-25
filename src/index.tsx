@@ -20,11 +20,11 @@ app.use('/static/*', serveStatic({ root: './' }))
 app.get('/', (c) => {
   return c.html(`
 <!DOCTYPE html>
-<html lang="nl" class="scroll-smooth">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ EV Charge Pro - Premium Laadcalculator</title>
+    <title>⚡ EV Charge Pro - Premium Charging Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -87,7 +87,7 @@ app.get('/', (c) => {
     <section class="py-8 bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-6">
             <h2 class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-6">
-                Ondersteunde merken
+                Supported Brands
             </h2>
             <div class="logo-carousel">
                 <div class="logo-track">
@@ -96,7 +96,7 @@ app.get('/', (c) => {
                     <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedesbenz/242424" alt="Mercedes-Benz" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
@@ -111,7 +111,7 @@ app.get('/', (c) => {
                     <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedesbenz/242424" alt="Mercedes-Benz" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
@@ -131,16 +131,16 @@ app.get('/', (c) => {
         <div class="max-w-5xl mx-auto text-center">
             <div class="mb-12">
                 <h1 class="text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900" style="letter-spacing: -0.02em;">
-                    Bereken je laadtijd.<br>
-                    <span class="gradient-text">Simpel en snel.</span>
+                    Calculate charging time.<br>
+                    <span class="gradient-text">Simple and fast.</span>
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light">
-                    De slimste manier om je EV laadtijd en kosten te berekenen.<br>
-                    <span class="text-blue-600 font-medium">129 voertuigen. Direct te gebruiken.</span>
+                    The smartest way to calculate your EV charging time and costs.<br>
+                    <span class="text-blue-600 font-medium">129 vehicles. Ready to use.</span>
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
                     <a href="/app" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
-                        Start nu
+                        Start now
                     </a>
                 </div>
             </div>
@@ -150,12 +150,12 @@ app.get('/', (c) => {
                 <div class="apple-card rounded-3xl p-8 border border-gray-200">
                     <i class="fas fa-search text-4xl text-blue-600 mb-4"></i>
                     <h3 class="text-lg font-semibold mb-2 text-gray-900">Smart Search</h3>
-                    <p class="text-gray-600 text-sm">Type en vind direct je voertuig</p>
+                    <p class="text-gray-600 text-sm">Type and find your vehicle instantly</p>
                 </div>
                 <div class="apple-card rounded-3xl p-8 border border-gray-200">
                     <i class="fas fa-euro-sign text-4xl text-green-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Kosten Calculator</h3>
-                    <p class="text-gray-600 text-sm">Bereken exact je laadkosten</p>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Cost Calculator</h3>
+                    <p class="text-gray-600 text-sm">Calculate your exact charging costs</p>
                 </div>
             </div>
 
@@ -163,19 +163,19 @@ app.get('/', (c) => {
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-20">
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">129</div>
-                    <div class="text-gray-500 text-sm">Voertuigen</div>
+                    <div class="text-gray-500 text-sm">Vehicles</div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">39</div>
-                    <div class="text-gray-500 text-sm">Merken</div>
+                    <div class="text-gray-500 text-sm">Brands</div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">100%</div>
-                    <div class="text-gray-500 text-sm">Gratis</div>
+                    <div class="text-gray-500 text-sm">Free</div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">2s</div>
-                    <div class="text-gray-500 text-sm">Snel</div>
+                    <div class="text-gray-500 text-sm">Fast</div>
                 </div>
             </div>
         </div>
@@ -483,7 +483,7 @@ app.get('/api/subscription-tiers', (c) => {
 app.get('/app', (c) => {
   return c.html(`
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -790,16 +790,16 @@ app.get('/app', (c) => {
     <div class="pt-20 pb-8 px-6">
         <div class="max-w-4xl mx-auto text-center">
             <h1 class="text-4xl md:text-5xl font-semibold mb-4 text-gray-900" style="letter-spacing: -0.02em;">
-                Bereken je laadsnelheid<br>
-                <span class="tesla-gradient bg-clip-text text-transparent">in enkele seconden</span>
+                Calculate your charging speed<br>
+                <span class="tesla-gradient bg-clip-text text-transparent">in seconds</span>
             </h1>
             <p class="text-lg text-gray-600 mb-8 font-light">
-                Kies je voertuig en ontdek hoeveel km je per uur kunt laden
+                Choose your vehicle and discover how many km you can charge per hour
             </p>
             <div class="flex justify-center items-center space-x-6 text-sm text-gray-500">
                 <div class="flex items-center">
                     <i class="fas fa-check-circle text-blue-600 mr-2"></i>
-                    <span id="vehicleCount">129</span> Voertuigen
+                    <span id="vehicleCount">129</span> Vehicles
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-check-circle text-blue-600 mr-2"></i>
@@ -807,7 +807,7 @@ app.get('/app', (c) => {
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-check-circle text-blue-600 mr-2"></i>
-                    Snelle berekeningen
+                    Fast calculations
                 </div>
             </div>
         </div>
@@ -819,8 +819,8 @@ app.get('/app', (c) => {
             <!-- Subscription Tier Indicator -->
             <div class="mb-8 flex justify-between items-center">
                 <div>
-                    <span class="text-sm text-gray-500">Huidig abonnement:</span>
-                    <span id="currentTier" class="ml-2 px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-sm font-medium text-gray-700">Gratis</span>
+                    <span class="text-sm text-gray-500">Current subscription:</span>
+                    <span id="currentTier" class="ml-2 px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-sm font-medium text-gray-700">Free</span>
                 </div>
                 <button id="upgradeBtnCalc" class="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
                     <i class="fas fa-arrow-up mr-1"></i>Upgrade
@@ -830,13 +830,13 @@ app.get('/app', (c) => {
             <!-- Vehicle Selection with Search -->
             <div class="mb-8">
                 <label class="block text-sm font-semibold mb-3 text-gray-900">
-                    <i class="fas fa-car mr-2 text-blue-600"></i>Kies je voertuig
+                    <i class="fas fa-car mr-2 text-blue-600"></i>Choose your vehicle
                 </label>
                 <div class="relative">
                     <input 
                         type="text" 
                         id="vehicleSearch" 
-                        placeholder="Zoek je voertuig (bijv. Tesla Model 3, Dacia Spring)" 
+                        placeholder="Search your vehicle (e.g. Tesla Model 3, Dacia Spring)" 
                         class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-4 pr-12 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         autocomplete="off"
                     >
@@ -876,7 +876,7 @@ app.get('/app', (c) => {
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
                     <i class="fas fa-charging-station text-blue-600 mr-2"></i>
-                    <span>Laadvermogen</span>
+                    <span>Charging Power</span>
                 </label>
                 <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
@@ -892,10 +892,10 @@ app.get('/app', (c) => {
                     </div>
                     <div class="mt-4 flex justify-between text-xs font-medium">
                         <span class="text-gray-500">
-                            <i class="fas fa-plug mr-1"></i>Langzaam (7 kW)
+                            <i class="fas fa-plug mr-1"></i>Slow (7 kW)
                         </span>
                         <span class="text-blue-600">
-                            <i class="fas fa-bolt mr-1"></i>Snel (50 kW)
+                            <i class="fas fa-bolt mr-1"></i>Fast (50 kW)
                         </span>
                         <span class="text-purple-600">
                             <i class="fas fa-rocket mr-1"></i>Ultra (350 kW)
@@ -908,8 +908,8 @@ app.get('/app', (c) => {
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
                     <i class="fas fa-clock text-cyan-600 mr-2"></i>
-                    <span>Beschikbare laadtijd</span>
-                    <span class="ml-3 text-xs text-gray-400 font-normal">(Optioneel - voor bereikberekening)</span>
+                    <span>Available charging time</span>
+                    <span class="ml-3 text-xs text-gray-400 font-normal">(Optional - for range calculation)</span>
                 </label>
                 <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
@@ -925,17 +925,17 @@ app.get('/app', (c) => {
                     </div>
                     <div class="mt-4 flex justify-between text-xs font-medium">
                         <span class="text-gray-500">
-                            <i class="fas fa-coffee mr-1"></i>Snel (5 min)
+                            <i class="fas fa-coffee mr-1"></i>Quick (5 min)
                         </span>
                         <span class="text-cyan-600">
-                            <i class="fas fa-shopping-cart mr-1"></i>Boodschappen (30 min)
+                            <i class="fas fa-shopping-cart mr-1"></i>Shopping (30 min)
                         </span>
                         <span class="text-blue-600">
                             <i class="fas fa-utensils mr-1"></i>Lunch (120 min)
                         </span>
                     </div>
                     <div class="mt-3 text-xs text-gray-400 text-center">
-                        Hoeveel tijd heb je om te laden?
+                        How much time do you have to charge?
                     </div>
                 </div>
             </div>
@@ -944,7 +944,7 @@ app.get('/app', (c) => {
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
                     <i class="fas fa-euro-sign text-yellow-600 mr-2"></i>
-                    <span>Elektriciteitsprijs</span>
+                    <span>Electricity Price</span>
                 </label>
                 <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                     <div class="flex items-center space-x-4 mb-2">
@@ -960,17 +960,17 @@ app.get('/app', (c) => {
                     </div>
                     <div class="mt-4 flex justify-between text-xs font-medium">
                         <span class="text-gray-500">
-                            <i class="fas fa-home mr-1"></i>Thuis (€0.10)
+                            <i class="fas fa-home mr-1"></i>Home (€0.10)
                         </span>
                         <span class="text-yellow-600">
-                            <i class="fas fa-plug mr-1"></i>Gemiddeld (€0.30)
+                            <i class="fas fa-plug mr-1"></i>Average (€0.30)
                         </span>
                         <span class="text-orange-600">
-                            <i class="fas fa-bolt mr-1"></i>Snel (€0.70)
+                            <i class="fas fa-bolt mr-1"></i>Fast (€0.70)
                         </span>
                     </div>
                     <div class="mt-3 text-xs text-gray-400 text-center">
-                        Prijs per kWh (incl. btw en kosten)
+                        Price per kWh (incl. VAT and costs)
                     </div>
                 </div>
             </div>
@@ -985,7 +985,7 @@ app.get('/app', (c) => {
         <div id="resultsSection" class="hidden mt-8 animate-fade-in">
             <div class="bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200">
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Laadsnelheid</h2>
+                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Charging Speed</h2>
                     <p class="text-gray-600 text-lg" id="vehicleName">-</p>
                 </div>
 
@@ -1004,22 +1004,22 @@ app.get('/app', (c) => {
                     <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
                         <i class="fas fa-bolt text-3xl text-yellow-600 mb-3"></i>
                         <div class="text-2xl font-semibold text-gray-900" id="effectivePower">-</div>
-                        <div class="text-sm text-gray-600 mt-1">Effectief vermogen (kW)</div>
+                        <div class="text-sm text-gray-600 mt-1">Effective Power (kW)</div>
                     </div>
                     <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
                         <i class="fas fa-clock text-3xl text-blue-600 mb-3"></i>
                         <div class="text-2xl font-semibold text-gray-900" id="chargingTime">-</div>
-                        <div class="text-sm text-gray-600 mt-1">Laadtijd</div>
+                        <div class="text-sm text-gray-600 mt-1">Charging Time</div>
                     </div>
                     <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
                         <i class="fas fa-road text-3xl text-green-600 mb-3"></i>
                         <div class="text-2xl font-semibold text-gray-900" id="rangePerHour">-</div>
-                        <div class="text-sm text-gray-600 mt-1">Bereik/uur (km)</div>
+                        <div class="text-sm text-gray-600 mt-1">Range/hour (km)</div>
                     </div>
                     <div class="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
                         <i class="fas fa-euro-sign text-3xl text-orange-600 mb-3"></i>
                         <div class="text-2xl font-semibold text-gray-900" id="chargingCost">-</div>
-                        <div class="text-sm text-gray-600 mt-1">Laadkosten</div>
+                        <div class="text-sm text-gray-600 mt-1">Charging Cost</div>
                     </div>
                 </div>
                 
@@ -1028,7 +1028,7 @@ app.get('/app', (c) => {
                     <div class="text-center">
                         <h3 class="text-xl font-semibold mb-4 flex items-center justify-center text-gray-900">
                             <i class="fas fa-route text-cyan-600 mr-2"></i>
-                            Geschat bereik met beschikbare tijd
+                            Estimated range with available time
                         </h3>
                         <div class="text-center mb-4">
                             <div class="inline-block">
@@ -1039,15 +1039,15 @@ app.get('/app', (c) => {
                             </div>
                         </div>
                         <div class="text-sm text-gray-600">
-                            Gebaseerd op <span class="text-cyan-700 font-semibold" id="displayChargingTime">-</span> minuten laden
+                            Based on <span class="text-cyan-700 font-semibold" id="displayChargingTime">-</span> minutes of charging
                         </div>
                         <div class="mt-4 grid grid-cols-2 gap-4">
                             <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
-                                <div class="text-sm text-gray-600 mb-1 font-medium">Toegevoegde energie</div>
+                                <div class="text-sm text-gray-600 mb-1 font-medium">Energy Added</div>
                                 <div class="text-xl font-semibold text-cyan-700" id="energyAdded">-</div>
                             </div>
                             <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
-                                <div class="text-sm text-gray-600 mb-1 font-medium">Eindniveau SOC</div>
+                                <div class="text-sm text-gray-600 mb-1 font-medium">Final SOC</div>
                                 <div class="text-xl font-semibold text-green-700" id="finalSOC">-</div>
                             </div>
                         </div>
@@ -1057,15 +1057,15 @@ app.get('/app', (c) => {
                 <!-- Additional Cost Details - Apple Style -->
                 <div id="costDetails" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-2xl shadow-sm">
                     <div class="text-center">
-                        <div class="text-sm text-gray-600 mb-1 font-medium">Verbruikte energie</div>
+                        <div class="text-sm text-gray-600 mb-1 font-medium">Energy Used</div>
                         <div class="text-xl font-semibold text-gray-900" id="energyUsed">-</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-sm text-gray-600 mb-1 font-medium">Kosten per uur</div>
+                        <div class="text-sm text-gray-600 mb-1 font-medium">Cost per Hour</div>
                         <div class="text-xl font-semibold text-gray-900" id="costPerHour">-</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-sm text-gray-600 mb-1 font-medium">Kosten per 100km</div>
+                        <div class="text-sm text-gray-600 mb-1 font-medium">Cost per 100km</div>
                         <div class="text-xl font-semibold text-gray-900" id="costPer100km">-</div>
                     </div>
                 </div>
@@ -1073,7 +1073,7 @@ app.get('/app', (c) => {
                 <!-- Action Buttons - Apple Style -->
                 <div class="flex justify-center">
                     <button id="compareFromResult" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all transform hover:scale-105 font-semibold text-lg shadow-md hover:shadow-lg">
-                        <i class="fas fa-exchange-alt mr-2"></i>Voertuigen vergelijken
+                        <i class="fas fa-exchange-alt mr-2"></i>Compare Vehicles
                     </button>
                 </div>
             </div>
@@ -1085,8 +1085,8 @@ app.get('/app', (c) => {
         <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 animate-fade-in shadow-2xl border border-gray-200">
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Voertuigen vergelijken</h2>
-                    <p class="text-gray-600">Selecteer voertuigen om laadprestaties te vergelijken</p>
+                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Compare Vehicles</h2>
+                    <p class="text-gray-600">Select vehicles to compare charging performance</p>
                 </div>
                 <button id="closeCompareModal" class="text-gray-500 hover:text-gray-700 text-2xl">
                     <i class="fas fa-times"></i>
@@ -1097,7 +1097,7 @@ app.get('/app', (c) => {
             <div class="mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                        <span class="text-gray-600">Lader:</span>
+                        <span class="text-gray-600">Charger:</span>
                         <span class="ml-2 font-semibold text-gray-900" id="compareChargerPower">50 kW</span>
                     </div>
                     <div>
@@ -1105,12 +1105,12 @@ app.get('/app', (c) => {
                         <span class="ml-2 font-semibold text-gray-900" id="compareSOCRange">20-80%</span>
                     </div>
                     <div>
-                        <span class="text-gray-600">Prijs:</span>
+                        <span class="text-gray-600">Price:</span>
                         <span class="ml-2 font-semibold text-gray-900" id="compareElectricityPrice">€0.30/kWh</span>
                     </div>
                     <div>
-                        <span class="text-gray-600">Geselecteerd:</span>
-                        <span class="ml-2 font-semibold text-blue-600" id="compareVehicleCount">0 voertuigen</span>
+                        <span class="text-gray-600">Selected:</span>
+                        <span class="ml-2 font-semibold text-blue-600" id="compareVehicleCount">0 vehicles</span>
                     </div>
                 </div>
             </div>
@@ -1118,13 +1118,13 @@ app.get('/app', (c) => {
             <!-- Vehicle Search for Comparison - Apple Style -->
             <div class="mb-6">
                 <label class="block text-sm font-semibold mb-3 text-gray-900">
-                    <i class="fas fa-search mr-2 text-blue-600"></i>Zoek voertuigen om te vergelijken (max 4)
+                    <i class="fas fa-search mr-2 text-blue-600"></i>Search vehicles to compare (max 4)
                 </label>
                 <div class="relative">
                     <input 
                         type="text" 
                         id="compareVehicleSearch" 
-                        placeholder="Type om te zoeken..." 
+                        placeholder="Type to search..." 
                         class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         autocomplete="off"
                     >
@@ -1141,15 +1141,15 @@ app.get('/app', (c) => {
 
             <!-- Selected Vehicles for Comparison - Apple Style -->
             <div id="selectedCompareVehicles" class="mb-6">
-                <h3 class="text-sm font-semibold mb-3 text-gray-900">Geselecteerde voertuigen:</h3>
+                <h3 class="text-sm font-semibold mb-3 text-gray-900">Selected vehicles:</h3>
                 <div id="selectedCompareVehiclesList" class="space-y-2">
-                    <div class="text-sm text-gray-600 text-center py-4 bg-gray-50 rounded-2xl border border-gray-200">Nog geen voertuigen geselecteerd</div>
+                    <div class="text-sm text-gray-600 text-center py-4 bg-gray-50 rounded-2xl border border-gray-200">No vehicles selected yet</div>
                 </div>
             </div>
 
             <!-- Compare Button - Apple Style -->
             <button id="startCompareBtn" disabled class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-exchange-alt mr-2"></i>Vergelijk geselecteerde voertuigen
+                <i class="fas fa-exchange-alt mr-2"></i>Compare selected vehicles
             </button>
         </div>
     </div>
@@ -1158,8 +1158,8 @@ app.get('/app', (c) => {
     <div id="comparisonResults" class="hidden max-w-6xl mx-auto px-4 pb-12 mt-8">
         <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-200">
             <div class="text-center mb-8">
-                <h2 class="text-3xl font-semibold mb-2 text-gray-900">Voertuigvergelijking</h2>
-                <p class="text-gray-600">Laadprestaties naast elkaar</p>
+                <h2 class="text-3xl font-semibold mb-2 text-gray-900">Vehicle Comparison</h2>
+                <p class="text-gray-600">Charging performance side by side</p>
             </div>
 
             <!-- Comparison Table -->
@@ -1172,7 +1172,7 @@ app.get('/app', (c) => {
             <!-- Back Button - Apple Style -->
             <div class="mt-8 text-center">
                 <button id="closeComparisonResults" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium rounded-full transition-colors shadow-sm">
-                    <i class="fas fa-arrow-left mr-2"></i>Terug naar calculator
+                    <i class="fas fa-arrow-left mr-2"></i>Back to calculator
                 </button>
             </div>
         </div>
@@ -1183,8 +1183,8 @@ app.get('/app', (c) => {
         <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-8 md:p-12 animate-fade-in shadow-2xl border border-gray-200">
             <div class="flex justify-between items-start mb-8">
                 <div>
-                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Kies je abonnement</h2>
-                    <p class="text-gray-600">Ontgrendel premium functies en krijg toegang tot alle voertuigen</p>
+                    <h2 class="text-3xl font-semibold mb-2 text-gray-900">Choose your subscription</h2>
+                    <p class="text-gray-600">Unlock premium features and get access to all vehicles</p>
                 </div>
                 <button id="closePricingModal" class="text-gray-500 hover:text-gray-700 text-2xl">
                     <i class="fas fa-times"></i>
@@ -1203,7 +1203,7 @@ app.get('/app', (c) => {
             <p class="mb-4">© 2024 EV Charge Calculator. Built with ⚡ for EV enthusiasts.</p>
             <div class="flex justify-center space-x-6">
                 <a href="#" class="hover:text-blue-600 transition-colors">Privacy</a>
-                <a href="#" class="hover:text-blue-600 transition-colors">Voorwaarden</a>
+                <a href="#" class="hover:text-blue-600 transition-colors">Terms</a>
                 <a href="#" class="hover:text-blue-600 transition-colors">Contact</a>
             </div>
         </div>

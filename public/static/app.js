@@ -1205,11 +1205,11 @@ function showInstallPrompt() {
           <i class="fas fa-mobile-alt text-white text-xl"></i>
         </div>
         <div class="flex-1">
-          <h3 class="font-semibold text-sm mb-1 text-gray-900">Installeer de App</h3>
-          <p class="text-xs text-gray-600 mb-3">Voeg EV Charge Calculator toe aan je startscherm voor snelle toegang</p>
+          <h3 class="font-semibold text-sm mb-1 text-gray-900">Install the App</h3>
+          <p class="text-xs text-gray-600 mb-3">Add EV Charge Calculator to your home screen for quick access</p>
           <div class="flex gap-2">
             <button id="installAppBtn" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-full shadow-md hover:shadow-lg transition-all">
-              <i class="fas fa-download mr-1"></i>Installeer
+              <i class="fas fa-download mr-1"></i>Install
             </button>
             <button id="dismissInstallBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 text-xs font-semibold rounded-full transition-colors shadow-sm">
               Later
@@ -1262,7 +1262,7 @@ window.addEventListener('appinstalled', () => {
   if (prompt) prompt.remove()
   
   // Show success notification
-  showNotification('App geïnstalleerd! Je kunt de app nu vanuit je startscherm openen.', 'success')
+  showNotification('App installed! You can now open the app from your home screen.', 'success')
 })
 
 // Export for global access
