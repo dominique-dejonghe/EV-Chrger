@@ -277,6 +277,27 @@ app.get('/', (c) => {
             </div>
         </div>
     </section>
+
+    <!-- Footer - Pensato Branding -->
+    <footer class="mt-20 py-16 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold text-gray-900 mb-2">Pensato</h3>
+                <p class="text-lg text-gray-600 mb-6">AI-Powered Solutions</p>
+                <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                    <span>Made in Belgium with</span>
+                    <span class="text-xl" style="color: #000000;">🖤</span>
+                    <span class="text-xl" style="color: #FFD700;">💛</span>
+                    <span class="text-xl" style="color: #EF3340;">❤️</span>
+                </div>
+            </div>
+            <div class="flex justify-center space-x-8 text-sm">
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Terms</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
   `)
@@ -1294,14 +1315,23 @@ app.get('/app', (c) => {
         </div>
     </div>
 
-    <!-- Footer - Apple Style -->
-    <footer class="mt-20 py-12 border-t border-gray-200 bg-white">
-        <div class="max-w-7xl mx-auto px-4 text-center text-gray-600">
-            <p class="mb-4">© 2024 EV Charge Calculator. Built with ⚡ for EV enthusiasts.</p>
-            <div class="flex justify-center space-x-6">
-                <a href="#" class="hover:text-blue-600 transition-colors">Privacy</a>
-                <a href="#" class="hover:text-blue-600 transition-colors">Terms</a>
-                <a href="#" class="hover:text-blue-600 transition-colors">Contact</a>
+    <!-- Footer - Pensato Branding -->
+    <footer class="mt-20 py-16 border-t border-gray-200 bg-gradient-to-b from-white to-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold text-gray-900 mb-2">Pensato</h3>
+                <p class="text-lg text-gray-600 mb-6">AI-Powered Solutions</p>
+                <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                    <span>Made in Belgium with</span>
+                    <span class="text-xl" style="color: #000000;">🖤</span>
+                    <span class="text-xl" style="color: #FFD700;">💛</span>
+                    <span class="text-xl" style="color: #EF3340;">❤️</span>
+                </div>
+            </div>
+            <div class="flex justify-center space-x-8 text-sm">
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Terms</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
             </div>
         </div>
     </footer>
