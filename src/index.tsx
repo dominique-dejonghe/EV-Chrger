@@ -83,6 +83,49 @@ app.get('/', (c) => {
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
+    <!-- EV Brand Carousel Section - Top Banner -->
+    <section class="py-8 bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-6">
+                Ondersteunde merken
+            </h2>
+            <div class="logo-carousel">
+                <div class="logo-track">
+                    <!-- First set of logos -->
+                    <img src="https://cdn.simpleicons.org/tesla/000000" alt="Tesla" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/renault/FFCC00" alt="Renault" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/peugeot/000000" alt="Peugeot" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/ford/00274D" alt="Ford" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volvo/000000" alt="Volvo" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/porsche/000000" alt="Porsche" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/opel/F7D507" alt="Opel" class="brand-logo" />
+                    <!-- Duplicate set for seamless loop -->
+                    <img src="https://cdn.simpleicons.org/tesla/000000" alt="Tesla" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/renault/FFCC00" alt="Renault" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/peugeot/000000" alt="Peugeot" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/ford/00274D" alt="Ford" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/volvo/000000" alt="Volvo" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/porsche/000000" alt="Porsche" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/opel/F7D507" alt="Opel" class="brand-logo" />
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <!-- Hero Section - Apple Style with Tesla Supercharger Background -->
     <section class="min-h-screen flex flex-col justify-center px-6 py-20 hero-with-bg">
         <div class="max-w-5xl mx-auto text-center">
@@ -133,49 +176,6 @@ app.get('/', (c) => {
                 <div class="text-center">
                     <div class="text-5xl font-semibold gradient-text mb-2">2s</div>
                     <div class="text-gray-500 text-sm">Snel</div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- EV Brand Carousel Section -->
-    <section class="py-12 bg-white border-y border-gray-200">
-        <div class="max-w-7xl mx-auto px-6">
-            <h2 class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-8">
-                Ondersteunde merken
-            </h2>
-            <div class="logo-carousel">
-                <div class="logo-track">
-                    <!-- First set of logos -->
-                    <img src="https://cdn.simpleicons.org/tesla/000000" alt="Tesla" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/renault/FFCC00" alt="Renault" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/peugeot/000000" alt="Peugeot" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/ford/00274D" alt="Ford" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/volvo/000000" alt="Volvo" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/porsche/000000" alt="Porsche" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/opel/F7D507" alt="Opel" class="brand-logo" />
-                    <!-- Duplicate set for seamless loop -->
-                    <img src="https://cdn.simpleicons.org/tesla/000000" alt="Tesla" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedes/00ADEF" alt="Mercedes" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/renault/FFCC00" alt="Renault" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/peugeot/000000" alt="Peugeot" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/ford/00274D" alt="Ford" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/volvo/000000" alt="Volvo" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/porsche/000000" alt="Porsche" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/opel/F7D507" alt="Opel" class="brand-logo" />
                 </div>
             </div>
         </div>
