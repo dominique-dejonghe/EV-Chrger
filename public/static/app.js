@@ -195,7 +195,7 @@ function showPremiumUpgradeModal(vehicle) {
         <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-700">
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>284+ voertuigen</strong> - Alle merken</span>
+            <span><strong>129 voertuigen</strong> - Alle merken</span>
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>

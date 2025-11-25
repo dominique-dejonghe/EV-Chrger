@@ -55,7 +55,7 @@ app.get('/', (c) => {
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light">
                     De slimste manier om je EV laadtijd en kosten te berekenen.<br>
-                    <span class="text-blue-600 font-medium">284+ voertuigen. Direct te gebruiken.</span>
+                    <span class="text-blue-600 font-medium">129 voertuigen. Direct te gebruiken.</span>
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
                     <a href="/app" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
@@ -86,7 +86,7 @@ app.get('/', (c) => {
             <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 <div class="text-center">
-                    <div class="text-5xl font-semibold gradient-text mb-2">284</div>
+                    <div class="text-5xl font-semibold gradient-text mb-2">129</div>
                     <div class="text-gray-500 text-sm">Voertuigen</div>
                 </div>
                 <div class="text-center">
@@ -412,7 +412,7 @@ app.get('/app', (c) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EV Charge Calculator - Apple-style Clean Experience</title>
-    <meta name="description" content="Calculate your EV charging speed and range. Clean calculator with 284+ electric vehicles.">
+    <meta name="description" content="Calculate your EV charging speed and range. Clean calculator with 129 electric vehicles.">
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#667eea">
@@ -723,7 +723,7 @@ app.get('/app', (c) => {
             <div class="flex justify-center items-center space-x-6 text-sm text-gray-500">
                 <div class="flex items-center">
                     <i class="fas fa-check-circle text-blue-600 mr-2"></i>
-                    <span id="vehicleCount">284</span> Voertuigen
+                    <span id="vehicleCount">129</span> Voertuigen
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-check-circle text-blue-600 mr-2"></i>
