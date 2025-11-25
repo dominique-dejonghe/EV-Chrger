@@ -43,6 +43,49 @@ app.get('/', (c) => {
         background-attachment: fixed;
       }
       
+      /* Typewriter Effect Animation */
+      @keyframes typewriter {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      
+      @keyframes blink {
+        0%, 100% { border-color: transparent; }
+        50% { border-color: #007AFF; }
+      }
+      
+      .typewriter-container {
+        display: inline-block;
+      }
+      
+      .typewriter-line {
+        overflow: hidden;
+        border-right: 3px solid #007AFF;
+        white-space: nowrap;
+        margin: 0 auto;
+        animation: 
+          typewriter 2s steps(25, end) forwards,
+          blink 0.75s step-end infinite;
+      }
+      
+      .typewriter-line.line1 {
+        animation: 
+          typewriter 2s steps(25, end) forwards,
+          blink 0.75s step-end infinite;
+      }
+      
+      .typewriter-line.line2 {
+        opacity: 0;
+        animation: 
+          typewriter 1.8s steps(20, end) 2.2s forwards,
+          blink 0.75s step-end 2.2s infinite;
+        animation-fill-mode: forwards;
+      }
+      
+      .typewriter-line.line2.show {
+        opacity: 1;
+      }
+      
       /* EV Brand Logo Carousel - Infinite Scroll Animation */
       @keyframes scroll {
         0% { transform: translateX(0); }
@@ -131,9 +174,28 @@ app.get('/', (c) => {
         <div class="max-w-5xl mx-auto text-center">
             <div class="mb-12">
                 <h1 class="text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900" style="letter-spacing: -0.02em;">
-                    Calculate charging time.<br>
-                    <span class="gradient-text">Simple and fast.</span>
+                    <div class="typewriter-container">
+                        <div class="typewriter-line line1" id="typewriter1">Calculate charging time.</div>
+                    </div>
+                    <br>
+                    <span class="gradient-text typewriter-line line2" id="typewriter2">Simple and fast.</span>
                 </h1>
+                <script>
+                    // Show second line after first completes
+                    setTimeout(() => {
+                        document.getElementById('typewriter2').classList.add('show');
+                    }, 2200);
+                    
+                    // Remove cursor from first line when second starts
+                    setTimeout(() => {
+                        document.getElementById('typewriter1').style.borderRight = 'none';
+                    }, 2100);
+                    
+                    // Remove cursor from second line when complete
+                    setTimeout(() => {
+                        document.getElementById('typewriter2').style.borderRight = 'none';
+                    }, 4500);
+                </script>
                 <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light">
                     The smartest way to calculate your EV charging time and costs.<br>
                     <span class="text-blue-600 font-medium">129 vehicles. Ready to use.</span>
