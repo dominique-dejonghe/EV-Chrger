@@ -823,41 +823,6 @@ app.get('/app', (c) => {
                 </div>
             </div>
 
-            <!-- Electricity Price Input - Apple Style -->
-            <div class="mb-6">
-                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
-                    <i class="fas fa-euro-sign text-yellow-600 mr-2"></i>
-                    <span>Elektriciteitsprijs</span>
-                </label>
-                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                    <div class="flex items-center space-x-4 mb-2">
-                        <!-- Slider Container - Apple Style -->
-                        <div class="flex-1 px-2 py-6">
-                            <input type="range" id="electricityPriceRange" min="0.10" max="1.00" step="0.01" value="0.30" class="w-full">
-                        </div>
-                        <div class="flex items-center bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
-                            <span class="text-white mr-1 text-lg font-semibold">€</span>
-                            <input type="number" id="electricityPriceInput" value="0.30" min="0.10" max="1.00" step="0.01" 
-                                   class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
-                        </div>
-                    </div>
-                    <div class="mt-4 flex justify-between text-xs font-medium">
-                        <span class="text-gray-500">
-                            <i class="fas fa-home mr-1"></i>Thuis (€0.10)
-                        </span>
-                        <span class="text-yellow-600">
-                            <i class="fas fa-plug mr-1"></i>Gemiddeld (€0.30)
-                        </span>
-                        <span class="text-orange-600">
-                            <i class="fas fa-bolt mr-1"></i>Snel (€0.70)
-                        </span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-400 text-center">
-                        Prijs per kWh (incl. btw en kosten)
-                    </div>
-                </div>
-            </div>
-
             <!-- Available Charging Time Input - Apple Style -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
@@ -890,6 +855,41 @@ app.get('/app', (c) => {
                     </div>
                     <div class="mt-3 text-xs text-gray-400 text-center">
                         Hoeveel tijd heb je om te laden?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Electricity Price Input - Apple Style -->
+            <div class="mb-6">
+                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <i class="fas fa-euro-sign text-yellow-600 mr-2"></i>
+                    <span>Elektriciteitsprijs</span>
+                </label>
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                    <div class="flex items-center space-x-4 mb-2">
+                        <!-- Slider Container - Apple Style -->
+                        <div class="flex-1 px-2 py-6">
+                            <input type="range" id="electricityPriceRange" min="0.10" max="1.00" step="0.01" value="0.30" class="w-full">
+                        </div>
+                        <div class="flex items-center bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl px-5 py-4 min-w-[140px] shadow-lg">
+                            <span class="text-white mr-1 text-lg font-semibold">€</span>
+                            <input type="number" id="electricityPriceInput" value="0.30" min="0.10" max="1.00" step="0.01" 
+                                   class="bg-transparent border-none outline-none text-white text-right w-full text-2xl font-bold">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between text-xs font-medium">
+                        <span class="text-gray-500">
+                            <i class="fas fa-home mr-1"></i>Thuis (€0.10)
+                        </span>
+                        <span class="text-yellow-600">
+                            <i class="fas fa-plug mr-1"></i>Gemiddeld (€0.30)
+                        </span>
+                        <span class="text-orange-600">
+                            <i class="fas fa-bolt mr-1"></i>Snel (€0.70)
+                        </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-400 text-center">
+                        Prijs per kWh (incl. btw en kosten)
                     </div>
                 </div>
             </div>
