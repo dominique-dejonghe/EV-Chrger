@@ -43,7 +43,7 @@ app.get('/', (c) => {
         background-attachment: fixed;
       }
       
-      /* Typewriter Effect Animation */
+      /* Typewriter Effect Animation - Infinite Loop */
       @keyframes typewriter {
         from { width: 0; }
         to { width: 100%; }
@@ -54,36 +54,44 @@ app.get('/', (c) => {
         50% { border-color: #007AFF; }
       }
       
+      @keyframes fadeOut {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      
       .typewriter-container {
         display: inline-block;
       }
       
       .typewriter-line {
         overflow: hidden;
-        border-right: 3px solid #007AFF;
+        border-right: 3px solid transparent;
         white-space: nowrap;
         margin: 0 auto;
-        animation: 
-          typewriter 2s steps(25, end) forwards,
-          blink 0.75s step-end infinite;
-      }
-      
-      .typewriter-line.line1 {
-        animation: 
-          typewriter 2s steps(25, end) forwards,
-          blink 0.75s step-end infinite;
-      }
-      
-      .typewriter-line.line2 {
+        width: 0;
         opacity: 0;
-        animation: 
-          typewriter 1.8s steps(20, end) 2.2s forwards,
-          blink 0.75s step-end 2.2s infinite;
-        animation-fill-mode: forwards;
       }
       
-      .typewriter-line.line2.show {
+      .typewriter-line.typing {
+        border-right: 3px solid #007AFF;
+      }
+      
+      .typewriter-line.line1.animate {
         opacity: 1;
+        animation: 
+          typewriter 2s steps(25, end) forwards,
+          blink 0.75s step-end infinite;
+      }
+      
+      .typewriter-line.line2.animate {
+        opacity: 1;
+        animation: 
+          typewriter 1.8s steps(20, end) forwards,
+          blink 0.75s step-end infinite;
+      }
+      
+      .typewriter-line.fade {
+        animation: fadeOut 0.5s forwards;
       }
       
       /* EV Brand Logo Carousel - Infinite Scroll Animation */
@@ -181,20 +189,47 @@ app.get('/', (c) => {
                     <span class="gradient-text typewriter-line line2" id="typewriter2">Simple and fast.</span>
                 </h1>
                 <script>
-                    // Show second line after first completes
-                    setTimeout(() => {
-                        document.getElementById('typewriter2').classList.add('show');
-                    }, 2200);
+                    // Infinite Typewriter Loop
+                    function typewriterLoop() {
+                        const line1 = document.getElementById('typewriter1');
+                        const line2 = document.getElementById('typewriter2');
+                        
+                        // Reset both lines
+                        line1.className = 'typewriter-line line1';
+                        line2.className = 'gradient-text typewriter-line line2';
+                        line1.style.width = '0';
+                        line2.style.width = '0';
+                        
+                        // Start Line 1 typing
+                        setTimeout(() => {
+                            line1.classList.add('animate', 'typing');
+                        }, 100);
+                        
+                        // Remove cursor from Line 1, start Line 2
+                        setTimeout(() => {
+                            line1.classList.remove('typing');
+                            line2.classList.add('animate', 'typing');
+                        }, 2200);
+                        
+                        // Remove cursor from Line 2
+                        setTimeout(() => {
+                            line2.classList.remove('typing');
+                        }, 4100);
+                        
+                        // Fade out both lines
+                        setTimeout(() => {
+                            line1.classList.add('fade');
+                            line2.classList.add('fade');
+                        }, 6000);
+                        
+                        // Loop again
+                        setTimeout(() => {
+                            typewriterLoop();
+                        }, 6600);
+                    }
                     
-                    // Remove cursor from first line when second starts
-                    setTimeout(() => {
-                        document.getElementById('typewriter1').style.borderRight = 'none';
-                    }, 2100);
-                    
-                    // Remove cursor from second line when complete
-                    setTimeout(() => {
-                        document.getElementById('typewriter2').style.borderRight = 'none';
-                    }, 4500);
+                    // Start the loop
+                    typewriterLoop();
                 </script>
                 <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto font-light">
                     The smartest way to calculate your EV charging time and costs.<br>
