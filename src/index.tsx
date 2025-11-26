@@ -685,6 +685,45 @@ app.get('/api/vehicles/:id', async (c) => {
   }
 })
 
+// Submit vehicle suggestion (optional auth - captures user email if logged in)
+app.post('/api/vehicle-suggestions', optionalAuthMiddleware, async (c) => {
+  const { DB } = c.env
+  const user = c.get('user')
+  
+  try {
+    const { brand, model, year, batteryCapacity, additionalInfo } = await c.req.json()
+    
+    // Validation
+    if (!brand || !model) {
+      return c.json({ success: false, error: 'Brand and model are required' }, 400)
+    }
+    
+    // Insert suggestion
+    const result = await DB.prepare(`
+      INSERT INTO vehicle_suggestions 
+      (user_id, user_email, vehicle_brand, vehicle_model, vehicle_year, battery_capacity, additional_info, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
+    `).bind(
+      user?.id || null,
+      user?.email || null,
+      brand.trim(),
+      model.trim(),
+      year || null,
+      batteryCapacity || null,
+      additionalInfo || null
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: 'Vehicle suggestion submitted successfully! We will review it and add it to our database.',
+      suggestionId: result.meta.last_row_id
+    })
+  } catch (error) {
+    console.error('Vehicle suggestion error:', error)
+    return c.json({ success: false, error: 'Failed to submit suggestion' }, 500)
+  }
+})
+
 // Calculate charging speed
 app.post('/api/calculate', async (c) => {
   const { DB } = c.env
@@ -1648,6 +1687,105 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
         </div>
+
+        <!-- Vehicle Suggestion Form - Bottom of Page -->
+        <div class="mt-16 bg-gradient-to-r from-gray-50 to-gray-100 rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-semibold mb-3 text-gray-900 flex items-center justify-center">
+                        <i class="fas fa-plus-circle text-blue-600 mr-3"></i>
+                        Voertuig Niet Gevonden?
+                    </h2>
+                    <p class="text-gray-600 text-lg">
+                        Staat je elektrische voertuig niet in onze database? Laat het ons weten en we voegen het toe!
+                    </p>
+                </div>
+
+                <form id="vehicleSuggestionForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-gray-900">
+                                <i class="fas fa-car mr-2 text-blue-600"></i>Merk *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="suggestBrand" 
+                                required
+                                placeholder="bijv. Tesla, BMW, Volkswagen" 
+                                class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-gray-900">
+                                <i class="fas fa-id-card mr-2 text-blue-600"></i>Model *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="suggestModel" 
+                                required
+                                placeholder="bijv. Model 3, iX3, ID.4" 
+                                class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-gray-900">
+                                <i class="fas fa-calendar mr-2 text-blue-600"></i>Jaar (optioneel)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="suggestYear" 
+                                min="2010"
+                                max="2030"
+                                placeholder="bijv. 2024" 
+                                class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-gray-900">
+                                <i class="fas fa-battery-full mr-2 text-blue-600"></i>Batterijcapaciteit (kWh, optioneel)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="suggestBatteryCapacity" 
+                                step="0.1"
+                                min="10"
+                                max="200"
+                                placeholder="bijv. 75.0" 
+                                class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-gray-900">
+                            <i class="fas fa-info-circle mr-2 text-blue-600"></i>Extra informatie (optioneel)
+                        </label>
+                        <textarea 
+                            id="suggestAdditionalInfo" 
+                            rows="3"
+                            placeholder="Eventuele extra details zoals variant, laadsnelheid, etc." 
+                            class="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                        ></textarea>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button 
+                            type="submit" 
+                            class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full transition-all transform hover:scale-105 font-semibold text-lg shadow-md hover:shadow-lg"
+                        >
+                            <i class="fas fa-paper-plane mr-2"></i>Verstuur Suggestie
+                        </button>
+                    </div>
+
+                    <p class="text-sm text-gray-500 text-center mt-4">
+                        <i class="fas fa-lock mr-1"></i>Je gegevens worden veilig opgeslagen. We nemen contact op als we meer informatie nodig hebben.
+                    </p>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Compare Vehicles Modal - Apple Style -->
@@ -1868,6 +2006,53 @@ app.get('/app', optionalAuthMiddleware, (c) => {
             const menuBtn = document.getElementById('userMenuBtn');
             if (dropdown && !dropdown.contains(e.target) && !menuBtn?.contains(e.target)) {
                 dropdown.classList.add('hidden');
+            }
+        });
+        
+        // Vehicle suggestion form handler
+        document.getElementById('vehicleSuggestionForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            try {
+                // Disable button and show loading
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Versturen...';
+                
+                const formData = {
+                    brand: document.getElementById('suggestBrand').value,
+                    model: document.getElementById('suggestModel').value,
+                    year: document.getElementById('suggestYear').value || null,
+                    batteryCapacity: document.getElementById('suggestBatteryCapacity').value || null,
+                    additionalInfo: document.getElementById('suggestAdditionalInfo').value || null
+                };
+                
+                const response = await fetch('/api/vehicle-suggestions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success message
+                    alert('✅ Bedankt voor je suggestie! We bekijken je voertuig en voegen het toe aan onze database.');
+                    
+                    // Reset form
+                    document.getElementById('vehicleSuggestionForm').reset();
+                } else {
+                    alert('❌ Er ging iets mis: ' + (result.error || 'Probeer het later opnieuw'));
+                }
+            } catch (error) {
+                console.error('Suggestion submission error:', error);
+                alert('❌ Netwerk fout. Controleer je verbinding en probeer opnieuw.');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             }
         });
         
