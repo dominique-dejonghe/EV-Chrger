@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
 import authRoutes from './auth-routes'
-import { authMiddleware, optionalAuthMiddleware } from './middleware'
+import { authMiddleware, optionalAuthMiddleware, adminMiddleware, requireRole } from './middleware'
 
 type Bindings = {
   DB: D1Database
@@ -732,6 +732,110 @@ app.post('/api/vehicle-suggestions', optionalAuthMiddleware, async (c) => {
   }
 })
 
+// ===== ADMIN API ENDPOINTS =====
+
+// Get all vehicle suggestions (admin only)
+app.get('/api/admin/suggestions', requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  
+  try {
+    const { results } = await DB.prepare(`
+      SELECT * FROM vehicle_suggestions 
+      ORDER BY created_at DESC
+    `).all()
+    
+    return c.json({ success: true, suggestions: results })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to fetch suggestions' }, 500)
+  }
+})
+
+// Approve vehicle suggestion
+app.post('/api/admin/suggestions/:id/approve', requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  const id = c.req.param('id')
+  
+  try {
+    await DB.prepare(`
+      UPDATE vehicle_suggestions SET status = 'approved', updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(id).run()
+    
+    return c.json({ success: true, message: 'Suggestion approved' })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to approve suggestion' }, 500)
+  }
+})
+
+// Reject vehicle suggestion
+app.post('/api/admin/suggestions/:id/reject', requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  const id = c.req.param('id')
+  
+  try {
+    await DB.prepare(`
+      UPDATE vehicle_suggestions SET status = 'rejected', updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(id).run()
+    
+    return c.json({ success: true, message: 'Suggestion rejected' })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to reject suggestion' }, 500)
+  }
+})
+
+// Get all users (admin only)
+app.get('/api/admin/users', requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  
+  try {
+    const { results } = await DB.prepare(`
+      SELECT id, email, first_name, last_name, role, created_at 
+      FROM users 
+      ORDER BY created_at DESC
+    `).all()
+    
+    return c.json({ success: true, users: results })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to fetch users' }, 500)
+  }
+})
+
+// Change user role (admin only)
+app.post('/api/admin/users/:id/role', requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  const userId = c.req.param('id')
+  const { role } = await c.req.json()
+  
+  if (!['free', 'premium', 'admin'].includes(role)) {
+    return c.json({ success: false, error: 'Invalid role' }, 400)
+  }
+  
+  try {
+    await DB.prepare(`
+      UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(role, userId).run()
+    
+    return c.json({ success: true, message: 'User role updated' })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to update user role' }, 500)
+  }
+})
+
+// Delete vehicle (admin only)
+app.delete('/api/admin/vehicles/:id', requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  const id = c.req.param('id')
+  
+  try {
+    await DB.prepare('DELETE FROM vehicles WHERE id = ?').bind(id).run()
+    return c.json({ success: true, message: 'Vehicle deleted' })
+  } catch (error) {
+    return c.json({ success: false, error: 'Failed to delete vehicle' }, 500)
+  }
+})
+
 // Calculate charging speed
 app.post('/api/calculate', async (c) => {
   const { DB } = c.env
@@ -1069,6 +1173,209 @@ app.get('/account', authMiddleware, (c) => {
   `)
 })
 
+// Admin Dashboard
+app.get('/admin', adminMiddleware, async (c) => {
+  const user = c.get('user')
+  const { DB } = c.env
+  
+  // Fetch stats
+  const stats = {
+    totalUsers: await DB.prepare('SELECT COUNT(*) as count FROM users').first(),
+    premiumUsers: await DB.prepare('SELECT COUNT(*) as count FROM users WHERE role = ?').bind('premium').first(),
+    pendingSuggestions: await DB.prepare('SELECT COUNT(*) as count FROM vehicle_suggestions WHERE status = ?').bind('pending').first(),
+    totalVehicles: await DB.prepare('SELECT COUNT(*) as count FROM vehicles').first()
+  }
+  
+  return c.html(`
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EV Charge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-bolt text-2xl text-blue-600"></i>
+                    <span class="text-lg font-semibold text-gray-900">EV Charge</span>
+                    <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">ADMIN</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/app" class="text-sm text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-calculator mr-2"></i>Calculator
+                    </a>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-3xl font-semibold text-gray-900 mb-8">Admin Dashboard</h1>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Totaal Users</p>
+                        <p class="text-3xl font-semibold text-gray-900">${stats.totalUsers?.count || 0}</p>
+                    </div>
+                    <i class="fas fa-users text-3xl text-blue-600"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Premium Users</p>
+                        <p class="text-3xl font-semibold text-gray-900">${stats.premiumUsers?.count || 0}</p>
+                    </div>
+                    <i class="fas fa-crown text-3xl text-yellow-600"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Pending Suggesties</p>
+                        <p class="text-3xl font-semibold text-gray-900">${stats.pendingSuggestions?.count || 0}</p>
+                    </div>
+                    <i class="fas fa-clock text-3xl text-orange-600"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Totaal Voertuigen</p>
+                        <p class="text-3xl font-semibold text-gray-900">${stats.totalVehicles?.count || 0}</p>
+                    </div>
+                    <i class="fas fa-car text-3xl text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                    <button onclick="switchTab('suggestions')" id="tab-suggestions" class="tab-button border-b-2 border-blue-600 py-4 px-1 text-sm font-medium text-blue-600">
+                        <i class="fas fa-inbox mr-2"></i>Vehicle Suggesties
+                    </button>
+                    <button onclick="switchTab('vehicles')" id="tab-vehicles" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-car mr-2"></i>Voertuigen Beheren
+                    </button>
+                    <button onclick="switchTab('users')" id="tab-users" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-users mr-2"></i>User Management
+                    </button>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Tab Content: Vehicle Suggestions -->
+        <div id="content-suggestions" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Vehicle Suggesties</h2>
+                    <button onclick="loadSuggestions()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-sync-alt mr-2"></i>Ververs
+                    </button>
+                </div>
+                <div id="suggestions-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                        <p>Laden...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Content: Vehicles Management -->
+        <div id="content-vehicles" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Voertuigen Beheren</h2>
+                    <button onclick="showAddVehicleModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-plus mr-2"></i>Nieuw Voertuig
+                    </button>
+                </div>
+                <div id="vehicles-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                        <p>Laden...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Content: User Management -->
+        <div id="content-users" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">User Management</h2>
+                    <button onclick="loadUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-sync-alt mr-2"></i>Ververs
+                    </button>
+                </div>
+                <div id="users-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                        <p>Laden...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script src="/static/admin.js"></script>
+    <script>
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+        
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById('tab-' + tabName).classList.add('border-blue-600', 'text-blue-600');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            // Load data for tab
+            if (tabName === 'suggestions') loadSuggestions();
+            if (tabName === 'vehicles') loadVehicles();
+            if (tabName === 'users') loadUsers();
+        }
+        
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSuggestions();
+        });
+    </script>
+</body>
+</html>
+  `)
+})
+
 // Main calculator app
 app.get('/app', optionalAuthMiddleware, (c) => {
   const user = c.get('user')
@@ -1394,6 +1701,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                                 <a href="/account#subscription" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-crown mr-3 text-yellow-500"></i>
                                     Manage Subscription
+                                </a>
+                                <a href="/admin" id="adminLink" class="hidden flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+                                    <i class="fas fa-shield-alt mr-3"></i>
+                                    Admin Dashboard
                                 </a>
                                 <button id="logoutBtn" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
                                     <i class="fas fa-sign-out-alt mr-3"></i>
@@ -1970,7 +2281,11 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     
                     // Update tier badge color
                     const tierBadge = document.getElementById('userTier');
-                    if (user.role === 'premium') {
+                    if (user.role === 'admin') {
+                        tierBadge.className = 'text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full';
+                        // Show admin link in dropdown
+                        document.getElementById('adminLink')?.classList.remove('hidden');
+                    } else if (user.role === 'premium') {
                         tierBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full';
                     }
                     // Default (free) keeps blue badge
