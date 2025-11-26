@@ -1,156 +1,220 @@
 # ⚡ EV Charge Calculator - Premium Tesla-Style Experience
 
-Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïnspireerde interface en freemium businessmodel.
+Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïnspireerde interface, user authentication, admin dashboard, en **Mollie betalingsintegratie**.
 
 ## 🚀 URLs
 
 - **Production**: https://ev-charge-calculator.pages.dev ✨ **LIVE**
-- **Latest Deployment**: https://efcc6563.ev-charge-calculator.pages.dev
 - **Development**: https://3000-i1702d41shyqjbr05tclm-c81df28e.sandbox.novita.ai
 - **GitHub**: https://github.com/[username]/webapp (configure via setup_github_environment)
 
 ## ✨ Hoofdfuncties
 
-### Gratis Tier (Free)
-- ✅ **73+ populaire EV modellen** - Mainstream elektrische voertuigen (incl. Dacia Spring!)
+### 🔐 Authenticatie & Account Beheer
+- ✅ **User registratie** - Maak account met email, naam
+- ✅ **JWT authenticatie** - Veilige token-based login
+- ✅ **Account instellingen** - Bekijk en beheer je account
+- ✅ **Subscription management** - Bekijk abonnementsstatus, opzeggen mogelijk
+- ✅ **Role-based access** - Free, Premium, Admin roles
+
+### 💳 Mollie Betalingsintegratie (NIEUW!)
+- ✅ **iDEAL betaling** - Nederlandse betaalmethode direct geïntegreerd
+- ✅ **Recurring subscriptions** - Automatische maandelijkse betalingen €4.99
+- ✅ **Mollie webhooks** - Real-time payment status updates
+- ✅ **Subscription management** - Opzeggen mogelijk, toegang blijft tot periode-einde
+- ✅ **Test mode** - Volledig geteste integratie met Mollie test bank
+
+### 🔒 Gratis Tier (Free)
+- ✅ **39 populaire EV modellen** - Mainstream elektrische voertuigen
 - ✅ **Searchable dropdown** - Type om te zoeken, geen eindeloos scrollen meer
 - ✅ **Basis laadcalculator** - Bereken laadsnelheid in km/uur
 - ✅ **DC & AC ondersteuning** - Beide laadtypen ondersteund
 - ✅ **Real-world data** - Echte verbruiksgegevens
 - ✅ **Tesla-inspired UI** - Premium donker thema met animaties
 - ✅ **Waarschuwingen** - Rode waarschuwing wanneer laadpaal vermogen hoger is dan voertuig capaciteit
+- ✅ **Vehicle suggestions** - Vraag nieuwe voertuigen aan
 
-### Premium Tier (€4,99/maand)
-- 🌟 **284+ EV modellen** - Alle merken A-Z met searchable interface
-- 🌟 **Advanced search** - Type en filter direct door alle voertuigen (incl. MG Cyberster!)
-- 🌟 **Laadcurve analyse** - Gedetailleerde laadcurve grafieken per SOC
-- 🌟 **Voertuig vergelijking** - Vergelijk meerdere voertuigen tegelijk
-- 🌟 **Berekeningsgeschiedenis** - Bewaar je berekeningen
-- 🌟 **Export naar PDF** - Download je resultaten
-- 🌟 **SOC slider** - Nauwkeurige berekeningen op basis van batterijniveau
+### 🌟 Premium Tier (€4,99/maand via Mollie)
+- 🌟 **137+ EV modellen** - Alle merken A-Z met searchable interface
+- 🌟 **Alle premium voertuigen** - Toegang tot luxury, performance en extended range EVs
+- 🌟 **Advanced search** - Type en filter direct door alle voertuigen
+- 🌟 **Geen beperkingen** - Volledige toegang tot de database
+- 🌟 **Priority support** - Snellere response op vragen
+- 🌟 **Nieuwe voertuigen eerst** - Eerste toegang tot nieuwe toevoegingen
 
-### Pro Tier (€49,99/jaar)
-- 💎 **Alle Premium features**
-- 💎 **Prioriteit voertuig requests** - Vraag nieuwe modellen aan
-- 💎 **Geavanceerde analytics** - Diepgaande inzichten
-- 💎 **Vlootbeheer** - Beheer meerdere voertuigen
-- 💎 **API toegang** - Integreer in je eigen systemen
-- 💎 **White-label optie** - Rebrand de applicatie
+### 🔧 Admin Dashboard (NIEUW!)
+- 👑 **Vehicle suggestions management** - Review, approve of reject aanvragen
+- 👑 **User management** - Bekijk alle users, verander roles (free/premium/admin)
+- 👑 **Vehicle management** - Create, edit, delete voertuigen
+- 👑 **Stats dashboard** - Totaal users, premium users, pending suggestions
+- 👑 **Admin badge** - Rood admin badge in UI voor herkenning
 
-## 🚗 Voertuigendatabase
-
-### Totaal: 284 voertuigen
-- **Gratis**: 73 populaire mainstream EVs (inclusief Dacia Spring)
-- **Premium**: 211 luxe, performance en extended range EVs (inclusief MG Cyberster)
-- **Merken**: 39 verschillende automerken
-
-### Merken (Alfabetisch)
-Audi, BMW, BYD, Cadillac, Chevrolet, Citroën, Cupra, **Dacia**, Fiat, Fisker, Ford, Genesis, GMC, Honda, Hyundai, Jaguar, Kia, Lexus, Lotus, Lucid, Maserati, Mazda, Mercedes-Benz, MG, Nissan, Opel, Peugeot, Polestar, Porsche, Renault, Rivian, Škoda, Smart, Subaru, Tesla, Toyota, Volkswagen, Volvo, XPeng
-
-### 🆕 Recent Toegevoegd
-- **Dacia Spring Electric 65** (Free) - Budget-vriendelijke stadsauto
-- **MG Cyberster RWD/AWD** (Premium) - Elektrische roadster
-
-### Voertuigspecificaties
-Elk voertuig bevat:
-- Merk, model, variant en jaar
-- Batterijcapaciteit (totaal en bruikbaar in kWh)
-- Gemiddeld verbruik (kWh/100km)
-- Max DC laadvermogen (kW)
-- Max AC laadvermogen (kW)
-- Laadcurve data (JSON met SOC vs kW punten)
-
-## 🎨 Design Features
-
-### Tesla-Geïnspireerd
-- **Minimalistisch & Clean** - Focus op essentiële informatie
-- **Donker thema** - Premium black/slate gradient achtergrond
-- **Glasmorfisme** - Transparante cards met blur effecten
-- **Vloeiende animaties** - Fade-in, slide-up, hover effects
-- **Premium badges** - Gradient badges voor premium features
-- **Responsive design** - Perfect op mobile en desktop
-
-### Visuele Waarschuwingen
-- **🔴 Rode waarschuwing** - Wanneer laadpaal vermogen > voertuig max capaciteit
-- **Animating pulse effect** - Trekt direct aandacht
-- **Duidelijke uitleg** - Toont effectief vermogen vs gevraagd vermogen
-
-## 📊 Data Architectuur
+## 🗄️ Data Architectuur
 
 ### Database: Cloudflare D1 (SQLite)
 ```
-vehicles          - EV voertuigspecificaties (278 records)
-users             - Gebruikersaccounts
-calculation_history - Berekeningsgeschiedenis per gebruiker
-favorites         - Favoriete voertuigen per gebruiker
-comparisons       - Vergelijkingssessies
+users                   - Gebruikersaccounts met role-based access
+  ├── id, email, password (bcrypt)
+  ├── first_name, last_name
+  ├── role (free/premium/admin)
+  ├── mollie_customer_id, mollie_subscription_id
+  ├── subscription_status (active/canceled)
+  └── subscription_end_date
+
+vehicles                - EV voertuigspecificaties (137+ records)
+  ├── make, model, variant, year
+  ├── battery_capacity_kwh, usable_capacity_kwh
+  ├── avg_consumption_kwh_per_100km
+  ├── max_dc_charging_kw, max_ac_charging_kw
+  ├── charging_curve_data (JSON)
+  └── is_premium (boolean)
+
+vehicle_suggestions     - User aanvragen voor nieuwe voertuigen
+  ├── user_id, make, model, variant
+  ├── status (pending/approved/rejected)
+  └── reason, admin_notes
 ```
 
 ### API Endpoints
+
+#### 🌐 Public Routes
 ```
-GET  /api/vehicles              - Lijst alle voertuigen (filtered by tier)
-GET  /api/vehicles/:id          - Haal specifiek voertuig op
+GET  /                          - Landing page
+GET  /app                       - Calculator applicatie
+GET  /api/vehicles              - Lijst voertuigen (filtered by tier)
 POST /api/calculate             - Bereken laadsnelheid
-POST /api/compare               - Vergelijk meerdere voertuigen
 GET  /api/subscription-tiers    - Haal beschikbare abonnementen op
+```
+
+#### 🔐 Authenticated Routes
+```
+GET  /account                   - Account settings pagina
+POST /api/suggestions           - Dien voertuig suggestie in
+POST /api/mollie/create-payment - Start Mollie checkout
+POST /api/mollie/cancel-subscription - Zeg abonnement op
+```
+
+#### 👑 Admin Routes (requires admin role)
+```
+GET  /admin                                  - Admin dashboard
+GET  /api/admin/suggestions                  - Haal alle suggesties op
+POST /api/admin/suggestions/:id/approve      - Keur suggestie goed
+POST /api/admin/suggestions/:id/reject       - Wijs suggestie af
+GET  /api/admin/users                        - Haal alle users op
+POST /api/admin/users/:id/role               - Verander user role
+DELETE /api/admin/vehicles/:id               - Verwijder voertuig
+```
+
+#### 💳 Mollie Webhooks
+```
+POST /api/mollie/webhook        - Receive payment status updates
 ```
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Hono (Edge Framework)
-- **Frontend**: Vanilla JS + Tailwind CSS
+- **Backend**: Hono (Cloudflare Workers Edge Framework)
+- **Frontend**: Vanilla JavaScript + Tailwind CSS
 - **Database**: Cloudflare D1 (SQLite)
+- **Authentication**: JWT tokens (httpOnly cookies)
+- **Password Hashing**: bcrypt
+- **Payment Provider**: Mollie (iDEAL, Bancontact, Credit Cards)
 - **Deployment**: Cloudflare Pages + Workers
-- **Icons**: Font Awesome
-- **Fonts**: Google Fonts (Inter)
+- **Icons**: Font Awesome 6
 - **HTTP Client**: Axios
+- **Process Manager**: PM2 (development)
 
 ## 🚀 Development
 
 ### Lokaal Ontwikkelen
+
 ```bash
 # Dependencies installeren
 npm install
 
+# Environment variables configureren
+cp .dev.vars.example .dev.vars
+# Pas MOLLIE_API_KEY aan met je test/live key
+
 # Database migreren
 npm run db:migrate:local
 
-# Database seeden
+# Database seeden (optional)
 npm run db:seed
 
 # Build project
 npm run build
 
-# Start development server
-npm run dev:sandbox
-
-# Of met PM2
+# Start development server met PM2
+fuser -k 3000/tcp 2>/dev/null || true
 pm2 start ecosystem.config.cjs
+
+# Test de service
+curl http://localhost:3000
 ```
 
 ### Database Beheer
+
 ```bash
 # Migraties toepassen (lokaal)
 npm run db:migrate:local
 
-# Database seeden
-npm run db:seed
+# Migraties toepassen (productie)
+npm run db:migrate:prod
 
-# Database resetten (alle data verwijderen en opnieuw seeden)
+# Database query's uitvoeren (lokaal)
+npx wrangler d1 execute evcharger-production --local --command="SELECT * FROM users"
+
+# Database query's uitvoeren (productie)
+npx wrangler d1 execute evcharger-production --command="SELECT COUNT(*) FROM vehicles"
+
+# Database resetten (alle data verwijderen en opnieuw migreren)
 npm run db:reset
-
-# Database query's uitvoeren
-npm run db:console:local
 ```
 
 ### Port Management
+
 ```bash
 # Clean port 3000
 npm run clean-port
+# Of: fuser -k 3000/tcp 2>/dev/null || true
 
 # Test service
 npm test  # curl http://localhost:3000
 ```
+
+## 💳 Mollie Setup
+
+### Test Mode (Development)
+
+1. **Maak Mollie account**: https://www.mollie.com/dashboard/signup
+2. **API Key ophalen**: Dashboard → Developers → API keys → Test mode
+3. **Voeg toe aan .dev.vars**:
+   ```env
+   MOLLIE_API_KEY=test_xJrpqnGhjvxQ3fgdyNcM6c3VvxySrA
+   MOLLIE_ENVIRONMENT=test
+   ```
+4. **Webhook configureren**:
+   - URL: `https://your-domain.pages.dev/api/mollie/webhook`
+   - Events: Payment Link API
+   - Payload: Snapshot
+
+### Production Mode
+
+1. **Verifieer je business**: Mollie dashboard → Settings → Verification
+2. **Switch naar Live mode**: Dashboard → Live mode API key
+3. **Update Cloudflare secrets**:
+   ```bash
+   echo "your_live_api_key" | npx wrangler secret put MOLLIE_API_KEY
+   ```
+4. **Test live payments**: Gebruik echte betaalmethoden
+
+### Test Payments
+
+**Mollie Test Bank Credentials** (voor iDEAL test):
+- Bank: Test Bank
+- Status selecteren: Paid / Canceled / Failed
+
+Geen echte betaalgegevens nodig in test mode!
 
 ## 📦 Deployment
 
@@ -159,113 +223,157 @@ npm test  # curl http://localhost:3000
 **Production URL**: https://ev-charge-calculator.pages.dev  
 **Project Name**: ev-charge-calculator  
 **Database**: evcharger-production (D1)  
-**Database ID**: 97a44002-bd84-47ed-bf4f-afd707d9fd4b  
-**Region**: ENAM (East North America)  
 **Status**: 🟢 **ACTIVE**
 
-**Deployment Stats**:
-- ✅ 394 rows written (284+ vehicles seeded)
-- ✅ Database migrations applied successfully
-- ✅ PWA functionality enabled
-- ✅ Service worker registered
-- ✅ App icons for all platforms
-- ✅ D1 database bindings configured
-
 ### Cloudflare Pages Deployment
+
 ```bash
-# Build en deploy naar productie
+# 1. Setup Cloudflare API key
+# Call setup_cloudflare_api_key tool first
+
+# 2. Build project
+npm run build
+
+# 3. Apply database migrations to production
+npm run db:migrate:prod
+
+# 4. Deploy to Cloudflare Pages
 npm run deploy:prod
 
-# Of handmatig:
-npm run build
-npx wrangler pages deploy dist --project-name ev-charge-calculator --commit-dirty=true
+# 5. Configure Mollie API key as secret
+echo "your_mollie_api_key" | npx wrangler secret put MOLLIE_API_KEY --project-name ev-charge-calculator
 ```
 
-### Database Migraties (Productie)
-```bash
-# Create production database (already done)
-npx wrangler d1 create evcharger-production
+### Environment Variables (Production)
 
-# Apply migrations to production (already done)
-npx wrangler d1 migrations apply evcharger-production --remote
+**Cloudflare Secrets** (configured via wrangler):
+- `JWT_SECRET` - Secret key voor JWT tokens
+- `MOLLIE_API_KEY` - Mollie Live API key
 
-# Seed production database (already done)
-npx wrangler d1 execute evcharger-production --remote --file=./seed_full.sql
+**In wrangler.jsonc**:
+```jsonc
+{
+  "name": "ev-charge-calculator",
+  "compatibility_date": "2024-01-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "evcharger-production",
+      "database_id": "97a44002-bd84-47ed-bf4f-afd707d9fd4b"
+    }
+  ]
+}
 ```
-
-### PWA Features (Deployed)
-- ✅ **Manifest.json** - App metadata configured
-- ✅ **Service Worker** - Offline caching enabled
-- ✅ **App Icons** - 12 sizes (16px to 512px)
-- ✅ **Install Prompt** - Beautiful UI for app installation
-- ✅ **Shortcuts** - Calculator and Compare quick actions
-- ✅ **Theme Color** - Purple gradient (#667eea)
-- ✅ **Standalone Mode** - Full-screen app experience
 
 ## 🎯 Gebruikershandleiding
 
 ### Voor Eindgebruikers
 
-1. **Zoek je voertuig** - Type in het zoekveld om direct te filteren (bijv. "Tesla", "Dacia Spring", "BMW i4")
-   - Live search met autocomplete
-   - Geen eindeloos scrollen door merken meer
-   - Keyboard navigation: gebruik pijltjestoetsen en Enter
-   - Kies uit 73+ gratis voertuigen (284+ met premium)
-2. **Stel laadvermogen in** - Gebruik de slider of voer het vermogen in (1-350 kW)
-3. **Bereken** - Klik op "Calculate Charging Speed"
-4. **Bekijk resultaten**:
-   - Laadsnelheid in km/uur
-   - Effectief laadvermogen (rekening houdend met voertuig max)
-   - Laadtijd van 20% tot 80%
-   - Bereik per uur laden
-5. **Let op waarschuwingen** - Rode melding als laadpaal vermogen hoger is dan voertuig max
+1. **Account aanmaken**:
+   - Klik op "Login/Signup" in navigatie
+   - Vul email, voornaam, achternaam, wachtwoord in
+   - Bevestig registratie
 
-### Premium Features Gebruiken
+2. **Voertuig zoeken**:
+   - Type in het zoekveld om direct te filteren
+   - Kies uit 39 gratis voertuigen (137+ met premium)
+   - 🔒 Premium voertuigen tonen lock icon
 
-1. **Upgrade** - Klik op "Upgrade" button in navigatie
-2. **Kies plan** - Free, Premium (€4,99/m) of Pro (€49,99/j)
-3. **Geniet van extra's**:
-   - Toegang tot alle 278 voertuigen
-   - SOC slider voor nauwkeurige berekeningen
-   - Laadcurve grafieken
-   - Voertuig vergelijkingen
-   - PDF export
+3. **Upgrade naar Premium**:
+   - Klik op "Upgrade" button
+   - Kies Premium tier (€4.99/maand)
+   - Betaal via Mollie (iDEAL, Bancontact, Credit Card)
+   - Direct toegang na betaling
+
+4. **Abonnement beheren**:
+   - Ga naar Account settings
+   - Bekijk abonnementsstatus
+   - Opzeggen mogelijk (toegang blijft tot periode-einde)
+
+5. **Voertuig aanvragen**:
+   - Mis je een voertuig? Vraag het aan!
+   - Admin beoordeelt suggesties
+   - Premium users krijgen priority
+
+### Voor Admins
+
+1. **Admin Dashboard**:
+   - Toegang via user dropdown → "Admin Dashboard"
+   - Overzicht van stats (users, premium, suggestions)
+
+2. **Vehicle Suggestions Beheren**:
+   - Tab: "Vehicle Suggestions"
+   - Review pending suggesties
+   - Approve of Reject met notes
+
+3. **Users Beheren**:
+   - Tab: "User Management"
+   - Bekijk alle users
+   - Change roles: free ↔ premium ↔ admin
+
+4. **Vehicles Beheren**:
+   - Tab: "Vehicles Management"
+   - Bekijk alle voertuigen
+   - Delete vehicles indien nodig
+
+## ✅ Implemented Features
+
+### Phase 1 - Core Features ✅
+- [x] Vehicle database (137+ EVs)
+- [x] Charging speed calculator
+- [x] Tesla-inspired UI
+- [x] Responsive design
+- [x] SOC-based calculations
+- [x] Tier-based access (Free/Premium)
+
+### Phase 2 - Authentication & Auth ✅
+- [x] User registration & login (JWT)
+- [x] Role-based access control (Free/Premium/Admin)
+- [x] Account settings page
+- [x] Vehicle suggestion system
+- [x] Authentication middleware
+- [x] Protected routes
+
+### Phase 3 - Admin & Payments ✅
+- [x] Admin dashboard with stats
+- [x] Vehicle suggestions management
+- [x] User management (change roles)
+- [x] Vehicle management (delete)
+- [x] **Mollie payment integration**
+- [x] **Recurring subscriptions**
+- [x] **Subscription management (cancel)**
+- [x] **Webhook handlers**
 
 ## ⚠️ Nog Te Implementeren
 
 ### High Priority
-- [ ] **Payment integratie** - Stripe of Mollie voor betalingen
-- [ ] **User authenticatie** - Login/signup systeem
-- [ ] **Calculation history** - Opslaan van eerdere berekeningen
-- [x] **Vehicle comparison** - ✅ Side-by-side vergelijking interface (COMPLETED)
-- [ ] **PDF export** - Genereer PDF rapporten van berekeningen
+- [ ] **Cron job** - Automatisch downgrade users na subscription expiry
+- [ ] **Email notificaties** - Bevestiging na betaling, renewal reminders
+- [ ] **Laadcurve visualisatie** - Grafiek van SOC vs kW
+- [ ] **Voertuig vergelijking** - Side-by-side comparison tool
+- [ ] **PDF export** - Download berekeningen
 
 ### Medium Priority
-- [ ] **Meertalige ondersteuning** - Nederlands, Engels, Frans, Duits
-- [ ] **Vehicle request systeem** - Gebruikers kunnen nieuwe voertuigen aanvragen
+- [ ] **Calculation history** - Opslaan van eerdere berekeningen
 - [ ] **Favorieten systeem** - Save favorite vehicles
+- [ ] **Meertalige ondersteuning** - NL, EN, FR, DE
 - [ ] **Dark/Light mode toggle** - Optie voor licht thema
-- [x] **PWA features** - ✅ Offline ondersteuning, installeerbaar (DEPLOYED)
 
 ### Low Priority
-- [ ] **Admin dashboard** - Beheer voertuigen, gebruikers, abonnementen
-- [ ] **API documentatie** - OpenAPI/Swagger docs voor Pro tier
-- [ ] **Webhooks** - Voor integraties met andere systemen
-- [ ] **Analytics dashboard** - Gebruiksstatistieken voor admins
-- [ ] **Email notificaties** - Voor nieuwe voertuigen, updates
+- [ ] **API documentatie** - OpenAPI/Swagger docs
+- [ ] **Analytics dashboard** - Gebruiksstatistieken
+- [ ] **A/B testing** - Verschillende pricing experimenteren
 
 ## 📈 Aanbevolen Volgende Stappen
 
-1. **Payment integratie toevoegen** - Implementeer Stripe/Mollie voor premium subscriptions
-2. **User authenticatie opzetten** - Auth0, Clerk of custom JWT systeem
-3. **Calculation history implementeren** - Laat gebruikers hun geschiedenis zien
-4. **Vehicle comparison bouwen** - Side-by-side vergelijkingstool
-5. **PDF export toevoegen** - Genereer professionele rapporten
-6. **Deploy naar Cloudflare Pages** - Zet live productie omgeving op
-7. **SEO optimalisatie** - Meta tags, sitemap, structured data
-8. **Analytics toevoegen** - Google Analytics of Plausible
-9. **A/B testing** - Test verschillende pricing en features
-10. **Marketing setup** - Landing page, social media, content strategy
+1. **✅ Mollie payments testen** - Test payments met Mollie test bank
+2. **Deploy naar productie** - Push naar Cloudflare Pages met live Mollie key
+3. **Cron job opzetten** - Downgrade expired subscriptions automatisch
+4. **Email notificaties** - SendGrid/Mailgun integreren voor confirmaties
+5. **Laadcurve grafieken** - Chart.js gebruiken voor visuele curves
+6. **SEO optimalisatie** - Meta tags, sitemap, structured data
+7. **Analytics** - Plausible of Google Analytics toevoegen
+8. **Marketing** - Landing page verbeteren, social media
 
 ## 🔧 Technische Details
 
@@ -278,33 +386,45 @@ chargingSpeedKmh = (effectivePowerKw / consumptionKwhPer100km) * 100
 effectivePower = min(chargerPower, vehicleMaxPower, chargingCurvePowerAtSOC)
 ```
 
-### Laadcurve Interpolatie
-Voor nauwkeurige berekeningen gebruiken we lineaire interpolatie:
-```javascript
-// Vind twee punten in curve waar SOC tussen ligt
-// Interpoleer power value op basis van exacte SOC
-interpolatedPower = currentKw + (powerRange * socOffset / socRange)
+### Mollie Payment Flow
+```
+1. User clicks "Upgrade Nu"
+2. Frontend: POST /api/mollie/create-payment
+3. Backend: Create Mollie customer (if needed)
+4. Backend: Create first payment (€4.99)
+5. Backend: Return checkout URL
+6. Frontend: Redirect to Mollie checkout
+7. User: Complete payment
+8. Mollie: Send webhook to /api/mollie/webhook
+9. Backend: Verify payment, create subscription
+10. Backend: Upgrade user to premium role
+11. User: Redirected to /account?payment=success
 ```
 
-## 📝 Database Schema
-
-### Vehicles Table
-```sql
-CREATE TABLE vehicles (
-  id INTEGER PRIMARY KEY,
-  make TEXT NOT NULL,
-  model TEXT NOT NULL,
-  variant TEXT,
-  year INTEGER,
-  battery_capacity_kwh REAL,
-  usable_capacity_kwh REAL,
-  avg_consumption_kwh_per_100km REAL,
-  max_dc_charging_kw REAL,
-  max_ac_charging_kw REAL,
-  charging_curve_data TEXT,  -- JSON
-  is_premium BOOLEAN DEFAULT 0
-)
+### Authentication Flow
 ```
+1. User submits registration form
+2. Backend: Hash password with bcrypt (10 rounds)
+3. Backend: Insert user into database (role=free)
+4. Backend: Generate JWT token (24h expiry)
+5. Backend: Set httpOnly cookie
+6. Frontend: Store user in window.currentUser
+7. Middleware: Verify JWT on protected routes
+8. Middleware: Check role for admin routes
+```
+
+## 📝 Database Migrations
+
+### Applied Migrations
+- `0001_initial_schema.sql` - Users & vehicles tables
+- `0002_add_tier_fields.sql` - is_premium field
+- `0003_add_auth_fields.sql` - password & timestamps
+- `0004_add_suggestions.sql` - vehicle_suggestions table
+- `0005_seed_vehicles.sql` - 137 EV records
+- `0006_seed_more_vehicles.sql` - Extra vehicles
+- `0007_add_admin_role.sql` - Admin role support
+- `0008_add_admin_role.sql` - Updated CHECK constraint
+- `0010_add_mollie_fields.sql` - Mollie payment fields ✨ **NEW**
 
 ## 🤝 Contributing
 
@@ -317,10 +437,11 @@ Copyright © 2024 EV Charge Calculator. Alle rechten voorbehouden.
 ## 🎉 Credits
 
 - **Design inspiratie**: Tesla website
-- **Icons**: Font Awesome
-- **Fonts**: Google Fonts (Inter)
+- **Payment provider**: Mollie (Dutch payment gateway)
+- **Icons**: Font Awesome 6
+- **Fonts**: Google Fonts (Inter, SF Pro Display)
 - **Hosting**: Cloudflare Pages + Workers
-- **Database**: Cloudflare D1
+- **Database**: Cloudflare D1 (SQLite)
 
 ---
 
