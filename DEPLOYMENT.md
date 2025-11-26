@@ -4,7 +4,8 @@
 **Latest Updates**:
 - 2-tier pricing simplification (Free + Premium only)
 - Vehicle suggestion feature added
-**Git Commit**: b426b9d (Add vehicle suggestion feature)
+- Name field split into Voornaam + Naam (first_name + last_name)
+**Git Commit**: 6c2284b (Split name field into first_name and last_name)
 
 ## 📍 Production URLs
 
@@ -15,7 +16,7 @@ https://ev-charge-calculator.pages.dev
 
 ### Latest Deployment (Branch: main)
 ```
-https://c26653cd.ev-charge-calculator.pages.dev
+https://15641b39.ev-charge-calculator.pages.dev
 ```
 
 ### Cloudflare Dashboard
@@ -58,6 +59,7 @@ https://dash.cloudflare.com/2f83c41d4f27757c975d64d0e95f2647/pages/view/ev-charg
 - ✅ 0004_fix_users_table.sql
 - ✅ 0005_remove_pro_tier.sql (simplify to 2 tiers)
 - ✅ 0006_create_vehicle_suggestions.sql (vehicle suggestion feature)
+- ✅ 0007_split_name_field.sql (split name into first_name + last_name)
 
 ---
 
@@ -134,6 +136,8 @@ https://dash.cloudflare.com/2f83c41d4f27757c975d64d0e95f2647/pages/view/ev-charg
 ## 📊 Git History
 
 ```
+6c2284b Split name field into first_name and last_name (Voornaam + Naam)
+75c6da7 Update DEPLOYMENT.md with latest features
 b426b9d Add vehicle suggestion feature
 1dd15d7 Simplify pricing to 2 tiers: Free and Premium (€4.99/month)
 862b344 Fix: UI improvements - vehicle display, logo navigation, account settings
@@ -176,6 +180,14 @@ c72515d Fix: Hero title text overflow on mobile
 - Mercedes-Benz logo fixed in carousel
 - Account settings page with subscription overview
 - User dropdown menu with settings/logout options
+
+### Name Field Split (Voornaam + Naam)
+- Registration form now has 2 separate fields: "Voornaam" (first name) and "Naam" (last name)
+- Database migration automatically split existing single 'name' field
+- Account settings shows both fields separately
+- User display concatenates first_name + last_name
+- Dutch labels throughout registration flow
+- Grid layout for side-by-side name fields on desktop
 
 ---
 
