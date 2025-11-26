@@ -64,9 +64,8 @@ function syncUserFromAuth() {
 // ============================================
 async function loadVehicles() {
   try {
-    // Load vehicles based on user tier
-    const tier = appState.currentTier === 'free' ? 'free' : 'all'
-    const response = await axios.get(`/api/vehicles?tier=${tier}`)
+    // ALWAYS load ALL vehicles - UI will show locks for premium ones
+    const response = await axios.get('/api/vehicles?tier=all')
     
     if (response.data.success) {
       appState.vehicles = response.data.vehicles
@@ -75,19 +74,16 @@ async function loadVehicles() {
       // Update vehicle count
       const freeCount = appState.vehicles.filter(v => !v.is_premium).length
       const premiumCount = appState.vehicles.filter(v => v.is_premium).length
+      const totalCount = appState.vehicles.length
       
-      // Display count based on tier
-      if (appState.currentTier === 'free') {
-        document.getElementById('vehicleCount').textContent = `${freeCount}`
-      } else {
-        document.getElementById('vehicleCount').textContent = `${appState.vehicles.length}+`
-      }
+      // Always show total count
+      document.getElementById('vehicleCount').textContent = `${totalCount}+`
       
-      console.log(`Loaded ${appState.vehicles.length} vehicles (${freeCount} free, ${premiumCount} premium) for tier: ${appState.currentTier}`)
+      console.log(`Loaded ${totalCount} vehicles (${freeCount} free, ${premiumCount} premium) - User tier: ${appState.currentTier}`)
       
       // Show upgrade banner for free users
       if (appState.currentTier === 'free') {
-        showFreeUserBanner()
+        showFreeUserBanner(freeCount, premiumCount)
       }
     }
   } catch (error) {
@@ -877,9 +873,11 @@ function hidePricingModal() {
 }
 
 // Show free user banner with upgrade prompt
-function showFreeUserBanner() {
+function showFreeUserBanner(freeCount, premiumCount) {
   // Check if banner already exists
   if (document.getElementById('freeUserBanner')) return
+  
+  const totalCount = freeCount + premiumCount
   
   const banner = document.createElement('div')
   banner.id = 'freeUserBanner'
@@ -887,9 +885,9 @@ function showFreeUserBanner() {
   banner.innerHTML = `
     <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-4">
       <i class="fas fa-info-circle text-xl"></i>
-      <span class="font-semibold">Free Tier: ${appState.vehicles.length} vehicles available</span>
+      <span class="font-semibold">Free Tier: ${freeCount} vehicles available • ${premiumCount} premium locked</span>
       <button onclick="showPricingModal()" class="ml-4 px-4 py-1 bg-white text-orange-600 rounded-full font-bold hover:bg-gray-100 transition-colors shadow-md text-sm">
-        <i class="fas fa-crown mr-1"></i>Upgrade
+        <i class="fas fa-crown mr-1"></i>Unlock ${premiumCount} more
       </button>
       <button onclick="closeFreeUserBanner()" class="ml-2 w-6 h-6 rounded-full hover:bg-white/20 transition-colors">
         <i class="fas fa-times text-sm"></i>

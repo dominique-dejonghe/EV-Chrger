@@ -901,6 +901,115 @@ app.get('/api/subscription-tiers', (c) => {
 // ============================================
 // MAIN APP ROUTES
 // ============================================
+// Account settings page
+app.get('/account', authMiddleware, (c) => {
+  const user = c.get('user')
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - EV Charge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14">
+                <a href="/app" class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i class="fas fa-bolt text-2xl text-blue-600"></i>
+                    <span class="text-lg font-semibold text-gray-900">EV Charge</span>
+                </a>
+                <a href="/app" class="text-sm text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Calculator
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 class="text-3xl font-semibold text-gray-900 mb-8">Account Settings</h1>
+        
+        <!-- Account Info Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-user-circle mr-3 text-blue-600"></i>
+                Account Information
+            </h2>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Name</span>
+                    <span class="text-sm font-medium text-gray-900">${user?.name || 'Not set'}</span>
+                </div>
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Email</span>
+                    <span class="text-sm font-medium text-gray-900">${user?.email}</span>
+                </div>
+                <div class="flex justify-between items-center py-3">
+                    <span class="text-sm text-gray-600">Account Created</span>
+                    <span class="text-sm font-medium text-gray-900">${user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Subscription Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-crown mr-3 text-yellow-600"></i>
+                Subscription
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-4 px-4 bg-${user?.role === 'free' ? 'blue' : user?.role === 'premium' ? 'yellow' : 'purple'}-50 rounded-lg border border-${user?.role === 'free' ? 'blue' : user?.role === 'premium' ? 'yellow' : 'purple'}-200">
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">Current Plan</div>
+                        <div class="text-2xl font-semibold text-gray-900 mt-1">${user?.role.charAt(0).toUpperCase()}${user?.role.slice(1)}</div>
+                    </div>
+                    ${user?.role === 'free' ? `
+                    <button onclick="window.location.href='/app'" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-semibold hover:opacity-90 transition-opacity">
+                        <i class="fas fa-arrow-up mr-2"></i>Upgrade
+                    </button>
+                    ` : `
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>Active
+                    </div>
+                    `}
+                </div>
+                <p class="text-sm text-gray-600 mt-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    ${user?.role === 'free' ? 'Upgrade to access 129+ vehicles and premium features.' : 'Manage your subscription in Phase 3 (Stripe integration coming soon).'}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Danger Zone -->
+        <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
+            <h2 class="text-xl font-semibold text-red-600 mb-4 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-3"></i>
+                Danger Zone
+            </h2>
+            <div class="space-y-3">
+                <button onclick="logout()" class="w-full px-4 py-3 bg-white border-2 border-red-600 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
+  `)
+})
+
 // Main calculator app
 app.get('/app', optionalAuthMiddleware, (c) => {
   const user = c.get('user')
@@ -1193,10 +1302,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
     <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-14">
-                <div class="flex items-center space-x-3">
+                <a href="/" class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <i class="fas fa-bolt text-2xl text-blue-600"></i>
                     <span class="text-lg font-semibold text-gray-900">EV Charge</span>
-                </div>
+                </a>
                 <div class="flex items-center space-x-3">
                     <button id="compareBtn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full transition-colors">
                         <i class="fas fa-exchange-alt mr-2"></i>Compare
@@ -1205,15 +1314,34 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                         <i class="fas fa-crown mr-2"></i>Upgrade
                     </button>
                     <!-- User Profile (shown when logged in) -->
-                    <div id="userProfile" class="hidden flex items-center space-x-3">
-                        <div class="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-full">
+                    <div id="userProfile" class="hidden flex items-center space-x-3 relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors cursor-pointer">
                             <i class="fas fa-user-circle text-blue-600"></i>
                             <span id="userName" class="text-sm font-medium text-gray-900"></span>
                             <span id="userTier" class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full"></span>
-                        </div>
-                        <button id="logoutBtn" class="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-full transition-colors">
-                            <i class="fas fa-sign-out-alt"></i>
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                         </button>
+                        <!-- Dropdown Menu -->
+                        <div id="userDropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                            <div class="py-2">
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <div class="text-sm font-semibold text-gray-900" id="dropdownUserName"></div>
+                                    <div class="text-xs text-gray-500" id="dropdownUserEmail"></div>
+                                </div>
+                                <a href="/account" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-cog mr-3 text-gray-400"></i>
+                                    Account Settings
+                                </a>
+                                <a href="/account#subscription" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-crown mr-3 text-yellow-500"></i>
+                                    Manage Subscription
+                                </a>
+                                <button id="logoutBtn" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1674,6 +1802,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     document.getElementById('userName').textContent = user.name || user.email.split('@')[0];
                     document.getElementById('userTier').textContent = user.role.toUpperCase();
                     
+                    // Update dropdown info
+                    document.getElementById('dropdownUserName').textContent = user.name || user.email.split('@')[0];
+                    document.getElementById('dropdownUserEmail').textContent = user.email;
+                    
                     // Store user in global state for app.js
                     window.currentUser = user;
                     
@@ -1715,6 +1847,22 @@ app.get('/app', optionalAuthMiddleware, (c) => {
         
         // Setup logout button
         document.getElementById('logoutBtn')?.addEventListener('click', logout);
+        
+        // Setup user dropdown toggle
+        document.getElementById('userMenuBtn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown?.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menuBtn = document.getElementById('userMenuBtn');
+            if (dropdown && !dropdown.contains(e.target) && !menuBtn?.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
         
         // Run auth check immediately
         checkAuth();
