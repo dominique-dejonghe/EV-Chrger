@@ -1045,10 +1045,10 @@ app.get('/api/subscription-tiers', (c) => {
         features: [
           'Alle Free features',
           '137+ EV modellen (alle merken)',
-          'Laadcurve analyse',
-          'Voertuig vergelijking',
-          'Berekeningsgeschiedenis',
-          'Export naar PDF'
+          'Toegang tot premium voertuigen',
+          'Alle merken en varianten',
+          'Nieuwe voertuigen eerst beschikbaar',
+          'Priority support'
         ],
         popular: true,
         badge: 'POPULAIRSTE KEUZE'

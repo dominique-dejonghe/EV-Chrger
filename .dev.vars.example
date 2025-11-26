@@ -1,0 +1,15 @@
+# Local Development Environment Variables
+# Copy this file to .dev.vars and fill in your actual values
+
+# JWT Secret for authentication
+JWT_SECRET=dev-secret-key-change-in-production-12345
+
+# Paddle Configuration (Sandbox Mode)
+PADDLE_VENDOR_ID=your-paddle-vendor-id
+PADDLE_API_KEY=your-paddle-client-side-key
+PADDLE_SECRET_KEY=your-paddle-server-side-secret-key
+PADDLE_WEBHOOK_SECRET=your-paddle-webhook-secret
+PADDLE_PRICE_ID=pri_01xxxxxxxxxxxxx
+
+# Paddle Environment (sandbox or production)
+PADDLE_ENVIRONMENT=sandbox
