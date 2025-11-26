@@ -957,8 +957,16 @@ app.post('/api/mollie/webhook', async (c) => {
     const body = await c.req.json()
     const paymentId = body.id
     
+    console.log('[MOLLIE WEBHOOK] Received webhook for payment:', paymentId)
+    
     if (!paymentId) {
+      console.error('[MOLLIE WEBHOOK] No payment ID in request body')
       return c.json({ success: false, error: 'No payment ID provided' }, 400)
+    }
+    
+    if (!MOLLIE_API_KEY) {
+      console.error('[MOLLIE WEBHOOK] MOLLIE_API_KEY not configured!')
+      return c.json({ success: false, error: 'Server configuration error' }, 500)
     }
     
     // Fetch payment details from Mollie
@@ -969,20 +977,24 @@ app.post('/api/mollie/webhook', async (c) => {
     })
     
     if (!paymentResponse.ok) {
-      console.error('Failed to fetch payment from Mollie')
+      const errorText = await paymentResponse.text()
+      console.error('[MOLLIE WEBHOOK] Failed to fetch payment from Mollie:', errorText)
       return c.json({ success: false, error: 'Failed to fetch payment' }, 500)
     }
     
     const payment = await paymentResponse.json()
     const userId = payment.metadata?.userId
     
+    console.log('[MOLLIE WEBHOOK] Payment status:', payment.status, 'for user:', userId)
+    
     if (!userId) {
-      console.error('No userId in payment metadata')
+      console.error('[MOLLIE WEBHOOK] No userId in payment metadata:', JSON.stringify(payment.metadata))
       return c.json({ success: false, error: 'No user ID in metadata' }, 400)
     }
     
     // Handle payment status
     if (payment.status === 'paid') {
+      console.log('[MOLLIE WEBHOOK] Processing paid payment for user:', userId)
       // Create subscription for recurring payments
       const customerId = payment.customerId
       
@@ -1011,10 +1023,14 @@ app.post('/api/mollie/webhook', async (c) => {
       if (subscriptionResponse.ok) {
         const subscription = await subscriptionResponse.json()
         subscriptionId = subscription.id
+        console.log('[MOLLIE WEBHOOK] Subscription created:', subscriptionId)
+      } else {
+        const errorText = await subscriptionResponse.text()
+        console.error('[MOLLIE WEBHOOK] Failed to create subscription:', errorText)
       }
       
       // Update user to premium with subscription details
-      await DB.prepare(`
+      const updateResult = await DB.prepare(`
         UPDATE users 
         SET role = 'premium',
             mollie_subscription_id = ?,
@@ -1024,7 +1040,7 @@ app.post('/api/mollie/webhook', async (c) => {
         WHERE id = ?
       `).bind(subscriptionId, userId).run()
       
-      console.log(`User ${userId} upgraded to premium with subscription ${subscriptionId}`)
+      console.log(`[MOLLIE WEBHOOK] User ${userId} upgraded to premium with subscription ${subscriptionId}. Rows affected: ${updateResult.meta?.changes || 0}`)
     } else if (payment.status === 'failed' || payment.status === 'expired' || payment.status === 'canceled') {
       console.log(`Payment ${paymentId} ${payment.status} for user ${userId}`)
     }
