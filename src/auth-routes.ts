@@ -8,11 +8,11 @@ const auth = new Hono<{ Bindings: Env }>()
 // Register new user
 auth.post('/register', async (c) => {
   try {
-    const { email, password, name } = await c.req.json()
+    const { email, password, firstName, lastName } = await c.req.json()
 
     // Validation
-    if (!email || !password) {
-      return c.json({ success: false, error: 'Email and password are required' }, 400)
+    if (!email || !password || !firstName || !lastName) {
+      return c.json({ success: false, error: 'All fields are required' }, 400)
     }
 
     if (!isValidEmail(email)) {
@@ -38,9 +38,9 @@ auth.post('/register', async (c) => {
 
     // Create user
     const result = await c.env.DB.prepare(
-      `INSERT INTO users (email, password_hash, name, role) 
-       VALUES (?, ?, ?, ?) RETURNING id, email, name, role`
-    ).bind(email, passwordHash, name || null, 'free').first()
+      `INSERT INTO users (email, password_hash, first_name, last_name, role) 
+       VALUES (?, ?, ?, ?, ?) RETURNING id, email, first_name, last_name, role`
+    ).bind(email, passwordHash, firstName.trim(), lastName.trim(), 'free').first()
 
     if (!result) {
       return c.json({ success: false, error: 'Failed to create user' }, 500)
@@ -68,7 +68,8 @@ auth.post('/register', async (c) => {
       user: {
         id: result.id,
         email: result.email,
-        name: result.name,
+        firstName: result.first_name,
+        lastName: result.last_name,
         role: result.role
       }
     })
@@ -90,7 +91,7 @@ auth.post('/login', async (c) => {
 
     // Find user
     const user = await c.env.DB.prepare(
-      'SELECT id, email, password_hash, name, role FROM users WHERE email = ?'
+      'SELECT id, email, password_hash, first_name, last_name, role FROM users WHERE email = ?'
     ).bind(email).first()
 
     if (!user) {
@@ -126,7 +127,8 @@ auth.post('/login', async (c) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        firstName: user.first_name,
+        lastName: user.last_name,
         role: user.role
       }
     })
@@ -160,7 +162,7 @@ auth.get('/me', async (c) => {
 
   // Fetch fresh user data from DB
   const user = await c.env.DB.prepare(
-    'SELECT id, email, name, role, created_at FROM users WHERE id = ?'
+    'SELECT id, email, first_name, last_name, role, created_at FROM users WHERE id = ?'
   ).bind(payload.userId).first()
 
   if (!user) {
@@ -172,7 +174,8 @@ auth.get('/me', async (c) => {
     user: {
       id: user.id,
       email: user.email,
-      name: user.name,
+      firstName: user.first_name,
+      lastName: user.last_name,
       role: user.role,
       createdAt: user.created_at
     }

@@ -403,10 +403,17 @@ app.get('/', (c) => {
             </div>
             
             <form id="registerForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-900">Name</label>
-                    <input type="text" id="registerName" required 
-                           class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-gray-900">Voornaam</label>
+                        <input type="text" id="registerFirstName" required 
+                               class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-gray-900">Naam</label>
+                        <input type="text" id="registerLastName" required 
+                               class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
                 </div>
                 
                 <div>
@@ -546,38 +553,39 @@ app.get('/', (c) => {
             
             const button = document.getElementById('registerButton');
             const errorDiv = document.getElementById('registerError');
-            const name = document.getElementById('registerName').value.trim();
+            const firstName = document.getElementById('registerFirstName').value.trim();
+            const lastName = document.getElementById('registerLastName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             
             // Client-side validation
-            if (!name || !email || !password) {
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please fill in all fields';
+            if (!firstName || !lastName || !email || !password) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Vul alle velden in';
                 errorDiv.classList.remove('hidden');
                 return;
             }
             
             if (!email.includes('@')) {
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter a valid email address';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Voer een geldig e-mailadres in';
                 errorDiv.classList.remove('hidden');
                 return;
             }
             
             if (password.length < 8) {
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Password must be at least 8 characters long';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Wachtwoord moet minstens 8 tekens bevatten';
                 errorDiv.classList.remove('hidden');
                 return;
             }
             
             button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating account...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Account aanmaken...';
             errorDiv.classList.add('hidden');
             
             try {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ firstName, lastName, email, password })
                 });
                 
                 const data = await response.json();
@@ -989,8 +997,12 @@ app.get('/account', authMiddleware, (c) => {
             </h2>
             <div class="space-y-3">
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span class="text-sm text-gray-600">Name</span>
-                    <span class="text-sm font-medium text-gray-900">${user?.name || 'Not set'}</span>
+                    <span class="text-sm text-gray-600">Voornaam</span>
+                    <span class="text-sm font-medium text-gray-900">${user?.firstName || 'Niet ingesteld'}</span>
+                </div>
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Naam</span>
+                    <span class="text-sm font-medium text-gray-900">${user?.lastName || 'Niet ingesteld'}</span>
                 </div>
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
                     <span class="text-sm text-gray-600">Email</span>
@@ -1945,11 +1957,12 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     
                     // Show user profile
                     document.getElementById('userProfile').classList.remove('hidden');
-                    document.getElementById('userName').textContent = user.name || user.email.split('@')[0];
+                    const displayName = user.firstName ? (user.firstName + ' ' + (user.lastName || '')).trim() : user.email.split('@')[0];
+                    document.getElementById('userName').textContent = displayName;
                     document.getElementById('userTier').textContent = user.role.toUpperCase();
                     
                     // Update dropdown info
-                    document.getElementById('dropdownUserName').textContent = user.name || user.email.split('@')[0];
+                    document.getElementById('dropdownUserName').textContent = displayName;
                     document.getElementById('dropdownUserEmail').textContent = user.email;
                     
                     // Store user in global state for app.js
