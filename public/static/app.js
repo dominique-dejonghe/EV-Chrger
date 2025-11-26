@@ -1,4 +1,12 @@
 // ============================================
+// AXIOS CONFIGURATION
+// ============================================
+// Configure axios to always send cookies with requests
+if (typeof axios !== 'undefined') {
+  axios.defaults.withCredentials = true
+}
+
+// ============================================
 // STATE MANAGEMENT
 // ============================================
 let appState = {

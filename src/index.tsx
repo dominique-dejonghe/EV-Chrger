@@ -12,8 +12,15 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-// Enable CORS for API
-app.use('/api/*', cors())
+// Enable CORS for API with credentials support
+app.use('/api/*', cors({
+  origin: (origin) => origin || '*', // Allow all origins in development
+  credentials: true, // Allow cookies to be sent
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length', 'Content-Type'],
+  maxAge: 86400
+}))
 
 // Serve static files - Cloudflare Pages automatically serves files from dist/
 app.use('/static/*', serveStatic({ root: './' }))
@@ -1455,8 +1462,11 @@ app.get('/account', authMiddleware, async (c) => {
     
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     <script>
+        // Configure axios to send cookies
+        axios.defaults.withCredentials = true;
+        
         async function logout() {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             window.location.href = '/';
         }
         
