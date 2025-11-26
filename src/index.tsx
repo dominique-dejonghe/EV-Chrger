@@ -67,6 +67,7 @@ app.get('/', (c) => {
       
       .typewriter-container {
         display: inline-block;
+        max-width: 100%;
       }
       
       .typewriter-line {
@@ -76,6 +77,7 @@ app.get('/', (c) => {
         margin: 0 auto;
         width: 0;
         opacity: 0;
+        max-width: 100%;
       }
       
       .typewriter-line.typing {
@@ -184,10 +186,10 @@ app.get('/', (c) => {
     </section>
     
     <!-- Hero Section - Apple Style with Tesla Supercharger Background -->
-    <section class="min-h-screen flex flex-col justify-center px-6 py-20 hero-with-bg">
-        <div class="max-w-5xl mx-auto text-center">
+    <section class="min-h-screen flex flex-col justify-center px-4 sm:px-6 py-20 hero-with-bg overflow-x-hidden">
+        <div class="max-w-5xl mx-auto text-center w-full">
             <div class="mb-12">
-                <h1 class="text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900" style="letter-spacing: -0.02em;">
+                <h1 class="text-5xl sm:text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900 overflow-visible" style="letter-spacing: -0.02em;">
                     <div class="typewriter-container">
                         <div class="typewriter-line line1" id="typewriter1">Calculate charging time.</div>
                     </div>
