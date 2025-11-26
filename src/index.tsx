@@ -142,7 +142,28 @@ app.get('/', (c) => {
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14">
+                <a href="/" class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i class="fas fa-bolt text-2xl text-blue-600"></i>
+                    <span class="text-lg font-semibold text-gray-900">EV Charge</span>
+                </a>
+                <div class="flex items-center space-x-3">
+                    <button onclick="showLoginModal()" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition-colors">
+                        Login
+                    </button>
+                    <button onclick="showRegisterModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full transition-colors">
+                        Sign up free
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
     <!-- EV Brand Carousel Section - Top Banner -->
+    <div class="pt-14"></div> <!-- Spacer for fixed nav -->
     <section class="py-8 bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-6">
             <h2 class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-6">
@@ -155,7 +176,7 @@ app.get('/', (c) => {
                     <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedesbenz/242424" alt="Mercedes-Benz" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedes/242424" alt="Mercedes-Benz" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
@@ -170,7 +191,7 @@ app.get('/', (c) => {
                     <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedesbenz/242424" alt="Mercedes-Benz" class="brand-logo" />
+                    <img src="https://cdn.simpleicons.org/mercedes/242424" alt="Mercedes-Benz" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
