@@ -184,7 +184,7 @@ app.get('/', (c) => {
                     <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedesbenz/242424" alt="Mercedes-Benz" class="brand-logo" />
+                    <img src="https://logo.clearbit.com/mercedes-benz.com" alt="Mercedes-Benz" class="brand-logo" style="background: white; padding: 8px; border-radius: 8px;" />
                     <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
@@ -199,7 +199,7 @@ app.get('/', (c) => {
                     <img src="https://cdn.simpleicons.org/volkswagen/001E50" alt="Volkswagen" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/bmw/0066B1" alt="BMW" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/audi/BB0A30" alt="Audi" class="brand-logo" />
-                    <img src="https://cdn.simpleicons.org/mercedesbenz/242424" alt="Mercedes-Benz" class="brand-logo" />
+                    <img src="https://logo.clearbit.com/mercedes-benz.com" alt="Mercedes-Benz" class="brand-logo" style="background: white; padding: 8px; border-radius: 8px;" />
                     <img src="https://cdn.simpleicons.org/hyundai/002C5F" alt="Hyundai" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/kia/05141F" alt="Kia" class="brand-logo" />
                     <img src="https://cdn.simpleicons.org/nissan/C3002F" alt="Nissan" class="brand-logo" />
