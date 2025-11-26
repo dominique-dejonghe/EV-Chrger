@@ -4,12 +4,8 @@
 # JWT Secret for authentication
 JWT_SECRET=dev-secret-key-change-in-production-12345
 
-# Paddle Configuration (Sandbox Mode)
-PADDLE_VENDOR_ID=your-paddle-vendor-id
-PADDLE_API_KEY=your-paddle-client-side-key
-PADDLE_SECRET_KEY=your-paddle-server-side-secret-key
-PADDLE_WEBHOOK_SECRET=your-paddle-webhook-secret
-PADDLE_PRICE_ID=pri_01xxxxxxxxxxxxx
+# Mollie Configuration (Test Mode)
+MOLLIE_API_KEY=test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+MOLLIE_ENVIRONMENT=test
 
-# Paddle Environment (sandbox or production)
-PADDLE_ENVIRONMENT=sandbox
+# Mollie will be live when you get live_xxx key after business verification
