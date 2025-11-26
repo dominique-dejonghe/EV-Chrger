@@ -877,43 +877,30 @@ app.get('/api/subscription-tiers', (c) => {
     tiers: [
       {
         id: 'free',
-        name: 'Free',
+        name: 'Gratis',
         price: 0,
         features: [
-          '30+ popular EV models',
-          'Basic charging calculator',
-          'DC & AC charging support',
-          'Real-world consumption data'
+          '39 populaire EV modellen',
+          'Basis laadcalculator',
+          'DC & AC laadondersteuning',
+          'Real-world verbruiksdata'
         ]
       },
       {
         id: 'premium',
         name: 'Premium',
         price: 4.99,
-        period: 'month',
+        period: 'maand',
         features: [
-          'All Free features',
-          '110+ EV models (all brands)',
-          'Charging curve analysis',
-          'Vehicle comparison tool',
-          'Calculation history',
-          'Export to PDF'
+          'Alle Free features',
+          '137+ EV modellen (alle merken)',
+          'Laadcurve analyse',
+          'Voertuig vergelijking',
+          'Berekeningsgeschiedenis',
+          'Export naar PDF'
         ],
-        popular: true
-      },
-      {
-        id: 'pro',
-        name: 'Pro',
-        price: 49.99,
-        period: 'year',
-        features: [
-          'All Premium features',
-          'Priority vehicle requests',
-          'Advanced analytics',
-          'Fleet management',
-          'API access',
-          'White-label option'
-        ]
+        popular: true,
+        badge: 'POPULAIRSTE KEUZE'
       }
     ]
   })
@@ -1774,7 +1761,7 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </button>
             </div>
 
-            <div id="pricingTiers" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="pricingTiers" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <!-- Pricing tiers will be loaded here -->
             </div>
         </div>
@@ -1834,9 +1821,8 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     const tierBadge = document.getElementById('userTier');
                     if (user.role === 'premium') {
                         tierBadge.className = 'text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full';
-                    } else if (user.role === 'pro') {
-                        tierBadge.className = 'text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full';
                     }
+                    // Default (free) keeps blue badge
                     
                     // Dispatch event to notify app.js that auth is complete
                     window.dispatchEvent(new CustomEvent('authReady', { detail: { user } }));
