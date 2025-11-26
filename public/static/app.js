@@ -838,7 +838,7 @@ function displayPricingTiers(tiers) {
   })
 }
 
-function selectTier(tierId) {
+async function selectTier(tierId) {
   if (tierId === 'free') {
     showNotification('You are already on the free plan', 'info')
     return
@@ -851,12 +851,30 @@ function selectTier(tierId) {
     return
   }
   
-  // In a real app, this would redirect to Stripe checkout
-  showNotification('Stripe payment integration coming in Phase 3!', 'info')
-  hidePricingModal()
+  // Check if already premium
+  if (appState.currentUser.role === 'premium') {
+    showNotification('Je bent al Premium!', 'info')
+    hidePricingModal()
+    return
+  }
   
-  // TODO Phase 3: Redirect to Stripe checkout
-  // window.location.href = `/api/stripe/create-checkout-session?tier=${tierId}`
+  try {
+    // Show loading notification
+    showNotification('Mollie checkout wordt voorbereid...', 'info')
+    
+    // Create Mollie payment
+    const response = await axios.post('/api/mollie/create-payment')
+    
+    if (response.data.success) {
+      // Redirect to Mollie checkout
+      window.location.href = response.data.checkoutUrl
+    } else {
+      showNotification('Failed to create payment: ' + (response.data.error || 'Unknown error'), 'error')
+    }
+  } catch (error) {
+    console.error('Payment creation error:', error)
+    showNotification('Er ging iets mis bij het starten van de betaling', 'error')
+  }
 }
 
 // ============================================

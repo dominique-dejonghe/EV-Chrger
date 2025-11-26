@@ -7,6 +7,7 @@ import { authMiddleware, optionalAuthMiddleware, adminMiddleware, requireRole } 
 type Bindings = {
   DB: D1Database
   JWT_SECRET?: string
+  MOLLIE_API_KEY?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -836,6 +837,251 @@ app.delete('/api/admin/vehicles/:id', requireRole(['admin']), async (c) => {
   }
 })
 
+// ===== MOLLIE PAYMENT ENDPOINTS =====
+
+// Create Mollie payment (requires authentication)
+app.post('/api/mollie/create-payment', authMiddleware, async (c) => {
+  const { DB, MOLLIE_API_KEY } = c.env
+  const user = c.get('user')
+  
+  try {
+    // Get user data
+    const userData = await DB.prepare(`
+      SELECT id, email, first_name, last_name, role, mollie_customer_id
+      FROM users WHERE id = ?
+    `).bind(user.userId).first()
+    
+    if (!userData) {
+      return c.json({ success: false, error: 'User not found' }, 404)
+    }
+    
+    // Check if already premium
+    if (userData.role === 'premium') {
+      return c.json({ success: false, error: 'Already premium subscriber' }, 400)
+    }
+    
+    // Create or get Mollie customer
+    let customerId = userData.mollie_customer_id
+    
+    if (!customerId) {
+      // Create new Mollie customer
+      const customerResponse = await fetch('https://api.mollie.com/v2/customers', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MOLLIE_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: `${userData.first_name} ${userData.last_name}`,
+          email: userData.email,
+          metadata: {
+            userId: userData.id.toString()
+          }
+        })
+      })
+      
+      if (!customerResponse.ok) {
+        const error = await customerResponse.text()
+        console.error('Mollie customer creation failed:', error)
+        return c.json({ success: false, error: 'Failed to create customer' }, 500)
+      }
+      
+      const customerData = await customerResponse.json()
+      customerId = customerData.id
+      
+      // Save customer ID to database
+      await DB.prepare(`
+        UPDATE users SET mollie_customer_id = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(customerId, userData.id).run()
+    }
+    
+    // Create first payment (€4.99)
+    const paymentResponse = await fetch('https://api.mollie.com/v2/payments', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${MOLLIE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        amount: {
+          currency: 'EUR',
+          value: '4.99'
+        },
+        description: 'EV Charge Calculator - Premium Abonnement',
+        redirectUrl: `${new URL(c.req.url).origin}/account?payment=success`,
+        webhookUrl: `${new URL(c.req.url).origin}/api/mollie/webhook`,
+        metadata: {
+          userId: userData.id.toString(),
+          customerId: customerId,
+          type: 'subscription_first_payment'
+        },
+        customerId: customerId,
+        sequenceType: 'first'
+      })
+    })
+    
+    if (!paymentResponse.ok) {
+      const error = await paymentResponse.text()
+      console.error('Mollie payment creation failed:', error)
+      return c.json({ success: false, error: 'Failed to create payment' }, 500)
+    }
+    
+    const paymentData = await paymentResponse.json()
+    
+    return c.json({ 
+      success: true, 
+      checkoutUrl: paymentData._links.checkout.href,
+      paymentId: paymentData.id
+    })
+    
+  } catch (error) {
+    console.error('Create payment error:', error)
+    return c.json({ success: false, error: 'Internal server error' }, 500)
+  }
+})
+
+// Mollie webhook handler
+app.post('/api/mollie/webhook', async (c) => {
+  const { DB, MOLLIE_API_KEY } = c.env
+  
+  try {
+    // Get payment ID from webhook
+    const body = await c.req.json()
+    const paymentId = body.id
+    
+    if (!paymentId) {
+      return c.json({ success: false, error: 'No payment ID provided' }, 400)
+    }
+    
+    // Fetch payment details from Mollie
+    const paymentResponse = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
+      headers: {
+        'Authorization': `Bearer ${MOLLIE_API_KEY}`
+      }
+    })
+    
+    if (!paymentResponse.ok) {
+      console.error('Failed to fetch payment from Mollie')
+      return c.json({ success: false, error: 'Failed to fetch payment' }, 500)
+    }
+    
+    const payment = await paymentResponse.json()
+    const userId = payment.metadata?.userId
+    
+    if (!userId) {
+      console.error('No userId in payment metadata')
+      return c.json({ success: false, error: 'No user ID in metadata' }, 400)
+    }
+    
+    // Handle payment status
+    if (payment.status === 'paid') {
+      // Create subscription for recurring payments
+      const customerId = payment.customerId
+      
+      // Create Mollie subscription
+      const subscriptionResponse = await fetch(`https://api.mollie.com/v2/customers/${customerId}/subscriptions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MOLLIE_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          amount: {
+            currency: 'EUR',
+            value: '4.99'
+          },
+          interval: '1 month',
+          description: 'EV Charge Calculator - Premium Abonnement',
+          webhookUrl: `${new URL(c.req.url).origin}/api/mollie/webhook`,
+          metadata: {
+            userId: userId
+          }
+        })
+      })
+      
+      let subscriptionId = null
+      if (subscriptionResponse.ok) {
+        const subscription = await subscriptionResponse.json()
+        subscriptionId = subscription.id
+      }
+      
+      // Update user to premium with subscription details
+      await DB.prepare(`
+        UPDATE users 
+        SET role = 'premium',
+            mollie_subscription_id = ?,
+            subscription_status = 'active',
+            subscription_end_date = datetime('now', '+1 month'),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(subscriptionId, userId).run()
+      
+      console.log(`User ${userId} upgraded to premium with subscription ${subscriptionId}`)
+    } else if (payment.status === 'failed' || payment.status === 'expired' || payment.status === 'canceled') {
+      console.log(`Payment ${paymentId} ${payment.status} for user ${userId}`)
+    }
+    
+    return c.text('OK', 200)
+    
+  } catch (error) {
+    console.error('Webhook error:', error)
+    return c.json({ success: false, error: 'Webhook processing failed' }, 500)
+  }
+})
+
+// Cancel subscription endpoint (requires authentication)
+app.post('/api/mollie/cancel-subscription', authMiddleware, async (c) => {
+  const { DB, MOLLIE_API_KEY } = c.env
+  const user = c.get('user')
+  
+  try {
+    // Get user data with subscription
+    const userData = await DB.prepare(`
+      SELECT id, mollie_customer_id, mollie_subscription_id, subscription_status
+      FROM users WHERE id = ?
+    `).bind(user.userId).first()
+    
+    if (!userData || !userData.mollie_subscription_id) {
+      return c.json({ success: false, error: 'No active subscription found' }, 404)
+    }
+    
+    // Cancel subscription in Mollie
+    const cancelResponse = await fetch(
+      `https://api.mollie.com/v2/customers/${userData.mollie_customer_id}/subscriptions/${userData.mollie_subscription_id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${MOLLIE_API_KEY}`
+        }
+      }
+    )
+    
+    if (!cancelResponse.ok) {
+      const error = await cancelResponse.text()
+      console.error('Failed to cancel Mollie subscription:', error)
+      return c.json({ success: false, error: 'Failed to cancel subscription' }, 500)
+    }
+    
+    // Update database - keep premium until end date
+    await DB.prepare(`
+      UPDATE users 
+      SET subscription_status = 'canceled',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(userData.id).run()
+    
+    return c.json({ 
+      success: true, 
+      message: 'Subscription canceled. Premium access remains until end of billing period.' 
+    })
+    
+  } catch (error) {
+    console.error('Cancel subscription error:', error)
+    return c.json({ success: false, error: 'Internal server error' }, 500)
+  }
+})
+
 // Calculate charging speed
 app.post('/api/calculate', async (c) => {
   const { DB } = c.env
@@ -1061,8 +1307,17 @@ app.get('/api/subscription-tiers', (c) => {
 // MAIN APP ROUTES
 // ============================================
 // Account settings page
-app.get('/account', authMiddleware, (c) => {
+app.get('/account', authMiddleware, async (c) => {
   const user = c.get('user')
+  const { DB } = c.env
+  
+  // Fetch full user data including subscription details
+  const userData = await DB.prepare(`
+    SELECT id, email, first_name, last_name, role, created_at, 
+           mollie_customer_id, mollie_subscription_id, subscription_status, subscription_end_date
+    FROM users WHERE id = ?
+  `).bind(user.userId).first()
+  
   return c.html(`
 <!DOCTYPE html>
 <html lang="en">
@@ -1102,19 +1357,19 @@ app.get('/account', authMiddleware, (c) => {
             <div class="space-y-3">
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
                     <span class="text-sm text-gray-600">Voornaam</span>
-                    <span class="text-sm font-medium text-gray-900">${user?.firstName || 'Niet ingesteld'}</span>
+                    <span class="text-sm font-medium text-gray-900">${userData?.first_name || 'Niet ingesteld'}</span>
                 </div>
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
                     <span class="text-sm text-gray-600">Naam</span>
-                    <span class="text-sm font-medium text-gray-900">${user?.lastName || 'Niet ingesteld'}</span>
+                    <span class="text-sm font-medium text-gray-900">${userData?.last_name || 'Niet ingesteld'}</span>
                 </div>
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
                     <span class="text-sm text-gray-600">Email</span>
-                    <span class="text-sm font-medium text-gray-900">${user?.email}</span>
+                    <span class="text-sm font-medium text-gray-900">${userData?.email}</span>
                 </div>
                 <div class="flex justify-between items-center py-3">
-                    <span class="text-sm text-gray-600">Account Created</span>
-                    <span class="text-sm font-medium text-gray-900">${user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}</span>
+                    <span class="text-sm text-gray-600">Account Aangemaakt</span>
+                    <span class="text-sm font-medium text-gray-900">${userData?.created_at ? new Date(userData.created_at).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Onbekend'}</span>
                 </div>
             </div>
         </div>
@@ -1123,27 +1378,63 @@ app.get('/account', authMiddleware, (c) => {
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                 <i class="fas fa-crown mr-3 text-yellow-600"></i>
-                Subscription
+                Abonnement
             </h2>
             <div class="space-y-4">
-                <div class="flex items-center justify-between py-4 px-4 bg-${user?.role === 'free' ? 'blue' : user?.role === 'premium' ? 'yellow' : 'purple'}-50 rounded-lg border border-${user?.role === 'free' ? 'blue' : user?.role === 'premium' ? 'yellow' : 'purple'}-200">
+                <div class="flex items-center justify-between py-4 px-4 bg-${userData?.role === 'free' ? 'blue' : userData?.role === 'premium' ? 'yellow' : 'purple'}-50 rounded-lg border border-${userData?.role === 'free' ? 'blue' : userData?.role === 'premium' ? 'yellow' : 'purple'}-200">
                     <div>
-                        <div class="text-sm font-medium text-gray-900">Current Plan</div>
-                        <div class="text-2xl font-semibold text-gray-900 mt-1">${user?.role.charAt(0).toUpperCase()}${user?.role.slice(1)}</div>
+                        <div class="text-sm font-medium text-gray-900">Huidig Abonnement</div>
+                        <div class="text-2xl font-semibold text-gray-900 mt-1">
+                          ${userData?.role === 'free' ? 'Gratis' : userData?.role === 'premium' ? 'Premium' : 'Admin'}
+                        </div>
+                        ${userData?.role === 'premium' && userData?.subscription_end_date ? `
+                          <div class="text-xs text-gray-600 mt-1">
+                            ${userData?.subscription_status === 'canceled' ? 'Verloopt op' : 'Vernieuwt op'}: ${new Date(userData.subscription_end_date).toLocaleDateString('nl-NL')}
+                          </div>
+                        ` : ''}
                     </div>
-                    ${user?.role === 'free' ? `
+                    ${userData?.role === 'free' ? `
                     <button onclick="window.location.href='/app'" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-semibold hover:opacity-90 transition-opacity">
                         <i class="fas fa-arrow-up mr-2"></i>Upgrade
                     </button>
-                    ` : `
-                    <div class="text-sm text-gray-600">
-                        <i class="fas fa-check-circle text-green-600 mr-2"></i>Active
+                    ` : userData?.role === 'premium' ? `
+                    <div class="text-sm">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                        ${userData?.subscription_status === 'active' ? 'Actief' : userData?.subscription_status === 'canceled' ? 'Opgezegd' : 'Actief'}
                     </div>
-                    `}
+                    ` : ''}
                 </div>
+                
+                ${userData?.role === 'premium' ? `
+                <div class="flex flex-col space-y-3 mt-4">
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Prijs</span>
+                    <span class="text-sm font-medium text-gray-900">€4.99 / maand</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Betaalmethode</span>
+                    <span class="text-sm font-medium text-gray-900">
+                      <i class="fab fa-cc-visa mr-1"></i>Via Mollie
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center py-2">
+                    <span class="text-sm text-gray-600">Status</span>
+                    <span class="text-sm font-medium ${userData?.subscription_status === 'active' ? 'text-green-600' : 'text-orange-600'}">
+                      ${userData?.subscription_status === 'active' ? 'Actief - Automatisch verlengen' : 'Opgezegd - Toegang tot einde periode'}
+                    </span>
+                  </div>
+                </div>
+                
+                ${userData?.subscription_status === 'active' && userData?.mollie_subscription_id ? `
+                <button onclick="cancelSubscription()" id="cancelSubBtn" class="w-full mt-4 px-4 py-2 bg-white border-2 border-orange-500 text-orange-600 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
+                    <i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen
+                </button>
+                ` : ''}
+                ` : ''}
+                
                 <p class="text-sm text-gray-600 mt-4">
                     <i class="fas fa-info-circle mr-2"></i>
-                    ${user?.role === 'free' ? 'Upgrade to access 129+ vehicles and premium features.' : 'Manage your subscription in Phase 3 (Stripe integration coming soon).'}
+                    ${userData?.role === 'free' ? 'Upgrade naar Premium voor toegang tot 137+ voertuigen en alle merken.' : userData?.role === 'premium' ? 'Je premium abonnement geeft je toegang tot alle voertuigen en features.' : 'Als admin heb je volledige toegang tot alle functies.'}
                 </p>
             </div>
         </div>
@@ -1162,10 +1453,39 @@ app.get('/account', authMiddleware, (c) => {
         </div>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     <script>
         async function logout() {
             await fetch('/api/auth/logout', { method: 'POST' });
             window.location.href = '/';
+        }
+        
+        async function cancelSubscription() {
+            if (!confirm('Weet je zeker dat je je Premium abonnement wilt opzeggen? Je behoudt toegang tot het einde van de huidige periode.')) {
+                return;
+            }
+            
+            const btn = document.getElementById('cancelSubBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Opzeggen...';
+            
+            try {
+                const response = await axios.post('/api/mollie/cancel-subscription');
+                
+                if (response.data.success) {
+                    alert('Abonnement succesvol opgezegd. Je behoudt Premium toegang tot het einde van de periode.');
+                    window.location.reload();
+                } else {
+                    alert('Er ging iets mis: ' + (response.data.error || 'Onbekende fout'));
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen';
+                }
+            } catch (error) {
+                console.error('Cancel subscription error:', error);
+                alert('Er ging iets mis bij het opzeggen van je abonnement');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen';
+            }
         }
     </script>
 </body>
