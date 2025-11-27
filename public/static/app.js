@@ -84,14 +84,31 @@ async function loadVehicles() {
       const premiumCount = appState.vehicles.filter(v => v.is_premium).length
       const totalCount = appState.vehicles.length
       
+      // FIXED: For free users, calculate locked vehicles from total database count
+      // Backend returns only 42 free vehicles for non-premium users
+      // But we know total is 138 vehicles (42 free + 96 premium)
+      const TOTAL_VEHICLES_IN_DB = 138
+      const TOTAL_FREE_VEHICLES = 42
+      const TOTAL_PREMIUM_VEHICLES = TOTAL_VEHICLES_IN_DB - TOTAL_FREE_VEHICLES
+      
+      let displayFreeCount = freeCount
+      let displayPremiumCount = premiumCount
+      let displayTotalCount = totalCount
+      
+      // If user is free tier and we only got free vehicles back, show correct counts
+      if (appState.currentTier === 'free' && totalCount === TOTAL_FREE_VEHICLES) {
+        displayPremiumCount = TOTAL_PREMIUM_VEHICLES  // Show 96 locked vehicles
+        displayTotalCount = TOTAL_VEHICLES_IN_DB      // Show 138 total
+      }
+      
       // Always show total count
-      document.getElementById('vehicleCount').textContent = `${totalCount}+`
+      document.getElementById('vehicleCount').textContent = `${displayTotalCount}+`
       
-      console.log(`Loaded ${totalCount} vehicles (${freeCount} free, ${premiumCount} premium) - User tier: ${appState.currentTier}`)
+      console.log(`Loaded ${totalCount} vehicles (${freeCount} free, ${premiumCount} premium, ${displayPremiumCount} locked) - User tier: ${appState.currentTier}`)
       
-      // Show upgrade banner for free users
+      // Show upgrade banner for free users with correct locked count
       if (appState.currentTier === 'free') {
-        showFreeUserBanner(freeCount, premiumCount)
+        showFreeUserBanner(displayFreeCount, displayPremiumCount)
       }
     }
   } catch (error) {
