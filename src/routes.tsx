@@ -14,8 +14,8 @@ routes.get('/', (c) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ EV Charge Pro - De Ultieme Laadcalculator voor Elektrisch Rijden</title>
-    <meta name="description" content="Calculate your charging speed, costs and range in seconds. 284+ electric vehicles, real-time tarieven en geavanceerde analytics. Free to use!">
+    <title>⚡ EV Charge Pro - The Ultimate Charging Calculator for Electric Driving</title>
+    <meta name="description" content="Calculate your charging speed, costs and range in seconds. 138+ electric vehicles, real-time rates and advanced analytics. Free to use!">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <script>
@@ -144,7 +144,7 @@ routes.get('/', (c) => {
         <div class="max-w-7xl mx-auto relative z-10">
             <div class="text-center mb-16 animate-fade-in-up">
                 <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                    Bereken Je EV Laadsnelheid<br>
+                    Calculate Your EV Charging Speed<br>
                     <span class="gradient-text">In Seconden</span>
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
@@ -177,7 +177,7 @@ routes.get('/', (c) => {
                 </div>
                 <div class="text-center">
                     <div class="text-4xl font-bold gradient-text mb-2">2s</div>
-                    <div class="text-gray-400">Berekening</div>
+                    <div class="text-gray-400">Calculation</div>
                 </div>
             </div>
         </div>
@@ -188,7 +188,7 @@ routes.get('/', (c) => {
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">Waarom EV Charge Pro?</h2>
-                <p class="text-xl text-gray-400">Alles wat je nodig hebt voor slim elektrisch rijden</p>
+                <p class="text-xl text-gray-400">Everything you need for smart electric driving</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -207,7 +207,7 @@ routes.get('/', (c) => {
                         <i class="fas fa-chart-line text-3xl"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Charging Curves</h3>
-                    <p class="text-gray-400">Real-world laadcurves per SOC niveau. Zie hoe je laadsnelheid verandert during charging.</p>
+                    <p class="text-gray-400">Real-world charging curves per SOC level. See how your charging speed changes during charging.</p>
                 </div>
 
                 <!-- Feature 3 -->
@@ -215,7 +215,7 @@ routes.get('/', (c) => {
                     <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center mb-6">
                         <i class="fas fa-euro-sign text-3xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Kosten Calculator</h3>
+                    <h3 class="text-2xl font-bold mb-4">Cost Calculator</h3>
                     <p class="text-gray-400">Calculate exactly what a charging session costs. From home charging to fast chargers - everything transparent.</p>
                 </div>
 
@@ -254,7 +254,7 @@ routes.get('/', (c) => {
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">2-in-1 Calculator</h2>
-                <p class="text-xl text-gray-400">Laadsnelheid én kosten in één tool</p>
+                <p class="text-xl text-gray-400">Charging speed and costs in one tool</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 mb-12">
@@ -262,12 +262,12 @@ routes.get('/', (c) => {
                 <div class="glass rounded-2xl p-8">
                     <div class="flex items-center mb-6">
                         <i class="fas fa-tachometer-alt text-3xl gradient-text mr-4"></i>
-                        <h3 class="text-2xl font-bold">Laadsnelheid Calculator</h3>
+                        <h3 class="text-2xl font-bold">Charging Speed Calculator</h3>
                     </div>
                     <div class="space-y-4 text-gray-300">
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
-                            <span>Bereken km/uur laadsnelheid</span>
+                            <span>Calculate km/h charging speed</span>
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
@@ -291,12 +291,12 @@ routes.get('/', (c) => {
                 <div class="glass rounded-2xl p-8">
                     <div class="flex items-center mb-6">
                         <i class="fas fa-calculator text-3xl gradient-text mr-4"></i>
-                        <h3 class="text-2xl font-bold">Kosten Calculator</h3>
+                        <h3 class="text-2xl font-bold">Cost Calculator</h3>
                     </div>
                     <div class="space-y-4 text-gray-300">
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
-                            <span>Exacte laadkosten per sessie</span>
+                            <span>Exact charging costs per session</span>
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
@@ -308,11 +308,11 @@ routes.get('/', (c) => {
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
-                            <span>Kosten per 100 km</span>
+                            <span>Cost per 100 km</span>
                         </div>
                     </div>
                     <a href="/app/cost-calculator" class="mt-6 block w-full py-3 gradient-bg text-white rounded-xl text-center font-semibold hover:opacity-90 transition-opacity">
-                        Bereken Kosten →
+                        Calculate Costs →
                     </a>
                 </div>
             </div>
@@ -323,7 +323,7 @@ routes.get('/', (c) => {
     <section id="pricing" class="py-20 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">Simpele, Eerlijke Prijzen</h2>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Simple, Fair Pricing</h2>
                 <p class="text-xl text-gray-400">Start free. Upgrade when you need more.</p>
             </div>
 
@@ -339,11 +339,11 @@ routes.get('/', (c) => {
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-                            <span>Laadsnelheid calculator</span>
+                            <span>Charging speed calculator</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-                            <span>Kosten calculator</span>
+                            <span>Cost calculator</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
@@ -385,7 +385,7 @@ routes.get('/', (c) => {
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-                            <span>Berekeningsgeschiedenis</span>
+                            <span>Calculation history</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
