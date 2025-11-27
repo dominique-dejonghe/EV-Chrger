@@ -17,7 +17,7 @@ async function loadSuggestions() {
       container.innerHTML = `
         <div class="text-center text-gray-500 py-8">
           <i class="fas fa-inbox text-4xl mb-2"></i>
-          <p>Geen suggesties gevonden</p>
+          <p>No suggestions found</p>
         </div>
       `;
       return;
@@ -28,7 +28,7 @@ async function loadSuggestions() {
         <div class="flex justify-between items-start mb-3">
           <div>
             <h3 class="font-semibold text-lg text-gray-900">${s.vehicle_brand} ${s.vehicle_model}</h3>
-            ${s.vehicle_year ? `<p class="text-sm text-gray-600">Jaar: ${s.vehicle_year}</p>` : ''}
+            ${s.vehicle_year ? `<p class="text-sm text-gray-600">Year: ${s.vehicle_year}</p>` : ''}
             ${s.battery_capacity ? `<p class="text-sm text-gray-600">Batterij: ${s.battery_capacity} kWh</p>` : ''}
           </div>
           <span class="px-3 py-1 bg-${s.status === 'pending' ? 'yellow' : s.status === 'added' ? 'green' : s.status === 'reviewed' ? 'blue' : 'gray'}-100 text-${s.status === 'pending' ? 'yellow' : s.status === 'added' ? 'green' : s.status === 'reviewed' ? 'blue' : 'gray'}-700 text-xs font-semibold rounded-full">
@@ -50,10 +50,10 @@ async function loadSuggestions() {
         ${s.status === 'pending' ? `
           <div class="flex space-x-2">
             <button onclick="approveSuggestion(${s.id})" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-              <i class="fas fa-check mr-2"></i>Goedkeuren
+              <i class="fas fa-check mr-2"></i>Approve
             </button>
             <button onclick="rejectSuggestion(${s.id})" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-              <i class="fas fa-times mr-2"></i>Afwijzen
+              <i class="fas fa-times mr-2"></i>Reject
             </button>
           </div>
         ` : ''}
@@ -64,24 +64,24 @@ async function loadSuggestions() {
     document.getElementById('suggestions-list').innerHTML = `
       <div class="text-center text-red-600 py-8">
         <i class="fas fa-exclamation-circle text-4xl mb-2"></i>
-        <p>Fout bij laden van suggesties</p>
+        <p>Error loading suggestions</p>
       </div>
     `;
   }
 }
 
 async function approveSuggestion(id) {
-  if (!confirm('Weet je zeker dat je deze suggestie wilt goedkeuren?\n\nHet voertuig wordt toegevoegd aan de database met standaard waardes voor ontbrekende specificaties.')) return;
+  if (!confirm('Are you sure you want to approve this suggestion?\n\nThe vehicle will be added to the database with default values for missing specifications.')) return;
   
   try {
     const response = await axios.post(`/api/admin/suggestions/${id}/approve`);
     
-    let message = 'Suggestie goedgekeurd!';
+    let message = 'Suggestion approved!';
     if (response.data.note) {
       message += '\n\n' + response.data.note;
     }
     if (response.data.vehicle_id) {
-      message += '\n\nVoertuig ID: ' + response.data.vehicle_id;
+      message += '\n\nVehicle ID: ' + response.data.vehicle_id;
     }
     
     alert(message);
@@ -89,20 +89,20 @@ async function approveSuggestion(id) {
     loadVehicles(); // Refresh vehicle list to show new vehicle
   } catch (error) {
     console.error('Error approving suggestion:', error);
-    alert('Fout bij goedkeuren: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error approving: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
 async function rejectSuggestion(id) {
-  if (!confirm('Weet je zeker dat je deze suggestie wilt afwijzen?')) return;
+  if (!confirm('Are you sure you want to reject this suggestion?')) return;
   
   try {
     await axios.post(`/api/admin/suggestions/${id}/reject`);
-    alert('Suggestie afgewezen');
+    alert('Suggestion rejected');
     loadSuggestions();
   } catch (error) {
     console.error('Error rejecting suggestion:', error);
-    alert('Fout bij afwijzen: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error rejecting: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
@@ -120,7 +120,7 @@ async function loadVehicles() {
     document.getElementById('vehicles-list').innerHTML = `
       <div class="text-center text-red-600 py-8">
         <i class="fas fa-exclamation-circle text-4xl mb-2"></i>
-        <p>Fout bij laden van voertuigen</p>
+        <p>Error loading vehicles</p>
       </div>
     `;
   }
@@ -133,7 +133,7 @@ function renderVehicles(vehicles) {
     container.innerHTML = `
       <div class="text-center text-gray-500 py-8">
         <i class="fas fa-car text-4xl mb-2"></i>
-        <p>Geen voertuigen gevonden</p>
+        <p>No vehicles found</p>
       </div>
     `;
     return;
@@ -144,11 +144,11 @@ function renderVehicles(vehicles) {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voertuig</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batterij</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max DC</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tier</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -171,10 +171,10 @@ function renderVehicles(vehicles) {
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button onclick="editVehicle(${v.id})" class="text-blue-600 hover:text-blue-900 mr-3">
-                    <i class="fas fa-edit"></i> Bewerk
+                    <i class="fas fa-edit"></i> Edit
                   </button>
                   <button onclick="deleteVehicle(${v.id})" class="text-red-600 hover:text-red-900">
-                    <i class="fas fa-trash"></i> Verwijder
+                    <i class="fas fa-trash"></i> Delete
                   </button>
                 </td>
               </tr>
@@ -199,7 +199,7 @@ function filterVehicles(searchTerm) {
 }
 
 function showAddVehicleModal() {
-  alert('Voertuig toevoegen feature komt binnenkort!\n\nVoor nu kun je handmatig SQL queries gebruiken in de D1 database.');
+  alert('Add vehicle feature coming soon!\n\nVoor nu kun je handmatig SQL queries gebruiken in de D1 database.');
 }
 
 async function editVehicle(id) {
@@ -207,7 +207,7 @@ async function editVehicle(id) {
     // Get vehicle details
     const vehicle = allVehicles.find(v => v.id === id);
     if (!vehicle) {
-      alert('Voertuig niet gevonden');
+      alert('Vehicle not found');
       return;
     }
     
@@ -224,7 +224,7 @@ async function editVehicle(id) {
         <div class="p-6 border-b border-gray-200">
           <div class="flex justify-between items-start">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">Voertuig Bewerken</h2>
+              <h2 class="text-2xl font-bold text-gray-900">Edit Vehicle</h2>
               <p class="text-gray-600">${vehicle.make} ${vehicle.model} ${vehicle.variant || ''}</p>
             </div>
             <button onclick="closeEditVehicleModal()" class="text-gray-400 hover:text-gray-600">
@@ -237,7 +237,7 @@ async function editVehicle(id) {
           <div class="grid grid-cols-2 gap-4">
             <!-- Basic Info -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Merk *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Make *</label>
               <input type="text" id="edit_make" value="${vehicle.make}" required
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
@@ -255,39 +255,39 @@ async function editVehicle(id) {
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Jaar *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Year *</label>
               <input type="number" id="edit_year" value="${vehicle.year}" required min="2010" max="2030"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             
             <!-- Battery -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Batterij Capaciteit (kWh) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Battery Capacity (kWh) *</label>
               <input type="number" id="edit_battery_capacity" value="${vehicle.battery_capacity_kwh}" required step="0.1" min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Bruikbare Capaciteit (kWh) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Usable Capacity (kWh) *</label>
               <input type="number" id="edit_usable_capacity" value="${vehicle.usable_capacity_kwh}" required step="0.1" min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             
             <!-- Consumption & Charging -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Verbruik (kWh/100km) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Consumption (kWh/100km) *</label>
               <input type="number" id="edit_consumption" value="${vehicle.avg_consumption_kwh_per_100km}" required step="0.1" min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Max DC Laden (kW) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Max DC Charging (kW) *</label>
               <input type="number" id="edit_max_dc" value="${vehicle.max_dc_charging_kw}" required step="0.1" min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Max AC Laden (kW) *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Max AC Charging (kW) *</label>
               <input type="number" id="edit_max_ac" value="${vehicle.max_ac_charging_kw}" required step="0.1" min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
@@ -305,11 +305,11 @@ async function editVehicle(id) {
           <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
             <button type="button" onclick="closeEditVehicleModal()" 
               class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              Annuleren
+              Cancel
             </button>
             <button type="submit"
               class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              <i class="fas fa-save mr-2"></i>Opslaan
+              <i class="fas fa-save mr-2"></i>Save
             </button>
           </div>
         </form>
@@ -326,7 +326,7 @@ async function editVehicle(id) {
     
   } catch (error) {
     console.error('Error opening edit modal:', error);
-    alert('Fout bij openen van bewerkingsvenster');
+    alert('Error opening edit window');
   }
 }
 
@@ -353,25 +353,25 @@ async function saveVehicleChanges(id) {
     };
     
     await axios.put(`/api/admin/vehicles/${id}`, data);
-    alert('Voertuig succesvol bijgewerkt!');
+    alert('Vehicle updated successfully!');
     closeEditVehicleModal();
     loadVehicles(); // Refresh list
   } catch (error) {
     console.error('Error saving vehicle:', error);
-    alert('Fout bij opslaan: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error saving: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
 async function deleteVehicle(id) {
-  if (!confirm('Weet je zeker dat je dit voertuig wilt verwijderen?')) return;
+  if (!confirm('Are you sure you want to delete this vehicle?')) return;
   
   try {
     await axios.delete(`/api/admin/vehicles/${id}`);
-    alert('Voertuig verwijderd!');
+    alert('Vehicle deleted!');
     loadVehicles();
   } catch (error) {
     console.error('Error deleting vehicle:', error);
-    alert('Fout bij verwijderen: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error deleting: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
@@ -389,7 +389,7 @@ async function loadUsers() {
     document.getElementById('users-list').innerHTML = `
       <div class="text-center text-red-600 py-8">
         <i class="fas fa-exclamation-circle text-4xl mb-2"></i>
-        <p>Fout bij laden van users</p>
+        <p>Error loading users</p>
       </div>
     `;
   }
@@ -402,7 +402,7 @@ function renderUsers(users) {
       container.innerHTML = `
         <div class="text-center text-gray-500 py-8">
           <i class="fas fa-users text-4xl mb-2"></i>
-          <p>Geen users gevonden</p>
+          <p>No users found</p>
         </div>
       `;
       return;
@@ -413,11 +413,11 @@ function renderUsers(users) {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gebruiker</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aangemaakt</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -447,7 +447,7 @@ function renderUsers(users) {
                   </button>
                   ${u.role !== 'admin' ? `
                     <button onclick="deleteUser(${u.id}, '${u.email}')" class="text-red-600 hover:text-red-900">
-                      <i class="fas fa-trash"></i> Verwijder
+                      <i class="fas fa-trash"></i> Delete
                     </button>
                   ` : '<span class="text-gray-400">Protected</span>'}
                 </td>
@@ -502,7 +502,7 @@ async function showUserDetail(userId) {
         <div class="p-6 space-y-6">
           <!-- Account Info -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">Account Informatie</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Account Information</h3>
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-600">User ID:</span>
@@ -519,12 +519,12 @@ async function showUserDetail(userId) {
                 </span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-600">Aangemaakt:</span>
+                <span class="text-gray-600">Created:</span>
                 <span class="font-medium">${new Date(user.created_at).toLocaleString('nl-NL')}</span>
               </div>
               ${user.updated_at ? `
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Laatst bijgewerkt:</span>
+                  <span class="text-gray-600">Last updated:</span>
                   <span class="font-medium">${new Date(user.updated_at).toLocaleString('nl-NL')}</span>
                 </div>
               ` : ''}
@@ -534,39 +534,39 @@ async function showUserDetail(userId) {
           <!-- Usage Statistics -->
           <div class="border-t border-gray-200 pt-4">
             <h3 class="text-lg font-semibold text-gray-900 mb-3">
-              <i class="fas fa-chart-bar text-blue-600 mr-2"></i>Gebruiksstatistieken
+              <i class="fas fa-chart-bar text-blue-600 mr-2"></i>Usage Statistics
             </h3>
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-blue-50 rounded-lg p-4">
                 <div class="text-2xl font-bold text-blue-900">${stats.totalCalculations}</div>
-                <div class="text-sm text-blue-600">Berekeningen</div>
+                <div class="text-sm text-blue-600">Calculations</div>
               </div>
               <div class="bg-green-50 rounded-lg p-4">
                 <div class="text-2xl font-bold text-green-900">${stats.totalComparisons}</div>
-                <div class="text-sm text-green-600">Vergelijkingen</div>
+                <div class="text-sm text-green-600">Comparisons</div>
               </div>
               <div class="bg-yellow-50 rounded-lg p-4">
                 <div class="text-2xl font-bold text-yellow-900">${stats.totalFavorites}</div>
-                <div class="text-sm text-yellow-600">Favorieten</div>
+                <div class="text-sm text-yellow-600">Favorites</div>
               </div>
               <div class="bg-purple-50 rounded-lg p-4">
                 <div class="text-2xl font-bold text-purple-900">${stats.totalSuggestions}</div>
-                <div class="text-sm text-purple-600">Suggesties</div>
+                <div class="text-sm text-purple-600">Suggestions</div>
               </div>
             </div>
             ${stats.lastActivity ? `
               <div class="mt-3 text-sm text-gray-600">
                 <i class="fas fa-clock mr-1"></i>
-                Laatste activiteit: ${new Date(stats.lastActivity).toLocaleString('nl-NL')}
+                Last activity: ${new Date(stats.lastActivity).toLocaleString('nl-NL')}
               </div>
-            ` : '<div class="mt-3 text-sm text-gray-500">Geen activiteit</div>'}
+            ` : '<div class="mt-3 text-sm text-gray-500">No activity</div>'}
           </div>
           
           <!-- Favorite Vehicles -->
           ${favoriteVehicles && favoriteVehicles.length > 0 ? `
             <div class="border-t border-gray-200 pt-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-3">
-                <i class="fas fa-heart text-red-600 mr-2"></i>Favoriete Voertuigen
+                <i class="fas fa-heart text-red-600 mr-2"></i>Favorite Vehicles
               </h3>
               <div class="space-y-2">
                 ${favoriteVehicles.map(v => `
@@ -583,7 +583,7 @@ async function showUserDetail(userId) {
           ${userSuggestions && userSuggestions.length > 0 ? `
             <div class="border-t border-gray-200 pt-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-3">
-                <i class="fas fa-lightbulb text-orange-600 mr-2"></i>Ingediende Suggesties
+                <i class="fas fa-lightbulb text-orange-600 mr-2"></i>Ingediende Suggestions
               </h3>
               <div class="space-y-2 max-h-48 overflow-y-auto">
                 ${userSuggestions.map(s => `
@@ -610,7 +610,7 @@ async function showUserDetail(userId) {
           ${user.role === 'premium' || user.mollie_customer_id ? `
             <div class="border-t border-gray-200 pt-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-3">
-                <i class="fas fa-crown text-yellow-600 mr-2"></i>Premium Abonnement
+                <i class="fas fa-crown text-yellow-600 mr-2"></i>Premium Subscription
               </h3>
               <div class="space-y-2 text-sm">
                 ${user.mollie_customer_id ? `
@@ -658,7 +658,7 @@ async function showUserDetail(userId) {
           ${paymentHistory && paymentHistory.length > 0 ? `
             <div class="border-t border-gray-200 pt-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-3">
-                <i class="fas fa-credit-card text-green-600 mr-2"></i>Betalingsgeschiedenis
+                <i class="fas fa-credit-card text-green-600 mr-2"></i>Payment History
               </h3>
               <div class="space-y-2 max-h-64 overflow-y-auto">
                 ${paymentHistory.map(p => `
@@ -684,14 +684,14 @@ async function showUserDetail(userId) {
                     <div class="text-xs text-gray-500 mt-1">
                       <i class="fas fa-calendar mr-1"></i>
                       ${new Date(p.createdAt).toLocaleDateString('nl-NL')}
-                      ${p.paidAt ? ` - Betaald: ${new Date(p.paidAt).toLocaleDateString('nl-NL')}` : ''}
+                      ${p.paidAt ? ` - Paid: ${new Date(p.paidAt).toLocaleDateString('nl-NL')}` : ''}
                     </div>
                   </div>
                 `).join('')}
               </div>
               <div class="mt-3 text-xs text-gray-500">
                 <i class="fas fa-info-circle mr-1"></i>
-                Totaal: ${paymentHistory.length} transacties
+                Total: ${paymentHistory.length} transactions
               </div>
             </div>
           ` : ''}
@@ -699,23 +699,23 @@ async function showUserDetail(userId) {
           <!-- Actions -->
           ${user.role !== 'admin' ? `
             <div class="border-t border-gray-200 pt-4">
-              <h3 class="text-lg font-semibold text-gray-900 mb-3">Acties</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-3">Actions</h3>
               <div class="space-y-2">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Role Wijzigen</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Change Role</label>
                   <select id="newRoleSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                    <option value="">-- Selecteer nieuwe role --</option>
+                    <option value="">-- Select new role --</option>
                     <option value="free" ${user.role === 'free' ? 'selected' : ''}>Free</option>
                     <option value="premium" ${user.role === 'premium' ? 'selected' : ''}>Premium</option>
                     <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                   </select>
                   <button onclick="changeUserRoleFromModal(${user.id})" class="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    <i class="fas fa-sync-alt mr-2"></i>Role Bijwerken
+                    <i class="fas fa-sync-alt mr-2"></i>Update Role
                   </button>
                 </div>
                 
                 <button onclick="deleteUserFromModal(${user.id}, '${user.email}')" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                  <i class="fas fa-trash mr-2"></i>Gebruiker Verwijderen
+                  <i class="fas fa-trash mr-2"></i>User Deleteen
                 </button>
               </div>
             </div>
@@ -723,7 +723,7 @@ async function showUserDetail(userId) {
             <div class="bg-red-50 border border-red-200 rounded p-4">
               <p class="text-sm text-red-800">
                 <i class="fas fa-shield-alt mr-2"></i>
-                Admin accounts zijn beschermd en kunnen niet worden bewerkt of verwijderd.
+                Admin accounts are protected and cannot be edited or deleted.
               </p>
             </div>
           `}
@@ -734,7 +734,7 @@ async function showUserDetail(userId) {
     document.body.appendChild(modal);
   } catch (error) {
     console.error('Error loading user detail:', error);
-    alert('Fout bij laden van gebruiker details: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error loading user details: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
@@ -748,47 +748,47 @@ function closeUserDetailModal() {
 async function changeUserRoleFromModal(userId) {
   const newRole = document.getElementById('newRoleSelect').value;
   if (!newRole) {
-    alert('Selecteer eerst een role');
+    alert('Please select a role first');
     return;
   }
   
-  if (!confirm(`Weet je zeker dat je de role wilt wijzigen naar ${newRole}?`)) return;
+  if (!confirm(`Are you sure you want to change the role to ${newRole}?`)) return;
   
   try {
     await axios.post(`/api/admin/users/${userId}/role`, { role: newRole });
-    alert('User role gewijzigd!');
+    alert('User role changed!');
     closeUserDetailModal();
     loadUsers();
   } catch (error) {
     console.error('Error changing user role:', error);
-    alert('Fout bij wijzigen: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error changing: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
 async function deleteUser(userId, email) {
-  if (!confirm(`Weet je ABSOLUUT ZEKER dat je gebruiker ${email} wilt verwijderen?\n\nDit kan NIET ongedaan worden gemaakt!`)) return;
+  if (!confirm(`Are you ABSOLUTELY SURE you want to delete user ${email}   ?\n\nThis CANNOT be undone!`)) return;
   
   try {
     await axios.delete(`/api/admin/users/${userId}`);
-    alert('Gebruiker verwijderd!');
+    alert('User deleted!');
     loadUsers();
   } catch (error) {
     console.error('Error deleting user:', error);
-    alert('Fout bij verwijderen: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error deleting: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
 async function deleteUserFromModal(userId, email) {
-  if (!confirm(`Weet je ABSOLUUT ZEKER dat je gebruiker ${email} wilt verwijderen?\n\nDit kan NIET ongedaan worden gemaakt!`)) return;
+  if (!confirm(`Are you ABSOLUTELY SURE you want to delete user ${email}   ?\n\nThis CANNOT be undone!`)) return;
   
   try {
     await axios.delete(`/api/admin/users/${userId}`);
-    alert('Gebruiker verwijderd!');
+    alert('User deleted!');
     closeUserDetailModal();
     loadUsers();
   } catch (error) {
     console.error('Error deleting user:', error);
-    alert('Fout bij verwijderen: ' + (error.response?.data?.error || 'Onbekende fout'));
+    alert('Error deleting: ' + (error.response?.data?.error || 'Unknown error'));
   }
 }
 
@@ -805,8 +805,8 @@ function showAddUserModal() {
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
       <div class="flex justify-between items-start mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900">Nieuwe User Aanmaken</h2>
-          <p class="text-gray-600 text-sm mt-1">Vul alle velden in om een user toe te voegen</p>
+          <h2 class="text-2xl font-bold text-gray-900">Create New User</h2>
+          <p class="text-gray-600 text-sm mt-1">Fill in all fields to add a user</p>
         </div>
         <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-gray-600">
           <i class="fas fa-times text-2xl"></i>
@@ -823,13 +823,13 @@ function showAddUserModal() {
         
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Voornaam *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
             <input type="text" id="newUserFirstName" required
               placeholder="John"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Achternaam *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
             <input type="text" id="newUserLastName" required
               placeholder="Doe"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
@@ -837,11 +837,11 @@ function showAddUserModal() {
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Wachtwoord *</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
           <input type="password" id="newUserPassword" required
             placeholder="Min. 8 karakters"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
-          <p class="text-xs text-gray-500 mt-1">Minimaal 8 karakters, 1 hoofdletter, 1 kleine letter, 1 cijfer</p>
+          <p class="text-xs text-gray-500 mt-1">Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number</p>
         </div>
         
         <div>
@@ -856,11 +856,11 @@ function showAddUserModal() {
         <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
           <button type="button" onclick="closeAddUserModal()" 
             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-            Annuleren
+            Cancel
           </button>
           <button type="submit"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            <i class="fas fa-user-plus mr-2"></i>User Aanmaken
+            <i class="fas fa-user-plus mr-2"></i>Create User
           </button>
         </div>
       </form>
@@ -893,7 +893,7 @@ async function createNewUser() {
     
     // Validate password
     if (password.length < 8) {
-      alert('Wachtwoord moet minimaal 8 karakters bevatten');
+      alert('Password moet minimaal 8 karakters bevatten');
       return;
     }
     
@@ -906,16 +906,16 @@ async function createNewUser() {
     };
     
     await axios.post('/api/admin/users', data);
-    alert(`User ${firstName} ${lastName} succesvol aangemaakt met role: ${role}!`);
+    alert(`User created successfully with role: ${role}!`);
     closeAddUserModal();
     loadUsers(); // Refresh user list
   } catch (error) {
     console.error('Error creating user:', error);
     
     if (error.response?.status === 409) {
-      alert('Er bestaat al een gebruiker met dit emailadres!');
+      alert('A user with this email address already exists!');
     } else {
-      alert('Fout bij aanmaken: ' + (error.response?.data?.error || 'Onbekende fout'));
+      alert('Error creating: ' + (error.response?.data?.error || 'Unknown error'));
     }
   }
 }

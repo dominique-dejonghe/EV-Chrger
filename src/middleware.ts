@@ -107,17 +107,17 @@ export const adminMiddleware = createMiddleware<{ Bindings: Env }>(async (c, nex
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Toegang Geweigerd</title>
+        <title>Access Denied</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       </head>
       <body class="bg-gray-50 flex items-center justify-center min-h-screen">
         <div class="text-center p-8">
           <i class="fas fa-shield-alt text-6xl text-red-600 mb-4"></i>
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Toegang Geweigerd</h1>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p class="text-gray-600 mb-2">Je hebt geen admin rechten om deze pagina te bekijken.</p>
           <p class="text-sm text-gray-500 mb-6">
-            ${!user ? 'Gebruiker niet gevonden' : `Huidige role: ${user.role}`}
+            ${!user ? 'User not found' : `Current role: ${user.role}`}
           </p>
           <div class="space-x-4">
             <a href="/app" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700">

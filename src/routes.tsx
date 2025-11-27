@@ -15,7 +15,7 @@ routes.get('/', (c) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ EV Charge Pro - De Ultieme Laadcalculator voor Elektrisch Rijden</title>
-    <meta name="description" content="Bereken je laadsnelheid, laadkosten en bereik in seconden. 284+ elektrische voertuigen, real-time tarieven en geavanceerde analytics. Gratis te gebruiken!">
+    <meta name="description" content="Calculate your charging speed, costs and range in seconds. 284+ electric vehicles, real-time tarieven en geavanceerde analytics. Free to use!">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <script>
@@ -128,7 +128,7 @@ routes.get('/', (c) => {
                     <a href="#pricing" class="hover:text-blue-400 transition-colors">Prijzen</a>
                     <a href="#calculator" class="hover:text-blue-400 transition-colors">Calculator</a>
                     <a href="/app" class="px-6 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition-opacity font-semibold">
-                        Start Gratis →
+                        Start Free →
                     </a>
                 </div>
                 <button class="md:hidden text-2xl">
@@ -148,12 +148,12 @@ routes.get('/', (c) => {
                     <span class="gradient-text">In Seconden</span>
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                    De meest geavanceerde EV laadcalculator met 284+ voertuigen, real-time kosten berekening en charging curves. 
-                    <span class="text-blue-400 font-semibold">100% gratis te starten!</span>
+                    The most advanced EV charging calculator with 284+ vehicleen, real-time cost calculation and charging curves. 
+                    <span class="text-blue-400 font-semibold">100% free to start!</span>
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <a href="/app" class="px-8 py-4 gradient-bg text-white rounded-xl text-lg font-bold hover:opacity-90 transition-all transform hover:scale-105 shadow-2xl">
-                        <i class="fas fa-rocket mr-2"></i>Start Gratis - Geen Account Nodig
+                        <i class="fas fa-rocket mr-2"></i>Start Free - No Account Required
                     </a>
                     <a href="#demo" class="px-8 py-4 glass text-white rounded-xl text-lg font-semibold hover:bg-white/10 transition-all">
                         <i class="fas fa-play-circle mr-2"></i>Bekijk Demo
@@ -173,7 +173,7 @@ routes.get('/', (c) => {
                 </div>
                 <div class="text-center">
                     <div class="text-4xl font-bold gradient-text mb-2">100%</div>
-                    <div class="text-gray-400">Gratis Start</div>
+                    <div class="text-gray-400">Free Start</div>
                 </div>
                 <div class="text-center">
                     <div class="text-4xl font-bold gradient-text mb-2">2s</div>
@@ -198,7 +198,7 @@ routes.get('/', (c) => {
                         <i class="fas fa-search text-3xl"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Smart Search</h3>
-                    <p class="text-gray-400">Type en vind direct je voertuig. Geen eindeloos scrollen meer door lijsten. Keyboard navigation included.</p>
+                    <p class="text-gray-400">Type en vind direct je vehicle. No more endless scrolling through lists. Keyboard navigation included.</p>
                 </div>
 
                 <!-- Feature 2 -->
@@ -207,7 +207,7 @@ routes.get('/', (c) => {
                         <i class="fas fa-chart-line text-3xl"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Charging Curves</h3>
-                    <p class="text-gray-400">Real-world laadcurves per SOC niveau. Zie hoe je laadsnelheid verandert gedurende het laden.</p>
+                    <p class="text-gray-400">Real-world laadcurves per SOC niveau. Zie hoe je laadsnelheid verandert during charging.</p>
                 </div>
 
                 <!-- Feature 3 -->
@@ -216,7 +216,7 @@ routes.get('/', (c) => {
                         <i class="fas fa-euro-sign text-3xl"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Kosten Calculator</h3>
-                    <p class="text-gray-400">Bereken exact wat een laadsessie kost. Van thuisladen tot snelladers - alles inzichtelijk.</p>
+                    <p class="text-gray-400">Calculate exactly what a charging session costs. From home charging to fast chargers - everything transparent.</p>
                 </div>
 
                 <!-- Feature 4 -->
@@ -234,7 +234,7 @@ routes.get('/', (c) => {
                         <i class="fas fa-exchange-alt text-3xl"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4">Vergelijk Auto's</h3>
-                    <p class="text-gray-400">Side-by-side vergelijking van laadsnelheden. Vind de snelst ladende EV voor jouw situatie.</p>
+                    <p class="text-gray-400">Side-by-side comparison of charging speeds. Find the fastest charging EV for your situation.</p>
                 </div>
 
                 <!-- Feature 6 -->
@@ -275,7 +275,7 @@ routes.get('/', (c) => {
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
-                            <span>Bereik per uur laden</span>
+                            <span>Range per hour of charging</span>
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
@@ -300,7 +300,7 @@ routes.get('/', (c) => {
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
-                            <span>Vergelijk thuisladen vs snelladers</span>
+                            <span>Compare home charging vs fast chargers</span>
                         </div>
                         <div class="flex items-center">
                             <i class="fas fa-check text-green-400 mr-3"></i>
@@ -324,7 +324,7 @@ routes.get('/', (c) => {
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">Simpele, Eerlijke Prijzen</h2>
-                <p class="text-xl text-gray-400">Start gratis. Upgrade wanneer je meer nodig hebt.</p>
+                <p class="text-xl text-gray-400">Start free. Upgrade when you need more.</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -351,7 +351,7 @@ routes.get('/', (c) => {
                         </li>
                     </ul>
                     <a href="/app" class="block w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-center font-semibold transition-colors">
-                        Start Gratis
+                        Start Free
                     </a>
                 </div>
 
@@ -377,7 +377,7 @@ routes.get('/', (c) => {
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-                            <span>Voertuig vergelijking</span>
+                            <span>Vehicle comparison</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
@@ -420,7 +420,7 @@ routes.get('/', (c) => {
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
-                            <span>API toegang</span>
+                            <span>API access</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-400 mt-1 mr-3"></i>
@@ -465,12 +465,12 @@ routes.get('/', (c) => {
             <div class="glass rounded-3xl p-12">
                 <h2 class="text-4xl md:text-5xl font-bold mb-6">Klaar om te Starten?</h2>
                 <p class="text-xl text-gray-300 mb-8">
-                    Join duizenden EV rijders die al slimmer laden met EV Charge Pro
+                    Join thousands of EV drivers who already charge smarter with EV Charge Pro
                 </p>
                 <a href="/app" class="inline-block px-10 py-4 gradient-bg text-white rounded-xl text-xl font-bold hover:opacity-90 transition-all transform hover:scale-105 shadow-2xl">
-                    <i class="fas fa-rocket mr-2"></i>Start Nu Gratis
+                    <i class="fas fa-rocket mr-2"></i>Start Now Free
                 </a>
-                <p class="text-sm text-gray-400 mt-4">Geen creditcard nodig • 73+ voertuigen gratis • Upgrade later</p>
+                <p class="text-sm text-gray-400 mt-4">No credit card required • 73+ vehicleen free • Upgrade later</p>
             </div>
         </div>
     </section>

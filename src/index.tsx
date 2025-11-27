@@ -299,15 +299,15 @@ app.get('/', (c) => {
                             <img src="https://i.pravatar.cc/32?img=3" class="w-8 h-8 rounded-full border-2 border-white" alt="User" />
                             <img src="https://i.pravatar.cc/32?img=4" class="w-8 h-8 rounded-full border-2 border-white" alt="User" />
                         </div>
-                        <span><strong class="text-gray-900">137 mensen</strong> gebruiken dit nu</span>
+                        <span><strong class="text-gray-900">137 people</strong> using this now</span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-star text-yellow-400"></i>
-                        <span><strong class="text-gray-900">4.8/5</strong> gemiddelde score</span>
+                        <span><strong class="text-gray-900">4.8/5</strong> average rating</span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-shield-check text-green-600"></i>
-                        <span><strong class="text-gray-900">100% gratis</strong> te starten</span>
+                        <span><strong class="text-gray-900">100% free</strong> to start</span>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
@@ -360,8 +360,8 @@ app.get('/', (c) => {
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-semibold text-gray-900 mb-4">Wat zeggen gebruikers?</h2>
-                <p class="text-xl text-gray-600">Meer dan 2,500 tevreden EV-rijders vertrouwen op onze calculator</p>
+                <h2 class="text-4xl font-semibold text-gray-900 mb-4">What do users say?</h2>
+                <p class="text-xl text-gray-600">More than 2,500 satisfied EV drivers trust our calculator</p>
             </div>
             
             <div class="grid md:grid-cols-3 gap-8">
@@ -371,7 +371,7 @@ app.get('/', (c) => {
                         <img src="https://i.pravatar.cc/64?img=12" class="w-12 h-12 rounded-full mr-3" alt="User" />
                         <div>
                             <div class="font-semibold text-gray-900">Marc V.</div>
-                            <div class="text-sm text-gray-600">Tesla Model 3 eigenaar</div>
+                            <div class="text-sm text-gray-600">Tesla Model 3 owner</div>
                         </div>
                     </div>
                     <div class="flex mb-3">
@@ -381,7 +381,7 @@ app.get('/', (c) => {
                         <i class="fas fa-star text-yellow-400"></i>
                         <i class="fas fa-star text-yellow-400"></i>
                     </div>
-                    <p class="text-gray-600">"Eindelijk een betrouwbare calculator! Bespaart me elke week tijd bij het plannen van lange ritten."</p>
+                    <p class="text-gray-600">"Finally a reliable calculator! Saves me time every week planning long trips."</p>
                 </div>
                 
                 <!-- Testimonial 2 -->
@@ -390,7 +390,7 @@ app.get('/', (c) => {
                         <img src="https://i.pravatar.cc/64?img=33" class="w-12 h-12 rounded-full mr-3" alt="User" />
                         <div>
                             <div class="font-semibold text-gray-900">Sophie D.</div>
-                            <div class="text-sm text-gray-600">BMW iX eigenaar</div>
+                            <div class="text-sm text-gray-600">BMW iX owner</div>
                         </div>
                     </div>
                     <div class="flex mb-3">
@@ -400,7 +400,7 @@ app.get('/', (c) => {
                         <i class="fas fa-star text-yellow-400"></i>
                         <i class="fas fa-star text-yellow-400"></i>
                     </div>
-                    <p class="text-gray-600">"Premium is de €4.99 meer dan waard. Toegang tot alle merken en modellen is onmisbaar!"</p>
+                    <p class="text-gray-600">"Premium is worth every cent of €4.99. Access to all brands and models is essential!"</p>
                 </div>
                 
                 <!-- Testimonial 3 -->
@@ -409,7 +409,7 @@ app.get('/', (c) => {
                         <img src="https://i.pravatar.cc/64?img=51" class="w-12 h-12 rounded-full mr-3" alt="User" />
                         <div>
                             <div class="font-semibold text-gray-900">Jan P.</div>
-                            <div class="text-sm text-gray-600">Audi e-tron eigenaar</div>
+                            <div class="text-sm text-gray-600">Audi e-tron owner</div>
                         </div>
                     </div>
                     <div class="flex mb-3">
@@ -419,7 +419,7 @@ app.get('/', (c) => {
                         <i class="fas fa-star text-yellow-400"></i>
                         <i class="fas fa-star text-yellow-400"></i>
                     </div>
-                    <p class="text-gray-600">"Supersnelle berekeningen en altijd nauwkeurig. Dit is mijn go-to tool voor ladingen!"</p>
+                    <p class="text-gray-600">"Super fast calculations and always accurate. This is my go-to tool for charging!"</p>
                 </div>
             </div>
         </div>
@@ -430,43 +430,43 @@ app.get('/', (c) => {
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <div class="inline-block px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-semibold mb-4 animate-pulse">
-                    <i class="fas fa-fire mr-2"></i>Beperkte tijd: Launch prijs €4.99/maand
+                    <i class="fas fa-fire mr-2"></i>Limited time: Launch price €4.99/month
                 </div>
-                <h2 class="text-4xl font-semibold text-gray-900 mb-4">Upgrade naar Premium</h2>
-                <p class="text-xl text-gray-600">138+ voertuigen. Alle merken. Alle varianten.</p>
+                <h2 class="text-4xl font-semibold text-gray-900 mb-4">Upgrade to Premium</h2>
+                <p class="text-xl text-gray-600">138+ vehicles. All brands. All variants.</p>
             </div>
             
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <!-- Free Plan -->
                 <div class="apple-card rounded-3xl p-8 border border-gray-300">
                     <div class="text-center mb-6">
-                        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Gratis</h3>
-                        <div class="text-4xl font-bold text-gray-900 mb-4">€0<span class="text-xl font-normal text-gray-600">/maand</span></div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Free</h3>
+                        <div class="text-4xl font-bold text-gray-900 mb-4">€0<span class="text-xl font-normal text-gray-600">/month</span></div>
                     </div>
                     <ul class="space-y-3 mb-8">
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
-                            <span class="text-gray-700">42 populaire EV modellen</span>
+                            <span class="text-gray-700">42 popular EV models</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
-                            <span class="text-gray-700">Basis laadcalculator</span>
+                            <span class="text-gray-700">Basic charging calculator</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-600 mr-3 mt-1"></i>
-                            <span class="text-gray-700">DC & AC laadondersteuning</span>
+                            <span class="text-gray-700">DC & AC charging support</span>
                         </li>
                         <li class="flex items-start text-gray-400">
                             <i class="fas fa-times text-gray-400 mr-3 mt-1"></i>
-                            <span>Toegang tot premium voertuigen</span>
+                            <span>Access to premium vehicles</span>
                         </li>
                         <li class="flex items-start text-gray-400">
                             <i class="fas fa-times text-gray-400 mr-3 mt-1"></i>
-                            <span>Alle merken en varianten</span>
+                            <span>All brands and variants</span>
                         </li>
                     </ul>
                     <button onclick="showRegisterModal()" class="w-full py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors">
-                        Start Gratis
+                        Start Free
                     </button>
                 </div>
                 
@@ -479,9 +479,9 @@ app.get('/', (c) => {
                     </div>
                     <div class="text-center mb-6 mt-4">
                         <h3 class="text-2xl font-semibold text-gray-900 mb-2">Premium</h3>
-                        <div class="text-4xl font-bold gradient-text mb-1">€4.99<span class="text-xl font-normal text-gray-600">/maand</span></div>
+                        <div class="text-4xl font-bold gradient-text mb-1">€4.99<span class="text-xl font-normal text-gray-600">/month</span></div>
                         <div class="text-sm text-red-600 font-semibold">
-                            <i class="fas fa-clock mr-1"></i>Launch prijs - stijgt binnenkort naar €9.99
+                            <i class="fas fa-clock mr-1"></i>Launch prijs - will increase soon to €9.99
                         </div>
                     </div>
                     <ul class="space-y-3 mb-8">
@@ -499,7 +499,7 @@ app.get('/', (c) => {
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-blue-600 mr-3 mt-1"></i>
-                            <span class="text-gray-700 font-medium">Nieuwe voertuigen eerst beschikbaar</span>
+                            <span class="text-gray-700 font-medium">New vehicles available first</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-blue-600 mr-3 mt-1"></i>
@@ -507,16 +507,16 @@ app.get('/', (c) => {
                         </li>
                     </ul>
                     <button onclick="showRegisterModal()" class="w-full py-4 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-xl">
-                        <i class="fas fa-crown mr-2"></i>Upgrade naar Premium
+                        <i class="fas fa-crown mr-2"></i>Upgrade to Premium
                     </button>
                     <div class="mt-4 text-center">
                         <p class="text-xs text-gray-600">
                             <i class="fas fa-shield-check text-green-600 mr-1"></i>
-                            Opzeggen wanneer je wilt. Geen verplichtingen.
+                            Cancel anytime. No commitments.
                         </p>
                         <p class="text-xs text-gray-600 mt-1">
                             <i class="fas fa-users text-blue-600 mr-1"></i>
-                            <strong>487 mensen</strong> werden deze maand premium
+                            <strong>487 mensen</strong> werden deze month premium
                         </p>
                     </div>
                 </div>
@@ -527,15 +527,15 @@ app.get('/', (c) => {
                 <div class="flex justify-center items-center gap-8 flex-wrap text-sm text-gray-600">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-lock text-green-600 text-xl"></i>
-                        <span>Veilige betaling via Mollie</span>
+                        <span>Secure payment via Mollie</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i class="fas fa-certificate text-blue-600 text-xl"></i>
-                        <span>SSL beveiligde verbinding</span>
+                        <span>SSL secured connection</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i class="fas fa-award text-yellow-600 text-xl"></i>
-                        <span>4.8/5 gemiddelde beoordeling</span>
+                        <span>4.8/5 average rating</span>
                     </div>
                 </div>
             </div>
@@ -620,12 +620,12 @@ app.get('/', (c) => {
             <form id="registerForm" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-2 text-gray-900">Voornaam</label>
+                        <label class="block text-sm font-semibold mb-2 text-gray-900">First Name</label>
                         <input type="text" id="registerFirstName" required 
                                class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold mb-2 text-gray-900">Naam</label>
+                        <label class="block text-sm font-semibold mb-2 text-gray-900">Name</label>
                         <input type="text" id="registerLastName" required 
                                class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
@@ -793,7 +793,7 @@ app.get('/', (c) => {
             }
             
             button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Account aanmaken...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating account...';
             errorDiv.classList.add('hidden');
             
             try {
@@ -1494,7 +1494,7 @@ app.post('/api/mollie/create-payment', authMiddleware, async (c) => {
           currency: 'EUR',
           value: '4.99'
         },
-        description: 'EV Charge Calculator - Premium Abonnement',
+        description: 'EV Charge Calculator - Premium Subscription',
         redirectUrl: `${new URL(c.req.url).origin}/account?payment=success`,
         webhookUrl: `${new URL(c.req.url).origin}/api/mollie/webhook`,
         metadata: {
@@ -1590,7 +1590,7 @@ app.post('/api/mollie/webhook', async (c) => {
             value: '4.99'
           },
           interval: '1 month',
-          description: 'EV Charge Calculator - Premium Abonnement',
+          description: 'EV Charge Calculator - Premium Subscription',
           webhookUrl: `${new URL(c.req.url).origin}/api/mollie/webhook`,
           metadata: {
             userId: userId
@@ -1906,12 +1906,12 @@ app.get('/api/subscription-tiers', (c) => {
     tiers: [
       {
         id: 'free',
-        name: 'Gratis',
+        name: 'Free',
         price: 0,
         features: [
-          '39 populaire EV modellen',
-          'Basis laadcalculator',
-          'DC & AC laadondersteuning',
+          '39 popular EV models',
+          'Basic charging calculator',
+          'DC & AC charging support',
           'Real-world verbruiksdata'
         ]
       },
@@ -1919,13 +1919,13 @@ app.get('/api/subscription-tiers', (c) => {
         id: 'premium',
         name: 'Premium',
         price: 4.99,
-        period: 'maand',
+        period: 'month',
         features: [
           'Alle Free features',
           '137+ EV modellen (alle merken)',
-          'Toegang tot premium voertuigen',
-          'Alle merken en varianten',
-          'Nieuwe voertuigen eerst beschikbaar',
+          'Access to premium vehicles',
+          'All brands and variants',
+          'New vehicles available first',
           'Priority support'
         ],
         popular: true,
@@ -1988,11 +1988,11 @@ app.get('/account', authMiddleware, async (c) => {
             </h2>
             <div class="space-y-3">
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span class="text-sm text-gray-600">Voornaam</span>
+                    <span class="text-sm text-gray-600">First Name</span>
                     <span class="text-sm font-medium text-gray-900">${userData?.first_name || 'Niet ingesteld'}</span>
                 </div>
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span class="text-sm text-gray-600">Naam</span>
+                    <span class="text-sm text-gray-600">Name</span>
                     <span class="text-sm font-medium text-gray-900">${userData?.last_name || 'Niet ingesteld'}</span>
                 </div>
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
@@ -2000,7 +2000,7 @@ app.get('/account', authMiddleware, async (c) => {
                     <span class="text-sm font-medium text-gray-900">${userData?.email}</span>
                 </div>
                 <div class="flex justify-between items-center py-3">
-                    <span class="text-sm text-gray-600">Account Aangemaakt</span>
+                    <span class="text-sm text-gray-600">Account Created</span>
                     <span class="text-sm font-medium text-gray-900">${userData?.created_at ? new Date(userData.created_at).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Onbekend'}</span>
                 </div>
             </div>
@@ -2010,18 +2010,18 @@ app.get('/account', authMiddleware, async (c) => {
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                 <i class="fas fa-crown mr-3 text-yellow-600"></i>
-                Abonnement
+                Subscription
             </h2>
             <div class="space-y-4">
                 <div class="flex items-center justify-between py-4 px-4 bg-${userData?.role === 'free' ? 'blue' : userData?.role === 'premium' ? 'yellow' : 'purple'}-50 rounded-lg border border-${userData?.role === 'free' ? 'blue' : userData?.role === 'premium' ? 'yellow' : 'purple'}-200">
                     <div>
-                        <div class="text-sm font-medium text-gray-900">Huidig Abonnement</div>
+                        <div class="text-sm font-medium text-gray-900">Huidig Subscription</div>
                         <div class="text-2xl font-semibold text-gray-900 mt-1">
-                          ${userData?.role === 'free' ? 'Gratis' : userData?.role === 'premium' ? 'Premium' : 'Admin'}
+                          ${userData?.role === 'free' ? 'Free' : userData?.role === 'premium' ? 'Premium' : 'Admin'}
                         </div>
                         ${userData?.role === 'premium' && userData?.subscription_end_date ? `
                           <div class="text-xs text-gray-600 mt-1">
-                            ${userData?.subscription_status === 'canceled' ? 'Verloopt op' : 'Vernieuwt op'}: ${new Date(userData.subscription_end_date).toLocaleDateString('nl-NL')}
+                            ${userData?.subscription_status === 'canceled' ? 'Expires on' : 'Renews on'}: ${new Date(userData.subscription_end_date).toLocaleDateString('nl-NL')}
                           </div>
                         ` : ''}
                     </div>
@@ -2032,7 +2032,7 @@ app.get('/account', authMiddleware, async (c) => {
                     ` : userData?.role === 'premium' ? `
                     <div class="text-sm">
                         <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                        ${userData?.subscription_status === 'active' ? 'Actief' : userData?.subscription_status === 'canceled' ? 'Opgezegd' : 'Actief'}
+                        ${userData?.subscription_status === 'active' ? 'Active' : userData?.subscription_status === 'canceled' ? 'Canceled' : 'Active'}
                     </div>
                     ` : ''}
                 </div>
@@ -2040,11 +2040,11 @@ app.get('/account', authMiddleware, async (c) => {
                 ${userData?.role === 'premium' ? `
                 <div class="flex flex-col space-y-3 mt-4">
                   <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-600">Prijs</span>
-                    <span class="text-sm font-medium text-gray-900">€4.99 / maand</span>
+                    <span class="text-sm text-gray-600">Price</span>
+                    <span class="text-sm font-medium text-gray-900">€4.99 / month</span>
                   </div>
                   <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-600">Betaalmethode</span>
+                    <span class="text-sm text-gray-600">Payment Method</span>
                     <span class="text-sm font-medium text-gray-900">
                       <i class="fab fa-cc-visa mr-1"></i>Via Mollie
                     </span>
@@ -2052,14 +2052,14 @@ app.get('/account', authMiddleware, async (c) => {
                   <div class="flex justify-between items-center py-2">
                     <span class="text-sm text-gray-600">Status</span>
                     <span class="text-sm font-medium ${userData?.subscription_status === 'active' ? 'text-green-600' : 'text-orange-600'}">
-                      ${userData?.subscription_status === 'active' ? 'Actief - Automatisch verlengen' : 'Opgezegd - Toegang tot einde periode'}
+                      ${userData?.subscription_status === 'active' ? 'Active - Auto-renewing' : 'Canceled - Access until end of period'}
                     </span>
                   </div>
                 </div>
                 
                 ${userData?.subscription_status === 'active' && userData?.mollie_subscription_id ? `
                 <button onclick="cancelSubscription()" id="cancelSubBtn" class="w-full mt-4 px-4 py-2 bg-white border-2 border-orange-500 text-orange-600 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
-                    <i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen
+                    <i class="fas fa-times-circle mr-2"></i>Subscription Opzeggen
                 </button>
                 ` : ''}
                 ` : userData?.role === 'admin' ? `
@@ -2069,18 +2069,18 @@ app.get('/account', authMiddleware, async (c) => {
                       <i class="fas fa-shield-alt mr-2"></i>Admin Privileges
                     </p>
                     <p class="text-xs text-purple-700">
-                      Je hebt volledige admin toegang tot alle features, gebruikers en voertuigen.
+                      Je hebt volledige admin access tot alle features, users en vehicles.
                     </p>
                   </div>
                   <button onclick="downgradeToFree()" id="downgradeBtn" class="w-full mt-4 px-4 py-2 bg-white border-2 border-gray-500 text-gray-600 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-arrow-down mr-2"></i>Downgrade naar Free Account
+                    <i class="fas fa-arrow-down mr-2"></i>Downgrade to Free Account
                   </button>
                 </div>
                 ` : ''}
                 
                 <p class="text-sm text-gray-600 mt-4">
                     <i class="fas fa-info-circle mr-2"></i>
-                    ${userData?.role === 'free' ? 'Upgrade naar Premium voor toegang tot 137+ voertuigen en alle merken.' : userData?.role === 'premium' ? 'Je premium abonnement geeft je toegang tot alle voertuigen en features.' : 'Als admin heb je volledige toegang tot alle functies.'}
+                    ${userData?.role === 'free' ? 'Upgrade to Premium voor access tot 137+ vehicles en alle merken.' : userData?.role === 'premium' ? 'Je premium subscription geeft je access tot alle vehicles en features.' : 'Als admin heb je volledige access tot alle functies.'}
                 </p>
             </div>
         </div>
@@ -2110,7 +2110,7 @@ app.get('/account', authMiddleware, async (c) => {
         }
         
         async function downgradeToFree() {
-            if (!confirm('Weet je zeker dat je je admin rechten wilt opgeven en downgraden naar een gratis account? Je zult opnieuw moeten inloggen.')) {
+            if (!confirm('Are you sure you want to give up your admin rights and downgrade to a free account? You will need to log in again.')) {
                 return;
             }
             
@@ -2128,18 +2128,18 @@ app.get('/account', authMiddleware, async (c) => {
                 } else {
                     alert('Er ging iets mis: ' + (response.data.error || 'Onbekende fout'));
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Downgrade naar Free Account';
+                    btn.innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Downgrade to Free Account';
                 }
             } catch (error) {
                 console.error('Downgrade error:', error);
                 alert('Er ging iets mis bij het downgraden van je account');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Downgrade naar Free Account';
+                btn.innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Downgrade to Free Account';
             }
         }
         
         async function cancelSubscription() {
-            if (!confirm('Weet je zeker dat je je Premium abonnement wilt opzeggen? Je behoudt toegang tot het einde van de huidige periode.')) {
+            if (!confirm('Weet je zeker dat je je Premium subscription wilt opzeggen? Je behoudt access tot het einde van de huidige periode.')) {
                 return;
             }
             
@@ -2151,18 +2151,18 @@ app.get('/account', authMiddleware, async (c) => {
                 const response = await axios.post('/api/mollie/cancel-subscription');
                 
                 if (response.data.success) {
-                    alert('Abonnement succesvol opgezegd. Je behoudt Premium toegang tot het einde van de periode.');
+                    alert('Subscription canceled successfully. Je behoudt Premium access tot het einde van de periode.');
                     window.location.reload();
                 } else {
                     alert('Er ging iets mis: ' + (response.data.error || 'Onbekende fout'));
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen';
+                    btn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Subscription Opzeggen';
                 }
             } catch (error) {
                 console.error('Cancel subscription error:', error);
-                alert('Er ging iets mis bij het opzeggen van je abonnement');
+                alert('Er ging iets mis bij het opzeggen van je subscription');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen';
+                btn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Subscription Opzeggen';
             }
         }
     </script>
@@ -2203,12 +2203,12 @@ app.get('/refresh-token', (c) => {
             onclick="refreshToken()"
             class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
             <i class="fas fa-sync-alt mr-2"></i>
-            Refresh Token & Krijg Admin Toegang
+            Refresh Token Refresh Token & Get Admin Access Get Admin Access
         </button>
 
         <div class="mt-6 text-center text-sm text-gray-600">
             <p>⚠️ Je moet ingelogd zijn op deze site</p>
-            <p class="mt-2">Na refresh krijg je direct toegang tot <code>/admin</code></p>
+            <p class="mt-2">Na refresh krijg je direct access tot <code>/admin</code></p>
         </div>
     </div>
 
@@ -2244,15 +2244,15 @@ app.get('/refresh-token', (c) => {
                     
                     const user = response.data.user;
                     statusDetails.innerHTML = \`
-                        <strong>Naam:</strong> \${user.firstName} \${user.lastName}<br>
+                        <strong>Name:</strong> \${user.firstName} \${user.lastName}<br>
                         <strong>Email:</strong> \${user.email}<br>
                         <strong>Role:</strong> <span class="font-bold text-green-700">\${user.role}</span><br>
                         <br>
-                        <strong>✨ Je hebt nu \${user.role} toegang!</strong>
+                        <strong>✨ Je hebt nu \${user.role} access!</strong>
                     \`;
 
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i>Naar Admin Dashboard';
+                    btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i>To Admin Dashboard';
                     btn.onclick = () => {
                         window.location.href = '/admin';
                     };
@@ -2363,7 +2363,7 @@ app.get('/admin', adminMiddleware, async (c) => {
             <div onclick="switchTab('users')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Totaal Users</p>
+                        <p class="text-sm text-gray-600 mb-1">Total Users</p>
                         <p class="text-3xl font-semibold text-gray-900">${stats.totalUsers?.count || 0}</p>
                     </div>
                     <i class="fas fa-users text-3xl text-blue-600"></i>
@@ -2383,7 +2383,7 @@ app.get('/admin', adminMiddleware, async (c) => {
             <div onclick="switchTab('suggestions')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-orange-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Pending Suggesties</p>
+                        <p class="text-sm text-gray-600 mb-1">Pending Suggestions</p>
                         <p class="text-3xl font-semibold text-gray-900">${stats.pendingSuggestions?.count || 0}</p>
                     </div>
                     <i class="fas fa-clock text-3xl text-orange-600"></i>
@@ -2393,7 +2393,7 @@ app.get('/admin', adminMiddleware, async (c) => {
             <div onclick="switchTab('vehicles')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-green-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-600 mb-1">Totaal Voertuigen</p>
+                        <p class="text-sm text-gray-600 mb-1">Total Vehicles</p>
                         <p class="text-3xl font-semibold text-gray-900">${stats.totalVehicles?.count || 0}</p>
                     </div>
                     <i class="fas fa-car text-3xl text-green-600"></i>
@@ -2406,10 +2406,10 @@ app.get('/admin', adminMiddleware, async (c) => {
             <div class="border-b border-gray-200">
                 <nav class="flex space-x-8 px-6" aria-label="Tabs">
                     <button onclick="switchTab('suggestions')" id="tab-suggestions" class="tab-button border-b-2 border-blue-600 py-4 px-1 text-sm font-medium text-blue-600">
-                        <i class="fas fa-inbox mr-2"></i>Vehicle Suggesties
+                        <i class="fas fa-inbox mr-2"></i>Vehicle Suggestions
                     </button>
                     <button onclick="switchTab('vehicles')" id="tab-vehicles" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        <i class="fas fa-car mr-2"></i>Voertuigen Beheren
+                        <i class="fas fa-car mr-2"></i>Manage Vehicles
                     </button>
                     <button onclick="switchTab('users')" id="tab-users" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         <i class="fas fa-users mr-2"></i>User Management
@@ -2422,15 +2422,15 @@ app.get('/admin', adminMiddleware, async (c) => {
         <div id="content-suggestions" class="tab-content">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900">Vehicle Suggesties</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">Vehicle Suggestions</h2>
                     <button onclick="loadSuggestions()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        <i class="fas fa-sync-alt mr-2"></i>Ververs
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
                     </button>
                 </div>
                 <div id="suggestions-list" class="space-y-4">
                     <div class="text-center text-gray-500 py-8">
                         <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-                        <p>Laden...</p>
+                        <p>Loading...</p>
                     </div>
                 </div>
             </div>
@@ -2440,9 +2440,9 @@ app.get('/admin', adminMiddleware, async (c) => {
         <div id="content-vehicles" class="tab-content hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900">Voertuigen Beheren</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">Manage Vehicles</h2>
                     <button onclick="showAddVehicleModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        <i class="fas fa-plus mr-2"></i>Nieuw Voertuig
+                        <i class="fas fa-plus mr-2"></i>New Vehicle
                     </button>
                 </div>
                 
@@ -2452,7 +2452,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                         <input 
                             type="text" 
                             id="vehicleSearchInput" 
-                            placeholder="Zoek op merk, model, variant..." 
+                            placeholder="Search by make, model, variant..." 
                             oninput="filterVehicles(this.value)"
                             class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
@@ -2463,7 +2463,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                 <div id="vehicles-list" class="space-y-4">
                     <div class="text-center text-gray-500 py-8">
                         <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-                        <p>Laden...</p>
+                        <p>Loading...</p>
                     </div>
                 </div>
             </div>
@@ -2476,10 +2476,10 @@ app.get('/admin', adminMiddleware, async (c) => {
                     <h2 class="text-xl font-semibold text-gray-900">User Management</h2>
                     <div class="flex gap-3">
                         <button onclick="showAddUserModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                            <i class="fas fa-user-plus mr-2"></i>Voeg User Toe
+                            <i class="fas fa-user-plus mr-2"></i>Add User
                         </button>
                         <button onclick="loadUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            <i class="fas fa-sync-alt mr-2"></i>Ververs
+                            <i class="fas fa-sync-alt mr-2"></i>Refresh
                         </button>
                     </div>
                 </div>
@@ -2490,7 +2490,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                         <input 
                             type="text" 
                             id="userSearchInput" 
-                            placeholder="Zoek op naam of email..." 
+                            placeholder="Search by name or email..." 
                             oninput="filterUsers(this.value)"
                             class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
@@ -2501,7 +2501,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                 <div id="users-list" class="space-y-4">
                     <div class="text-center text-gray-500 py-8">
                         <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-                        <p>Laden...</p>
+                        <p>Loading...</p>
                     </div>
                 </div>
             </div>
@@ -3188,10 +3188,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-semibold mb-3 text-gray-900 flex items-center justify-center">
                         <i class="fas fa-plus-circle text-blue-600 mr-3"></i>
-                        Voertuig Niet Gevonden?
+                        Vehicle Not Found?
                     </h2>
                     <p class="text-gray-600 text-lg">
-                        Staat je elektrische voertuig niet in onze database? Laat het ons weten en we voegen het toe!
+                        Staat je elektrische vehicle niet in onze database? Laat het ons weten en we voegen het toe!
                     </p>
                 </div>
 
@@ -3538,7 +3538,7 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 
                 if (result.success) {
                     // Show success message
-                    alert('✅ Bedankt voor je suggestie! We bekijken je voertuig en voegen het toe aan onze database.');
+                    alert('✅ Bedankt voor je suggestie! We bekijken je vehicle en voegen het toe aan onze database.');
                     
                     // Reset form
                     document.getElementById('vehicleSuggestionForm').reset();

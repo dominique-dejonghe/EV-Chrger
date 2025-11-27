@@ -128,7 +128,7 @@ function displayAutocompleteResults() {
     resultsContainer.innerHTML = `
       <div class="p-4 text-center text-gray-600">
         <i class="fas fa-search mb-2 text-2xl"></i>
-        <p>Geen voertuigen gevonden</p>
+        <p>No vehicles found</p>
       </div>
     `
     dropdown.classList.remove('hidden')
@@ -216,7 +216,7 @@ function showPremiumUpgradeModal(vehicle) {
         <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
           <i class="fas fa-crown text-3xl sm:text-4xl text-white"></i>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-semibold mb-2 text-gray-900">Premium Voertuig</h2>
+        <h2 class="text-2xl sm:text-3xl font-semibold mb-2 text-gray-900">Premium Vehicle</h2>
         <p class="text-sm sm:text-base text-gray-600">
           ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} is alleen beschikbaar voor Premium leden
         </p>
@@ -230,7 +230,7 @@ function showPremiumUpgradeModal(vehicle) {
         <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-700">
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>129 voertuigen</strong> - Alle merken</span>
+            <span><strong>129 vehicles</strong> - All brands</span>
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
@@ -817,7 +817,7 @@ function displayPricingTiers(tiers) {
       <div class="text-center mb-6">
         <h3 class="text-2xl font-semibold mb-2 text-gray-900">${tier.name}</h3>
         <div class="text-4xl font-semibold mb-1 text-gray-900">
-          ${tier.price === 0 ? 'Gratis' : `€${tier.price}`}
+          ${tier.price === 0 ? 'Free' : `€${tier.price}`}
         </div>
         ${tier.period ? `<div class="text-sm text-gray-600">per ${tier.period}</div>` : ''}
       </div>
@@ -838,7 +838,7 @@ function displayPricingTiers(tiers) {
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90 text-white'
             : 'bg-blue-600 hover:bg-blue-700 text-white'
       }" onclick="selectTier('${tier.id}')">
-        ${tier.id === 'free' ? 'Huidig Abonnement' : 'Upgrade Nu'}
+        ${tier.id === 'free' ? 'Current Plan' : 'Upgrade Nu'}
       </button>
     `
     
@@ -1030,7 +1030,7 @@ function displayCompareAutocompleteResults() {
     resultsContainer.innerHTML = `
       <div class="p-4 text-center text-gray-600">
         <i class="fas fa-search mb-2 text-2xl"></i>
-        <p>Geen voertuigen gevonden</p>
+        <p>No vehicles found</p>
       </div>
     `
     dropdown.classList.remove('hidden')
@@ -1115,7 +1115,7 @@ function updateCompareVehiclesList() {
   const container = document.getElementById('selectedCompareVehiclesList')
   
   if (appState.compareVehicles.length === 0) {
-    container.innerHTML = '<div class="text-sm text-gray-600 text-center py-4 bg-gray-50 rounded-2xl border border-gray-200">Nog geen voertuigen geselecteerd</div>'
+    container.innerHTML = '<div class="text-sm text-gray-600 text-center py-4 bg-gray-50 rounded-2xl border border-gray-200">Nog geen vehicles geselecteerd</div>'
     return
   }
   
@@ -1138,7 +1138,7 @@ function updateCompareVehiclesList() {
 }
 
 function updateCompareVehicleCount() {
-  document.getElementById('compareVehicleCount').textContent = `${appState.compareVehicles.length} voertuig${appState.compareVehicles.length !== 1 ? 'en' : ''}`
+  document.getElementById('compareVehicleCount').textContent = `${appState.compareVehicles.length} vehicle${appState.compareVehicles.length !== 1 ? 'en' : ''}`
 }
 
 function updateCompareButton() {
@@ -1192,7 +1192,7 @@ function displayComparisonResults(comparisons) {
   let tableHTML = `
     <thead>
       <tr class="border-b border-gray-300">
-        <th class="text-left p-4 font-semibold text-gray-900">Voertuig</th>
+        <th class="text-left p-4 font-semibold text-gray-900">Vehicle</th>
         <th class="text-center p-4 font-semibold text-gray-900">Laadsnelheid</th>
         <th class="text-center p-4 font-semibold text-gray-900">Laadtijd</th>
         <th class="text-center p-4 font-semibold text-gray-900">Bereik/uur</th>
