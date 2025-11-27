@@ -182,4 +182,63 @@ auth.get('/me', async (c) => {
   })
 })
 
+// Refresh JWT token with latest DB role
+auth.post('/refresh-token', async (c) => {
+  try {
+    const token = getCookie(c, 'auth_token')
+    
+    if (!token) {
+      return c.json({ success: false, error: 'Not authenticated' }, 401)
+    }
+
+    const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+    const { verifyToken } = await import('./auth')
+    const payload = await verifyToken(token, jwtSecret)
+
+    if (!payload) {
+      return c.json({ success: false, error: 'Invalid token' }, 401)
+    }
+
+    // Fetch fresh user data from DB to get latest role
+    const user = await c.env.DB.prepare(
+      'SELECT id, email, first_name, last_name, role FROM users WHERE id = ?'
+    ).bind(payload.userId).first()
+
+    if (!user) {
+      return c.json({ success: false, error: 'User not found' }, 404)
+    }
+
+    // Generate NEW JWT token with CURRENT database role
+    const newToken = await generateToken({
+      userId: user.id as number,
+      email: user.email as string,
+      role: user.role as string
+    }, jwtSecret)
+
+    // Set new httpOnly cookie
+    setCookie(c, 'auth_token', newToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/'
+    })
+
+    return c.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role
+      }
+    })
+  } catch (error) {
+    console.error('Token refresh error:', error)
+    return c.json({ success: false, error: 'Failed to refresh token' }, 500)
+  }
+})
+
 export default auth

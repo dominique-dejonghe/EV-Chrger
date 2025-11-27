@@ -743,7 +743,7 @@ app.post('/api/vehicle-suggestions', optionalAuthMiddleware, async (c) => {
 // ===== ADMIN API ENDPOINTS =====
 
 // Get all vehicle suggestions (admin only)
-app.get('/api/admin/suggestions', requireRole(['admin']), async (c) => {
+app.get('/api/admin/suggestions', authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
   
   try {
@@ -759,41 +759,117 @@ app.get('/api/admin/suggestions', requireRole(['admin']), async (c) => {
 })
 
 // Approve vehicle suggestion
-app.post('/api/admin/suggestions/:id/approve', requireRole(['admin']), async (c) => {
+app.post('/api/admin/suggestions/:id/approve', authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
   const id = c.req.param('id')
   
   try {
+    console.log('[APPROVE SUGGESTION] ID:', id)
+    
+    // Get the suggestion details
+    const suggestion = await DB.prepare(`
+      SELECT * FROM vehicle_suggestions WHERE id = ?
+    `).bind(id).first()
+    
+    if (!suggestion) {
+      return c.json({ success: false, error: 'Suggestion not found' }, 404)
+    }
+    
+    console.log('[APPROVE SUGGESTION] Suggestion:', suggestion)
+    
+    // Check if vehicle already exists (avoid duplicates)
+    const existingVehicle = await DB.prepare(`
+      SELECT id FROM vehicles 
+      WHERE make = ? AND model = ? AND year = ?
+    `).bind(suggestion.vehicle_brand, suggestion.vehicle_model, suggestion.vehicle_year || 2024).first()
+    
+    if (existingVehicle) {
+      console.log('[APPROVE SUGGESTION] Vehicle already exists:', existingVehicle.id)
+      
+      // Just update suggestion status
+      await DB.prepare(`
+        UPDATE vehicle_suggestions SET status = 'added', updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(id).run()
+      
+      return c.json({ 
+        success: true, 
+        message: 'Suggestion approved (vehicle already in database)',
+        vehicle_id: existingVehicle.id
+      })
+    }
+    
+    // Insert new vehicle with default values for missing fields
+    const insertResult = await DB.prepare(`
+      INSERT INTO vehicles (
+        make, 
+        model, 
+        variant,
+        year, 
+        battery_capacity_kwh, 
+        usable_capacity_kwh,
+        avg_consumption_kwh_per_100km,
+        max_dc_charging_kw,
+        max_ac_charging_kw,
+        is_premium
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      suggestion.vehicle_brand,
+      suggestion.vehicle_model,
+      null, // variant - not provided in suggestion
+      suggestion.vehicle_year || new Date().getFullYear(),
+      suggestion.battery_capacity || 50.0, // default 50 kWh if not provided
+      (suggestion.battery_capacity || 50.0) * 0.9, // usable capacity (90% of total)
+      18.0, // default consumption - admin can edit later
+      100.0, // default DC charging - admin can edit later
+      11.0, // default AC charging - admin can edit later
+      0 // not premium by default
+    ).run()
+    
+    console.log('[APPROVE SUGGESTION] Vehicle inserted:', insertResult)
+    
+    // Update suggestion status
     await DB.prepare(`
-      UPDATE vehicle_suggestions SET status = 'approved', updated_at = CURRENT_TIMESTAMP
+      UPDATE vehicle_suggestions SET status = 'added', updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).bind(id).run()
     
-    return c.json({ success: true, message: 'Suggestion approved' })
+    return c.json({ 
+      success: true, 
+      message: 'Suggestion approved and vehicle added to database',
+      vehicle_id: insertResult.meta.last_row_id,
+      note: 'Default values used for missing specs - please update vehicle details if needed'
+    })
   } catch (error) {
-    return c.json({ success: false, error: 'Failed to approve suggestion' }, 500)
+    console.error('[APPROVE SUGGESTION] Error:', error)
+    return c.json({ success: false, error: 'Failed to approve suggestion: ' + (error instanceof Error ? error.message : 'Unknown error') }, 500)
   }
 })
 
 // Reject vehicle suggestion
-app.post('/api/admin/suggestions/:id/reject', requireRole(['admin']), async (c) => {
+app.post('/api/admin/suggestions/:id/reject', authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
   const id = c.req.param('id')
   
   try {
-    await DB.prepare(`
+    console.log('[REJECT SUGGESTION] ID:', id)
+    
+    const result = await DB.prepare(`
       UPDATE vehicle_suggestions SET status = 'rejected', updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).bind(id).run()
     
+    console.log('[REJECT SUGGESTION] Result:', result)
+    
     return c.json({ success: true, message: 'Suggestion rejected' })
   } catch (error) {
-    return c.json({ success: false, error: 'Failed to reject suggestion' }, 500)
+    console.error('[REJECT SUGGESTION] Error:', error)
+    return c.json({ success: false, error: 'Failed to reject suggestion: ' + (error instanceof Error ? error.message : 'Unknown error') }, 500)
   }
 })
 
 // Get all users (admin only)
-app.get('/api/admin/users', requireRole(['admin']), async (c) => {
+app.get('/api/admin/users', authMiddleware, authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
   
   try {
@@ -809,8 +885,149 @@ app.get('/api/admin/users', requireRole(['admin']), async (c) => {
   }
 })
 
+// Get user detail (admin only)
+app.get('/api/admin/users/:id/detail', authMiddleware, requireRole(['admin']), async (c) => {
+  const { DB, MOLLIE_API_KEY } = c.env
+  const userId = c.req.param('id')
+  
+  try {
+    // Get user basic info
+    const user = await DB.prepare(`
+      SELECT id, email, first_name, last_name, role, created_at, updated_at,
+             mollie_customer_id, mollie_subscription_id, subscription_status, subscription_end_date
+      FROM users WHERE id = ?
+    `).bind(userId).first()
+    
+    if (!user) {
+      return c.json({ success: false, error: 'User not found' }, 404)
+    }
+    
+    // Get usage statistics
+    const stats = {
+      totalCalculations: 0,
+      totalComparisons: 0,
+      totalFavorites: 0,
+      totalSuggestions: 0,
+      lastActivity: null
+    }
+    
+    // Count calculations
+    const calcCount = await DB.prepare(`
+      SELECT COUNT(*) as count FROM calculation_history WHERE user_id = ?
+    `).bind(userId).first()
+    stats.totalCalculations = calcCount?.count || 0
+    
+    // Count comparisons
+    const compCount = await DB.prepare(`
+      SELECT COUNT(*) as count FROM comparisons WHERE user_id = ?
+    `).bind(userId).first()
+    stats.totalComparisons = compCount?.count || 0
+    
+    // Count favorites
+    const favCount = await DB.prepare(`
+      SELECT COUNT(*) as count FROM favorites WHERE user_id = ?
+    `).bind(userId).first()
+    stats.totalFavorites = favCount?.count || 0
+    
+    // Count vehicle suggestions
+    const suggCount = await DB.prepare(`
+      SELECT COUNT(*) as count FROM vehicle_suggestions WHERE user_id = ?
+    `).bind(userId).first()
+    stats.totalSuggestions = suggCount?.count || 0
+    
+    // Get last activity (most recent calculation or comparison)
+    const lastCalc = await DB.prepare(`
+      SELECT created_at FROM calculation_history 
+      WHERE user_id = ? 
+      ORDER BY created_at DESC LIMIT 1
+    `).bind(userId).first()
+    
+    const lastComp = await DB.prepare(`
+      SELECT created_at FROM comparisons 
+      WHERE user_id = ? 
+      ORDER BY created_at DESC LIMIT 1
+    `).bind(userId).first()
+    
+    if (lastCalc || lastComp) {
+      const calcDate = lastCalc?.created_at ? new Date(lastCalc.created_at).getTime() : 0
+      const compDate = lastComp?.created_at ? new Date(lastComp.created_at).getTime() : 0
+      stats.lastActivity = calcDate > compDate ? lastCalc.created_at : lastComp?.created_at
+    }
+    
+    // Get favorite vehicles (top 5)
+    const favoriteVehicles = await DB.prepare(`
+      SELECT v.id, v.make, v.model, v.variant, v.year, f.created_at
+      FROM favorites f
+      JOIN vehicles v ON f.vehicle_id = v.id
+      WHERE f.user_id = ?
+      ORDER BY f.created_at DESC
+      LIMIT 5
+    `).bind(userId).all()
+    
+    // Get vehicle suggestions submitted by user
+    const userSuggestions = await DB.prepare(`
+      SELECT id, vehicle_brand, vehicle_model, vehicle_year, status, created_at, updated_at
+      FROM vehicle_suggestions
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+      LIMIT 10
+    `).bind(userId).all()
+    
+    // Get payment history from Mollie (if customer exists)
+    let paymentHistory = []
+    
+    if (user.mollie_customer_id && MOLLIE_API_KEY) {
+      try {
+        const paymentsResponse = await fetch(
+          `https://api.mollie.com/v2/customers/${user.mollie_customer_id}/payments?limit=50`,
+          {
+            headers: {
+              'Authorization': `Bearer ${MOLLIE_API_KEY}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+        
+        if (paymentsResponse.ok) {
+          const paymentsData = await paymentsResponse.json()
+          paymentHistory = paymentsData._embedded?.payments || []
+          
+          // Format payment history
+          paymentHistory = paymentHistory.map((payment: any) => ({
+            id: payment.id,
+            amount: payment.amount.value,
+            currency: payment.amount.currency,
+            status: payment.status,
+            description: payment.description,
+            method: payment.method,
+            createdAt: payment.createdAt,
+            paidAt: payment.paidAt,
+            failedAt: payment.failedAt,
+            checkoutUrl: payment._links?.checkout?.href
+          }))
+        }
+      } catch (mollieError) {
+        console.error('[USER DETAIL] Mollie API error:', mollieError)
+        // Don't fail the whole request if Mollie fails
+      }
+    }
+    
+    return c.json({ 
+      success: true, 
+      user,
+      stats,
+      favoriteVehicles: favoriteVehicles.results || [],
+      userSuggestions: userSuggestions.results || [],
+      paymentHistory
+    })
+  } catch (error) {
+    console.error('[USER DETAIL] Error:', error)
+    return c.json({ success: false, error: 'Failed to fetch user detail' }, 500)
+  }
+})
+
 // Change user role (admin only)
-app.post('/api/admin/users/:id/role', requireRole(['admin']), async (c) => {
+app.post('/api/admin/users/:id/role', authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
   const userId = c.req.param('id')
   const { role } = await c.req.json()
@@ -825,14 +1042,103 @@ app.post('/api/admin/users/:id/role', requireRole(['admin']), async (c) => {
       WHERE id = ?
     `).bind(role, userId).run()
     
+    console.log('[USER ROLE] Changed user', userId, 'to role', role)
+    
     return c.json({ success: true, message: 'User role updated' })
   } catch (error) {
+    console.error('[USER ROLE] Error:', error)
     return c.json({ success: false, error: 'Failed to update user role' }, 500)
   }
 })
 
+// Delete user (admin only)
+app.delete('/api/admin/users/:id', authMiddleware, requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  const userId = c.req.param('id')
+  
+  try {
+    // Check if user is admin
+    const user = await DB.prepare('SELECT role FROM users WHERE id = ?').bind(userId).first()
+    
+    if (!user) {
+      return c.json({ success: false, error: 'User not found' }, 404)
+    }
+    
+    if (user.role === 'admin') {
+      return c.json({ success: false, error: 'Cannot delete admin users' }, 403)
+    }
+    
+    // Delete user
+    await DB.prepare('DELETE FROM users WHERE id = ?').bind(userId).run()
+    
+    console.log('[USER DELETE] Deleted user', userId)
+    
+    return c.json({ success: true, message: 'User deleted successfully' })
+  } catch (error) {
+    console.error('[USER DELETE] Error:', error)
+    return c.json({ success: false, error: 'Failed to delete user' }, 500)
+  }
+})
+
+// Update vehicle (admin only)
+app.put('/api/admin/vehicles/:id', authMiddleware, requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  const id = c.req.param('id')
+  
+  try {
+    const body = await c.req.json()
+    
+    console.log('[UPDATE VEHICLE] ID:', id, 'Data:', body)
+    
+    // Validate required fields
+    if (!body.make || !body.model || !body.year || !body.battery_capacity_kwh || 
+        !body.usable_capacity_kwh || !body.avg_consumption_kwh_per_100km || 
+        !body.max_dc_charging_kw || !body.max_ac_charging_kw) {
+      return c.json({ success: false, error: 'Missing required fields' }, 400)
+    }
+    
+    const result = await DB.prepare(`
+      UPDATE vehicles SET
+        make = ?,
+        model = ?,
+        variant = ?,
+        year = ?,
+        battery_capacity_kwh = ?,
+        usable_capacity_kwh = ?,
+        avg_consumption_kwh_per_100km = ?,
+        max_dc_charging_kw = ?,
+        max_ac_charging_kw = ?,
+        is_premium = ?
+      WHERE id = ?
+    `).bind(
+      body.make,
+      body.model,
+      body.variant || null,
+      body.year,
+      body.battery_capacity_kwh,
+      body.usable_capacity_kwh,
+      body.avg_consumption_kwh_per_100km,
+      body.max_dc_charging_kw,
+      body.max_ac_charging_kw,
+      body.is_premium || 0,
+      id
+    ).run()
+    
+    console.log('[UPDATE VEHICLE] Result:', result)
+    
+    if (result.meta.changes === 0) {
+      return c.json({ success: false, error: 'Vehicle not found' }, 404)
+    }
+    
+    return c.json({ success: true, message: 'Vehicle updated successfully' })
+  } catch (error) {
+    console.error('[UPDATE VEHICLE] Error:', error)
+    return c.json({ success: false, error: 'Failed to update vehicle: ' + (error instanceof Error ? error.message : 'Unknown error') }, 500)
+  }
+})
+
 // Delete vehicle (admin only)
-app.delete('/api/admin/vehicles/:id', requireRole(['admin']), async (c) => {
+app.delete('/api/admin/vehicles/:id', authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
   const id = c.req.param('id')
   
@@ -1102,6 +1408,36 @@ app.post('/api/mollie/cancel-subscription', authMiddleware, async (c) => {
   } catch (error) {
     console.error('Cancel subscription error:', error)
     return c.json({ success: false, error: 'Internal server error' }, 500)
+  }
+})
+
+// Downgrade admin/premium account to free
+app.post('/api/account/downgrade-to-free', authMiddleware, async (c) => {
+  const { DB } = c.env
+  const user = c.get('user')
+  
+  try {
+    // Update user role to free and clear subscription data
+    await DB.prepare(`
+      UPDATE users 
+      SET role = 'free',
+          mollie_customer_id = NULL,
+          mollie_subscription_id = NULL,
+          subscription_status = NULL,
+          subscription_end_date = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(user.userId).run()
+    
+    console.log('[DOWNGRADE] User', user.userId, 'downgraded to free account')
+    
+    return c.json({ 
+      success: true, 
+      message: 'Account downgraded to free successfully' 
+    })
+  } catch (error) {
+    console.error('[DOWNGRADE] Error:', error)
+    return c.json({ success: false, error: 'Failed to downgrade account' }, 500)
   }
 })
 
@@ -1453,6 +1789,20 @@ app.get('/account', authMiddleware, async (c) => {
                     <i class="fas fa-times-circle mr-2"></i>Abonnement Opzeggen
                 </button>
                 ` : ''}
+                ` : userData?.role === 'admin' ? `
+                <div class="flex flex-col space-y-3 mt-4">
+                  <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <p class="text-sm text-purple-900 font-medium mb-2">
+                      <i class="fas fa-shield-alt mr-2"></i>Admin Privileges
+                    </p>
+                    <p class="text-xs text-purple-700">
+                      Je hebt volledige admin toegang tot alle features, gebruikers en voertuigen.
+                    </p>
+                  </div>
+                  <button onclick="downgradeToFree()" id="downgradeBtn" class="w-full mt-4 px-4 py-2 bg-white border-2 border-gray-500 text-gray-600 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-down mr-2"></i>Downgrade naar Free Account
+                  </button>
+                </div>
                 ` : ''}
                 
                 <p class="text-sm text-gray-600 mt-4">
@@ -1484,6 +1834,35 @@ app.get('/account', authMiddleware, async (c) => {
         async function logout() {
             await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             window.location.href = '/';
+        }
+        
+        async function downgradeToFree() {
+            if (!confirm('Weet je zeker dat je je admin rechten wilt opgeven en downgraden naar een gratis account? Je zult opnieuw moeten inloggen.')) {
+                return;
+            }
+            
+            const btn = document.getElementById('downgradeBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downgraden...';
+            
+            try {
+                const response = await axios.post('/api/account/downgrade-to-free');
+                
+                if (response.data.success) {
+                    alert('Account succesvol gedowngrade naar Free. Je wordt uitgelogd.');
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                    window.location.href = '/';
+                } else {
+                    alert('Er ging iets mis: ' + (response.data.error || 'Onbekende fout'));
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Downgrade naar Free Account';
+                }
+            } catch (error) {
+                console.error('Downgrade error:', error);
+                alert('Er ging iets mis bij het downgraden van je account');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Downgrade naar Free Account';
+            }
         }
         
         async function cancelSubscription() {
@@ -1519,6 +1898,142 @@ app.get('/account', authMiddleware, async (c) => {
   `)
 })
 
+// Token Refresh Page - Simple page to refresh JWT token with latest DB role
+app.get('/refresh-token', (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Token Refresh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+        <div class="text-center mb-6">
+            <i class="fas fa-sync-alt text-6xl text-blue-600 mb-4 animate-pulse"></i>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Token Refresh</h1>
+            <p class="text-gray-600">Update je JWT token met je nieuwe admin role</p>
+        </div>
+
+        <div id="status" class="mb-6 p-4 rounded-lg hidden">
+            <div id="statusIcon" class="text-4xl mb-2"></div>
+            <div id="statusMessage" class="font-semibold"></div>
+            <div id="statusDetails" class="text-sm mt-2"></div>
+        </div>
+
+        <button 
+            id="refreshBtn" 
+            onclick="refreshToken()"
+            class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+            <i class="fas fa-sync-alt mr-2"></i>
+            Refresh Token & Krijg Admin Toegang
+        </button>
+
+        <div class="mt-6 text-center text-sm text-gray-600">
+            <p>⚠️ Je moet ingelogd zijn op deze site</p>
+            <p class="mt-2">Na refresh krijg je direct toegang tot <code>/admin</code></p>
+        </div>
+    </div>
+
+    <script>
+        axios.defaults.withCredentials = true;
+
+        async function refreshToken() {
+            const btn = document.getElementById('refreshBtn');
+            const status = document.getElementById('status');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusMessage = document.getElementById('statusMessage');
+            const statusDetails = document.getElementById('statusDetails');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Token wordt vernieuwd...';
+
+            status.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-yellow-50');
+            status.classList.add('bg-blue-50');
+            statusIcon.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-600"></i>';
+            statusMessage.textContent = 'Even geduld...';
+            statusMessage.className = 'font-semibold text-blue-900';
+            statusDetails.textContent = 'Je token wordt vernieuwd met de laatste database role';
+
+            try {
+                const response = await axios.post('/api/auth/refresh-token');
+
+                if (response.data.success) {
+                    status.classList.remove('bg-blue-50');
+                    status.classList.add('bg-green-50');
+                    statusIcon.innerHTML = '<i class="fas fa-check-circle text-green-600"></i>';
+                    statusMessage.textContent = '✅ Token succesvol vernieuwd!';
+                    statusMessage.className = 'font-semibold text-green-900';
+                    
+                    const user = response.data.user;
+                    statusDetails.innerHTML = \`
+                        <strong>Naam:</strong> \${user.firstName} \${user.lastName}<br>
+                        <strong>Email:</strong> \${user.email}<br>
+                        <strong>Role:</strong> <span class="font-bold text-green-700">\${user.role}</span><br>
+                        <br>
+                        <strong>✨ Je hebt nu \${user.role} toegang!</strong>
+                    \`;
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i>Naar Admin Dashboard';
+                    btn.onclick = () => {
+                        window.location.href = '/admin';
+                    };
+
+                } else {
+                    throw new Error(response.data.error || 'Unknown error');
+                }
+
+            } catch (error) {
+                console.error('Refresh error:', error);
+                
+                status.classList.remove('bg-blue-50');
+                status.classList.add('bg-red-50');
+                statusIcon.innerHTML = '<i class="fas fa-times-circle text-red-600"></i>';
+                statusMessage.textContent = '❌ Token refresh mislukt';
+                statusMessage.className = 'font-semibold text-red-900';
+
+                if (error.response?.status === 401) {
+                    statusDetails.innerHTML = \`
+                        <strong>Je bent niet ingelogd</strong><br>
+                        Log eerst in op <a href="/" class="text-blue-600 hover:underline">de homepage</a>
+                    \`;
+                } else {
+                    statusDetails.textContent = error.response?.data?.error || error.message || 'Er ging iets mis';
+                }
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Probeer Opnieuw';
+            }
+        }
+    </script>
+</body>
+</html>
+  `)
+})
+
+// Debug endpoint to check token and role
+app.get('/debug-token', authMiddleware, async (c) => {
+  const user = c.get('user')
+  const { DB } = c.env
+  
+  // Fetch full user data from DB
+  const dbUser = await DB.prepare(
+    'SELECT id, email, first_name, last_name, role, created_at, updated_at FROM users WHERE id = ?'
+  ).bind(user.userId).first()
+  
+  return c.json({
+    jwtPayload: user,
+    databaseUser: dbUser,
+    match: user.role === dbUser?.role,
+    issue: user.role !== dbUser?.role ? `JWT has '${user.role}' but DB has '${dbUser?.role}'` : 'Everything matches!'
+  })
+})
+
 // Admin Dashboard
 app.get('/admin', adminMiddleware, async (c) => {
   const user = c.get('user')
@@ -1531,6 +2046,8 @@ app.get('/admin', adminMiddleware, async (c) => {
     pendingSuggestions: await DB.prepare('SELECT COUNT(*) as count FROM vehicle_suggestions WHERE status = ?').bind('pending').first(),
     totalVehicles: await DB.prepare('SELECT COUNT(*) as count FROM vehicles').first()
   }
+  
+  console.log('[ADMIN DASHBOARD] Stats:', JSON.stringify(stats))
   
   return c.html(`
 <!DOCTYPE html>
@@ -1568,9 +2085,9 @@ app.get('/admin', adminMiddleware, async (c) => {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 class="text-3xl font-semibold text-gray-900 mb-8">Admin Dashboard</h1>
         
-        <!-- Stats Cards -->
+        <!-- Stats Cards - KLIKBAAR -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div onclick="switchTab('users')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Totaal Users</p>
@@ -1580,7 +2097,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                 </div>
             </div>
             
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div onclick="switchTab('users')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-yellow-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Premium Users</p>
@@ -1590,7 +2107,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                 </div>
             </div>
             
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div onclick="switchTab('suggestions')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-orange-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Pending Suggesties</p>
@@ -1600,7 +2117,7 @@ app.get('/admin', adminMiddleware, async (c) => {
                 </div>
             </div>
             
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div onclick="switchTab('vehicles')" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-green-300 transition-all">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 mb-1">Totaal Voertuigen</p>
@@ -1655,6 +2172,21 @@ app.get('/admin', adminMiddleware, async (c) => {
                         <i class="fas fa-plus mr-2"></i>Nieuw Voertuig
                     </button>
                 </div>
+                
+                <!-- Vehicle Search -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="vehicleSearchInput" 
+                            placeholder="Zoek op merk, model, variant..." 
+                            oninput="filterVehicles(this.value)"
+                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                    </div>
+                </div>
+                
                 <div id="vehicles-list" class="space-y-4">
                     <div class="text-center text-gray-500 py-8">
                         <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
@@ -1673,6 +2205,21 @@ app.get('/admin', adminMiddleware, async (c) => {
                         <i class="fas fa-sync-alt mr-2"></i>Ververs
                     </button>
                 </div>
+                
+                <!-- User Search -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="userSearchInput" 
+                            placeholder="Zoek op naam of email..." 
+                            oninput="filterUsers(this.value)"
+                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                    </div>
+                </div>
+                
                 <div id="users-list" class="space-y-4">
                     <div class="text-center text-gray-500 py-8">
                         <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Token Refresh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+        <div class="text-center mb-6">
+            <i class="fas fa-sync-alt text-6xl text-blue-600 mb-4 animate-pulse"></i>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Token Refresh</h1>
+            <p class="text-gray-600">Update je JWT token met je nieuwe admin role</p>
+        </div>
+
+        <div id="status" class="mb-6 p-4 rounded-lg hidden">
+            <div id="statusIcon" class="text-4xl mb-2"></div>
+            <div id="statusMessage" class="font-semibold"></div>
+            <div id="statusDetails" class="text-sm mt-2"></div>
+        </div>
+
+        <button 
+            id="refreshBtn" 
+            onclick="refreshToken()"
+            class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+            <i class="fas fa-sync-alt mr-2"></i>
+            Refresh Token & Krijg Admin Toegang
+        </button>
+
+        <div class="mt-6 text-center text-sm text-gray-600">
+            <p>⚠️ Je moet ingelogd zijn op <strong>ev-charge-calculator.pages.dev</strong></p>
+            <p class="mt-2">Na refresh krijg je direct toegang tot <code>/admin</code></p>
+        </div>
+    </div>
+
+    <script>
+        // Configure axios to send cookies
+        axios.defaults.withCredentials = true;
+
+        async function refreshToken() {
+            const btn = document.getElementById('refreshBtn');
+            const status = document.getElementById('status');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusMessage = document.getElementById('statusMessage');
+            const statusDetails = document.getElementById('statusDetails');
+
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Token wordt vernieuwd...';
+
+            status.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'bg-yellow-50');
+            status.classList.add('bg-blue-50');
+            statusIcon.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-600"></i>';
+            statusMessage.textContent = 'Even geduld...';
+            statusMessage.className = 'font-semibold text-blue-900';
+            statusDetails.textContent = 'Je token wordt vernieuwd met de laatste database role';
+
+            try {
+                // Call the refresh token endpoint
+                const response = await axios.post('https://ev-charge-calculator.pages.dev/api/auth/refresh-token');
+
+                if (response.data.success) {
+                    // Success!
+                    status.classList.remove('bg-blue-50');
+                    status.classList.add('bg-green-50');
+                    statusIcon.innerHTML = '<i class="fas fa-check-circle text-green-600"></i>';
+                    statusMessage.textContent = '✅ Token succesvol vernieuwd!';
+                    statusMessage.className = 'font-semibold text-green-900';
+                    
+                    const user = response.data.user;
+                    statusDetails.innerHTML = `
+                        <strong>Naam:</strong> ${user.firstName} ${user.lastName}<br>
+                        <strong>Email:</strong> ${user.email}<br>
+                        <strong>Role:</strong> <span class="font-bold text-green-700">${user.role}</span><br>
+                        <br>
+                        <strong>✨ Je hebt nu ${user.role} toegang!</strong>
+                    `;
+
+                    // Change button to redirect to admin
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i>Naar Admin Dashboard';
+                    btn.onclick = () => {
+                        window.location.href = 'https://ev-charge-calculator.pages.dev/admin';
+                    };
+
+                } else {
+                    throw new Error(response.data.error || 'Unknown error');
+                }
+
+            } catch (error) {
+                console.error('Refresh error:', error);
+                
+                status.classList.remove('bg-blue-50');
+                status.classList.add('bg-red-50');
+                statusIcon.innerHTML = '<i class="fas fa-times-circle text-red-600"></i>';
+                statusMessage.textContent = '❌ Token refresh mislukt';
+                statusMessage.className = 'font-semibold text-red-900';
+
+                if (error.response?.status === 401) {
+                    statusDetails.innerHTML = `
+                        <strong>Je bent niet ingelogd</strong><br>
+                        Log eerst in op <a href="https://ev-charge-calculator.pages.dev" class="text-blue-600 hover:underline" target="_blank">ev-charge-calculator.pages.dev</a>
+                    `;
+                } else {
+                    statusDetails.textContent = error.response?.data?.error || error.message || 'Er ging iets mis';
+                }
+
+                // Re-enable button
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Probeer Opnieuw';
+            }
+        }
+    </script>
+</body>
+</html>

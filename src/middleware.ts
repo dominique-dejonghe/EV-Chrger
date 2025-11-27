@@ -79,6 +79,7 @@ export const adminMiddleware = createMiddleware<{ Bindings: Env }>(async (c, nex
   const token = getCookie(c, 'auth_token')
   
   if (!token) {
+    console.log('[ADMIN MIDDLEWARE] No auth token found')
     return c.redirect('/')
   }
 
@@ -86,13 +87,18 @@ export const adminMiddleware = createMiddleware<{ Bindings: Env }>(async (c, nex
   const payload = await verifyToken(token, jwtSecret)
 
   if (!payload) {
+    console.log('[ADMIN MIDDLEWARE] Invalid token')
     return c.redirect('/')
   }
+
+  console.log('[ADMIN MIDDLEWARE] JWT payload:', JSON.stringify(payload))
 
   // Fetch full user data from DB to check role
   const user = await c.env.DB.prepare(
     'SELECT id, email, first_name, last_name, role, created_at FROM users WHERE id = ?'
   ).bind(payload.userId).first()
+
+  console.log('[ADMIN MIDDLEWARE] User from DB:', JSON.stringify(user))
 
   if (!user || user.role !== 'admin') {
     return c.html(`
@@ -103,16 +109,31 @@ export const adminMiddleware = createMiddleware<{ Bindings: Env }>(async (c, nex
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Toegang Geweigerd</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       </head>
       <body class="bg-gray-50 flex items-center justify-center min-h-screen">
-        <div class="text-center">
+        <div class="text-center p-8">
           <i class="fas fa-shield-alt text-6xl text-red-600 mb-4"></i>
           <h1 class="text-3xl font-bold text-gray-900 mb-2">Toegang Geweigerd</h1>
-          <p class="text-gray-600 mb-6">Je hebt geen admin rechten om deze pagina te bekijken.</p>
-          <a href="/app" class="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700">
-            Terug naar Calculator
-          </a>
+          <p class="text-gray-600 mb-2">Je hebt geen admin rechten om deze pagina te bekijken.</p>
+          <p class="text-sm text-gray-500 mb-6">
+            ${!user ? 'Gebruiker niet gevonden' : `Huidige role: ${user.role}`}
+          </p>
+          <div class="space-x-4">
+            <a href="/app" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700">
+              Terug naar Calculator
+            </a>
+            <button onclick="logout()" class="inline-block px-6 py-3 bg-gray-600 text-white rounded-full hover:bg-gray-700 cursor-pointer">
+              Uitloggen & Opnieuw Inloggen
+            </button>
+          </div>
         </div>
+        <script>
+          async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = '/';
+          }
+        </script>
       </body>
       </html>
     `, 403)
