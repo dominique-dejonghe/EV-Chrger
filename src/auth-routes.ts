@@ -2,11 +2,19 @@ import { Hono } from 'hono'
 import { setCookie, deleteCookie, getCookie } from 'hono/cookie'
 import { hashPassword, verifyPassword, generateToken, isValidEmail, isValidPassword } from './auth'
 import type { Env } from './middleware'
+import { rateLimiter } from './rate-limiter'
 
 const auth = new Hono<{ Bindings: Env }>()
 
+// Apply strict rate limiting to auth endpoints
+// Login: 5 attempts per 15 minutes per IP
+const loginRateLimiter = rateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 5 })
+
+// Register: 3 accounts per hour per IP
+const registerRateLimiter = rateLimiter({ windowMs: 60 * 60 * 1000, maxRequests: 3 })
+
 // Register new user
-auth.post('/register', async (c) => {
+auth.post('/register', registerRateLimiter, async (c) => {
   try {
     const { email, password, firstName, lastName } = await c.req.json()
 
@@ -47,7 +55,8 @@ auth.post('/register', async (c) => {
     }
 
     // Generate JWT token
-    const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+    if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+    const jwtSecret = c.env.JWT_SECRET
     const token = await generateToken({
       userId: result.id as number,
       email: result.email as string,
@@ -80,7 +89,7 @@ auth.post('/register', async (c) => {
 })
 
 // Login user
-auth.post('/login', async (c) => {
+auth.post('/login', loginRateLimiter, async (c) => {
   try {
     const { email, password } = await c.req.json()
 
@@ -104,9 +113,21 @@ auth.post('/login', async (c) => {
     if (!isValid) {
       return c.json({ success: false, error: 'Invalid email or password' }, 401)
     }
+    
+    // AUTO-REHASH: If user has legacy SHA-256 hash, upgrade to PBKDF2 on login
+    const currentHash = user.password_hash as string
+    if (!currentHash.includes('$')) {
+      // This is a legacy hash, rehash it with PBKDF2 + salt
+      const newHash = await hashPassword(password)
+      await c.env.DB.prepare(
+        'UPDATE users SET password_hash = ? WHERE id = ?'
+      ).bind(newHash, user.id).run()
+      console.log(`[SECURITY] Upgraded password hash for user ${user.id}`)
+    }
 
     // Generate JWT token
-    const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+    if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+    const jwtSecret = c.env.JWT_SECRET
     const token = await generateToken({
       userId: user.id as number,
       email: user.email as string,
@@ -152,7 +173,8 @@ auth.get('/me', async (c) => {
     return c.json({ success: false, error: 'Not authenticated' }, 401)
   }
 
-  const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+  if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+    const jwtSecret = c.env.JWT_SECRET
   const { verifyToken } = await import('./auth')
   const payload = await verifyToken(token, jwtSecret)
 
@@ -191,7 +213,8 @@ auth.post('/refresh-token', async (c) => {
       return c.json({ success: false, error: 'Not authenticated' }, 401)
     }
 
-    const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+    if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+    const jwtSecret = c.env.JWT_SECRET
     const { verifyToken } = await import('./auth')
     const payload = await verifyToken(token, jwtSecret)
 

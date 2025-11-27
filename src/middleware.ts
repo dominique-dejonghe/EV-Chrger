@@ -23,7 +23,8 @@ export const authMiddleware = createMiddleware<{ Bindings: Env }>(async (c, next
     return c.json({ success: false, error: 'Unauthorized - No token provided' }, 401)
   }
 
-  const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+  if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+  const jwtSecret = c.env.JWT_SECRET
   const user = await verifyToken(token, jwtSecret)
 
   if (!user) {
@@ -41,7 +42,8 @@ export const optionalAuthMiddleware = createMiddleware<{ Bindings: Env }>(async 
   const token = getCookie(c, 'auth_token')
   
   if (token) {
-    const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+    if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+  const jwtSecret = c.env.JWT_SECRET
     const user = await verifyToken(token, jwtSecret)
     
     if (user) {
@@ -83,7 +85,8 @@ export const adminMiddleware = createMiddleware<{ Bindings: Env }>(async (c, nex
     return c.redirect('/')
   }
 
-  const jwtSecret = c.env.JWT_SECRET || 'default-secret-change-in-production'
+  if (!c.env.JWT_SECRET) throw new Error('JWT_SECRET not configured');
+  const jwtSecret = c.env.JWT_SECRET
   const payload = await verifyToken(token, jwtSecret)
 
   if (!payload) {

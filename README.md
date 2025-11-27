@@ -8,6 +8,24 @@ Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïn
 - **Development**: https://3000-i1702d41shyqjbr05tclm-c81df28e.sandbox.novita.ai
 - **GitHub**: https://github.com/[username]/webapp (configure via setup_github_environment)
 
+## 🔒 Security Features
+
+### Authentication & Authorization
+- ✅ **PBKDF2 Password Hashing** - 100,000 iterations with unique salt per password
+- ✅ **JWT Tokens** - Secure httpOnly cookies (not localStorage)
+- ✅ **Rate Limiting** - 5 login attempts per 15 minutes, 3 registrations per hour
+- ✅ **Role-Based Access Control** - Strict middleware for admin/premium features
+- ✅ **SQL Injection Protection** - Parameterized queries with `.bind()`
+- ✅ **XSS Protection** - Content Security Policy headers
+- ✅ **CSRF Protection** - SameSite cookies + secure headers
+- ✅ **HTTPS Only** - Strict Transport Security (HSTS)
+
+### Payment Security
+- ✅ **No Card Data Storage** - Only Mollie customer_id stored
+- ✅ **Server-Side Mollie API** - Keys never exposed to frontend
+- ✅ **Webhook Verification** - Validates payment status from Mollie
+- ✅ **PCI Compliance** - Handled by Mollie (Level 1 PCI DSS certified)
+
 ## ✨ Hoofdfuncties
 
 ### 🔐 Authenticatie & Account Beheer
