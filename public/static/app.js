@@ -131,10 +131,75 @@ async function loadFavorites() {
       appState.favorites = response.data.favorites
       appState.favoriteIds = new Set(response.data.favorites.map(v => v.id))
       console.log(`Loaded ${response.data.count} favorite vehicles`)
+      
+      // Show and populate Quick Select UI
+      displayQuickSelect()
     }
   } catch (error) {
     console.error('Failed to load favorites:', error)
   }
+}
+
+function displayQuickSelect() {
+  const container = document.getElementById('quickSelectContainer')
+  const list = document.getElementById('quickSelectList')
+  const empty = document.getElementById('quickSelectEmpty')
+  const count = document.getElementById('favoritesCount')
+  
+  if (!container || !list) return
+  
+  // Show Quick Select for premium users
+  if (appState.currentTier === 'premium' || appState.currentTier === 'admin') {
+    container.classList.remove('hidden')
+    
+    if (count) count.textContent = appState.favorites.length
+    
+    if (appState.favorites.length === 0) {
+      list.classList.add('hidden')
+      if (empty) empty.classList.remove('hidden')
+    } else {
+      list.classList.remove('hidden')
+      if (empty) empty.classList.add('hidden')
+      
+      // Populate favorites list
+      list.innerHTML = appState.favorites.map(vehicle => `
+        <button 
+          onclick="quickSelectVehicle(${vehicle.id})"
+          class="w-full text-left p-3 bg-white hover:bg-yellow-50 border border-gray-200 hover:border-yellow-300 rounded-lg transition-all group"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="font-semibold text-gray-900 group-hover:text-yellow-700">
+                ${vehicle.make} ${vehicle.model}
+                ${vehicle.variant ? `<span class="text-gray-600 font-normal">${vehicle.variant}</span>` : ''}
+              </div>
+              <div class="text-xs text-gray-600 mt-1">
+                ${vehicle.battery_capacity_kwh} kWh • ${vehicle.max_dc_charging_kw} kW DC
+              </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 group-hover:text-yellow-600"></i>
+          </div>
+        </button>
+      `).join('')
+    }
+  }
+}
+
+function quickSelectVehicle(vehicleId) {
+  const vehicle = appState.vehicles.find(v => v.id === vehicleId)
+  if (!vehicle) {
+    // If not in current vehicle list, try favorites
+    const favVehicle = appState.favorites.find(v => v.id === vehicleId)
+    if (favVehicle) {
+      selectVehicleFromAutocomplete(vehicleId)
+      showNotification(`Selected ${favVehicle.make} ${favVehicle.model} from My Vehicles`, 'success')
+    }
+    return
+  }
+  
+  // Use existing selection logic
+  selectVehicleFromAutocomplete(vehicleId)
+  showNotification(`Selected ${vehicle.make} ${vehicle.model} from My Vehicles`, 'success')
 }
 
 async function toggleFavorite(vehicleId) {
@@ -167,8 +232,9 @@ async function toggleFavorite(vehicleId) {
       showNotification('Added to My Vehicles', 'success')
     }
     
-    // Refresh display
+    // Refresh displays
     displayAutocompleteResults()
+    displayQuickSelect()
   } catch (error) {
     console.error('Toggle favorite error:', error)
     
@@ -762,6 +828,34 @@ function displayResults(calculation) {
   if (appState.currentTier !== 'free' && appState.selectedVehicle.charging_curve_data) {
     displayChargingCurve()
   }
+  
+  // Show/hide "Save to My Vehicles" button
+  updateSaveToFavoritesButton()
+}
+
+function updateSaveToFavoritesButton() {
+  const saveBtn = document.getElementById('saveToFavoritesBtn')
+  if (!saveBtn || !appState.selectedVehicle) return
+  
+  const isPremium = appState.currentTier === 'premium' || appState.currentTier === 'admin'
+  const isAlreadyFavorited = appState.favoriteIds.has(appState.selectedVehicle.id)
+  
+  // Show button only for premium users who haven't saved this vehicle yet
+  if (isPremium && !isAlreadyFavorited) {
+    saveBtn.classList.remove('hidden')
+  } else {
+    saveBtn.classList.add('hidden')
+  }
+}
+
+async function saveCurrentVehicleToFavorites() {
+  if (!appState.selectedVehicle) return
+  
+  const vehicleId = appState.selectedVehicle.id
+  await toggleFavorite(vehicleId)
+  
+  // Update button visibility
+  updateSaveToFavoritesButton()
 }
 
 // NEW: Calculate range based on available charging time

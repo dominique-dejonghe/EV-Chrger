@@ -3255,6 +3255,26 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                         <i class="far fa-star mr-2"></i>My Vehicles
                     </button>
                 </div>
+                
+                <!-- Quick Select from My Vehicles (Premium Only) -->
+                <div id="quickSelectContainer" class="hidden mb-4">
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-semibold text-gray-900">
+                                <i class="fas fa-star text-yellow-600 mr-2"></i>Quick Select from My Vehicles
+                            </label>
+                            <span class="text-xs text-gray-600"><span id="favoritesCount">0</span> saved</span>
+                        </div>
+                        <div id="quickSelectList" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- Favorites will be populated here -->
+                        </div>
+                        <div id="quickSelectEmpty" class="text-center py-4 text-gray-500 text-sm">
+                            <i class="fas fa-star text-gray-400 mb-2 text-2xl"></i>
+                            <p>No saved vehicles yet. Search and click the ⭐ star to save your favorites!</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="relative">
                     <input 
                         type="text" 
@@ -3494,8 +3514,16 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
 
                 <!-- Action Buttons - Apple Style -->
-                <div class="flex justify-center">
-                    <button id="compareFromResult" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all transform hover:scale-105 font-semibold text-lg shadow-md hover:shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                    <!-- Save to My Vehicles (Premium only, hidden if already favorited) -->
+                    <button 
+                        id="saveToFavoritesBtn" 
+                        onclick="saveCurrentVehicleToFavorites()" 
+                        class="hidden px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90 text-white rounded-full transition-all transform hover:scale-105 font-semibold text-base sm:text-lg shadow-md hover:shadow-lg"
+                    >
+                        <i class="fas fa-star mr-2"></i>Save to My Vehicles
+                    </button>
+                    <button id="compareFromResult" class="px-6 py-3 sm:px-8 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all transform hover:scale-105 font-semibold text-base sm:text-lg shadow-md hover:shadow-lg">
                         <i class="fas fa-exchange-alt mr-2"></i>Compare Vehicles
                     </button>
                 </div>
