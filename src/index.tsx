@@ -2542,11 +2542,11 @@ app.get('/admin', adminMiddleware, async (c) => {
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-14">
-                <div class="flex items-center space-x-3">
+                <a href="/" class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <i class="fas fa-bolt text-2xl text-blue-600"></i>
                     <span class="text-lg font-semibold text-gray-900">EV Charge</span>
                     <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">ADMIN</span>
-                </div>
+                </a>
                 <div class="flex items-center space-x-4">
                     <a href="/app" class="text-sm text-gray-600 hover:text-gray-900">
                         <i class="fas fa-calculator mr-2"></i>Calculator

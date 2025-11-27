@@ -119,13 +119,13 @@ routes.get('/', (c) => {
     <nav class="fixed top-0 left-0 right-0 z-50 glass">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
+                <a href="/" class="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <i class="fas fa-bolt text-3xl gradient-text"></i>
                     <span class="text-xl font-bold">EV Charge Pro</span>
-                </div>
+                </a>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="hover:text-blue-400 transition-colors">Features</a>
-                    <a href="#pricing" class="hover:text-blue-400 transition-colors">Prijzen</a>
+                    <a href="#pricing" class="hover:text-blue-400 transition-colors">Pricing</a>
                     <a href="#calculator" class="hover:text-blue-400 transition-colors">Calculator</a>
                     <a href="/app" class="px-6 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition-opacity font-semibold">
                         Start Free →
@@ -480,20 +480,20 @@ routes.get('/', (c) => {
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
-                    <div class="flex items-center space-x-2 mb-4">
+                    <a href="/" class="flex items-center space-x-2 mb-4 cursor-pointer hover:opacity-80 transition-opacity">
                         <i class="fas fa-bolt text-2xl gradient-text"></i>
                         <span class="text-lg font-bold">EV Charge Pro</span>
-                    </div>
+                    </a>
                     <p class="text-gray-400 text-sm">
-                        De meest geavanceerde EV laadcalculator voor elektrisch rijden.
+                        The most advanced EV charging calculator for electric driving.
                     </p>
                 </div>
                 <div>
                     <h4 class="font-semibold mb-4">Product</h4>
                     <ul class="space-y-2 text-gray-400 text-sm">
                         <li><a href="/app" class="hover:text-white transition-colors">Calculator</a></li>
-                        <li><a href="/app/cost-calculator" class="hover:text-white transition-colors">Kosten Calculator</a></li>
-                        <li><a href="#pricing" class="hover:text-white transition-colors">Prijzen</a></li>
+                        <li><a href="/app/cost-calculator" class="hover:text-white transition-colors">Cost Calculator</a></li>
+                        <li><a href="#pricing" class="hover:text-white transition-colors">Pricing</a></li>
                         <li><a href="#features" class="hover:text-white transition-colors">Features</a></li>
                     </ul>
                 </div>
