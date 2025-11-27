@@ -649,9 +649,10 @@ app.get('/', (c) => {
 // ============================================
 
 // Get all vehicles (always return ALL vehicles, frontend will handle premium restrictions)
-app.get('/api/vehicles', async (c) => {
+app.get('/api/vehicles', optionalAuthMiddleware, async (c) => {
   const { DB } = c.env
-  const userTier = c.req.query('tier') || 'all'
+  const userTier = c.req.query('tier') || 'free'
+  const user = c.get('user')
   
   try {
     let query = `
@@ -661,11 +662,22 @@ app.get('/api/vehicles', async (c) => {
       FROM vehicles
     `
     
-    // Only filter if explicitly requesting free tier
-    if (userTier === 'free') {
+    // Check if user can access premium vehicles
+    const canAccessPremium = user && (user.role === 'premium' || user.role === 'admin')
+    
+    if (userTier === 'premium' && !canAccessPremium) {
+      // Return only free vehicles if user tries to access premium without auth
       query += ' WHERE is_premium = 0'
+    } else if (userTier === 'free') {
+      // Explicitly requesting free tier only
+      query += ' WHERE is_premium = 0'
+    } else if (userTier === 'all') {
+      // 'all' only works for premium/admin users
+      if (!canAccessPremium) {
+        query += ' WHERE is_premium = 0'
+      }
+      // Otherwise return ALL vehicles for premium/admin users
     }
-    // Otherwise return ALL vehicles (tier='all' or tier='premium')
     
     query += ' ORDER BY make, model, variant'
     
@@ -674,7 +686,8 @@ app.get('/api/vehicles', async (c) => {
     return c.json({
       success: true,
       vehicles: results,
-      total: results.length
+      total: results.length,
+      userTier: canAccessPremium ? 'premium' : 'free'
     })
   } catch (error) {
     return c.json({ success: false, error: 'Failed to fetch vehicles' }, 500)
