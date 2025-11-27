@@ -3314,6 +3314,23 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     <span class="text-sm">Want access to premium vehicles? <button class="text-blue-400 hover:text-blue-300 font-medium">Upgrade now</button></span>
                 </div>
             </div>
+            
+            <!-- Quick Calculate Button (appears after vehicle selection) -->
+            <div id="quickCalculateSection" class="hidden mb-6">
+                <button 
+                    id="quickCalculateBtn" 
+                    onclick="document.getElementById('calculateBtn').click()"
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 text-lg"
+                >
+                    <i class="fas fa-bolt text-2xl"></i>
+                    <span>Calculate Now</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <p class="text-center text-sm text-gray-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Or scroll down to adjust charging parameters
+                </p>
+            </div>
 
             <!-- Charger Power Input - Apple Style -->
             <div class="mb-6">
