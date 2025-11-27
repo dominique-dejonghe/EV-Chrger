@@ -1076,43 +1076,30 @@ app.get('/', (c) => {
 // Get all vehicles (always return ALL vehicles, frontend will handle premium restrictions)
 app.get('/api/vehicles', optionalAuthMiddleware, async (c) => {
   const { DB } = c.env
-  const userTier = c.req.query('tier') || 'free'
   const user = c.get('user')
   
   try {
-    let query = `
+    // TEASER MARKETING: ALWAYS return ALL vehicles (138 total)
+    // Frontend will show locked/crown icons for premium vehicles if user is free tier
+    const query = `
       SELECT id, make, model, variant, year, battery_capacity_kwh, usable_capacity_kwh,
              avg_consumption_kwh_per_100km, max_dc_charging_kw, max_ac_charging_kw,
              is_premium, charging_curve_data
       FROM vehicles
+      ORDER BY make, model, variant
     `
     
-    // Check if user can access premium vehicles
-    const canAccessPremium = user && (user.role === 'premium' || user.role === 'admin')
-    
-    if (userTier === 'premium' && !canAccessPremium) {
-      // Return only free vehicles if user tries to access premium without auth
-      query += ' WHERE is_premium = 0'
-    } else if (userTier === 'free') {
-      // Explicitly requesting free tier only
-      query += ' WHERE is_premium = 0'
-    } else if (userTier === 'all') {
-      // 'all' only works for premium/admin users
-      if (!canAccessPremium) {
-        query += ' WHERE is_premium = 0'
-      }
-      // Otherwise return ALL vehicles for premium/admin users
-    }
-    
-    query += ' ORDER BY make, model, variant'
-    
     const { results } = await DB.prepare(query).all()
+    
+    // Check if user can ACCESS premium vehicles (calculate, not just view)
+    const canAccessPremium = user && (user.role === 'premium' || user.role === 'admin')
     
     return c.json({
       success: true,
       vehicles: results,
       total: results.length,
-      userTier: canAccessPremium ? 'premium' : 'free'
+      userTier: canAccessPremium ? 'premium' : 'free',
+      canAccessPremium: canAccessPremium
     })
   } catch (error) {
     return c.json({ success: false, error: 'Failed to fetch vehicles' }, 500)

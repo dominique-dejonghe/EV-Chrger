@@ -72,8 +72,9 @@ function syncUserFromAuth() {
 // ============================================
 async function loadVehicles() {
   try {
-    // ALWAYS load ALL vehicles - UI will show locks for premium ones
-    const response = await axios.get('/api/vehicles?tier=all')
+    // TEASER MARKETING: ALWAYS load ALL 138 vehicles
+    // API now returns all vehicles, frontend shows locks for premium ones
+    const response = await axios.get('/api/vehicles')
     
     if (response.data.success) {
       appState.vehicles = response.data.vehicles
@@ -84,31 +85,14 @@ async function loadVehicles() {
       const premiumCount = appState.vehicles.filter(v => v.is_premium).length
       const totalCount = appState.vehicles.length
       
-      // FIXED: For free users, calculate locked vehicles from total database count
-      // Backend returns only 42 free vehicles for non-premium users
-      // But we know total is 138 vehicles (42 free + 96 premium)
-      const TOTAL_VEHICLES_IN_DB = 138
-      const TOTAL_FREE_VEHICLES = 42
-      const TOTAL_PREMIUM_VEHICLES = TOTAL_VEHICLES_IN_DB - TOTAL_FREE_VEHICLES
+      // Always show total count (138)
+      document.getElementById('vehicleCount').textContent = `${totalCount}+`
       
-      let displayFreeCount = freeCount
-      let displayPremiumCount = premiumCount
-      let displayTotalCount = totalCount
+      console.log(`Loaded ${totalCount} vehicles (${freeCount} free, ${premiumCount} premium) - User tier: ${appState.currentTier}`)
       
-      // If user is free tier and we only got free vehicles back, show correct counts
-      if (appState.currentTier === 'free' && totalCount === TOTAL_FREE_VEHICLES) {
-        displayPremiumCount = TOTAL_PREMIUM_VEHICLES  // Show 96 locked vehicles
-        displayTotalCount = TOTAL_VEHICLES_IN_DB      // Show 138 total
-      }
-      
-      // Always show total count
-      document.getElementById('vehicleCount').textContent = `${displayTotalCount}+`
-      
-      console.log(`Loaded ${totalCount} vehicles (${freeCount} free, ${premiumCount} premium, ${displayPremiumCount} locked) - User tier: ${appState.currentTier}`)
-      
-      // Show upgrade banner for free users with correct locked count
+      // Show upgrade banner for free users
       if (appState.currentTier === 'free') {
-        showFreeUserBanner(displayFreeCount, displayPremiumCount)
+        showFreeUserBanner(freeCount, premiumCount)
       }
     }
   } catch (error) {
@@ -176,7 +160,7 @@ function displayAutocompleteResults() {
               ${vehicle.avg_consumption_kwh_per_100km} kWh/100km • 
               ${vehicle.max_dc_charging_kw} kW DC
             </div>
-            ${isPremiumLocked ? '<div class="text-xs text-yellow-700 mt-1"><i class="fas fa-crown mr-1"></i>Alleen Premium</div>' : ''}
+            ${isPremiumLocked ? '<div class="text-xs text-yellow-700 mt-1"><i class="fas fa-crown mr-1"></i>Premium Only</div>' : ''}
           </div>
           ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-600 ml-3"></i>' : ''}
         </div>
@@ -235,14 +219,14 @@ function showPremiumUpgradeModal(vehicle) {
         </div>
         <h2 class="text-2xl sm:text-3xl font-semibold mb-2 text-gray-900">Premium Vehicle</h2>
         <p class="text-sm sm:text-base text-gray-600">
-          ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} is alleen beschikbaar voor Premium leden
+          ${vehicle.make} ${vehicle.model} ${vehicle.variant || ''} is only available for Premium members
         </p>
       </div>
       
       <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">
         <h3 class="text-sm sm:text-base font-semibold mb-3 sm:mb-4 flex items-center text-gray-900">
           <i class="fas fa-star text-yellow-600 mr-2"></i>
-          Upgrade naar Premium voor:
+          Upgrade to Premium for:
         </h3>
         <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-700">
           <li class="flex items-start">
@@ -251,28 +235,28 @@ function showPremiumUpgradeModal(vehicle) {
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>Vergelijkingen</strong> - Side-by-side</span>
+            <span><strong>Comparisons</strong> - Side-by-side</span>
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>Export</strong> - Deel resultaten</span>
+            <span><strong>Export</strong> - Share results</span>
           </li>
         </ul>
       </div>
       
       <div class="text-center mb-4">
         <div class="text-3xl sm:text-4xl font-semibold mb-2 text-gray-900">
-          €4.99<span class="text-base sm:text-lg text-gray-600 font-normal">/maand</span>
+          €4.99<span class="text-base sm:text-lg text-gray-600 font-normal">/month</span>
         </div>
-        <p class="text-xs sm:text-sm text-gray-600">30 dagen geld-terug-garantie</p>
+        <p class="text-xs sm:text-sm text-gray-600">30-day money-back guarantee</p>
       </div>
       
       <div class="flex gap-2 sm:gap-3">
         <button onclick="closePremiumUpgradeModal()" class="flex-1 py-2.5 sm:py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-full text-sm sm:text-base font-semibold transition-colors shadow-sm">
-          Terug
+          Back
         </button>
         <button onclick="upgradeToPremium()" class="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90 text-white rounded-full text-sm sm:text-base font-semibold transition-opacity shadow-md">
-          <i class="fas fa-crown mr-1 sm:mr-2"></i>Upgrade Nu
+          <i class="fas fa-crown mr-1 sm:mr-2"></i>Upgrade Now
         </button>
       </div>
     </div>
@@ -885,7 +869,7 @@ async function selectTier(tierId) {
   
   try {
     // Show loading notification
-    showNotification('Mollie checkout wordt voorbereid...', 'info')
+    showNotification('Preparing Mollie checkout...', 'info')
     
     // Create Mollie payment
     const response = await axios.post('/api/mollie/create-payment')
