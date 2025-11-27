@@ -23,7 +23,10 @@ let appState = {
   lastCalculation: null,
   activeAutocompleteIndex: -1,
   compareVehicles: [], // Array of selected vehicles for comparison (max 4)
-  compareFilteredVehicles: []
+  compareFilteredVehicles: [],
+  favorites: [], // User's favorite vehicles (Premium only)
+  favoriteIds: new Set(), // Quick lookup for favorited vehicle IDs
+  showOnlyFavorites: false // Filter toggle for "My Vehicles"
 }
 
 // ============================================
@@ -49,6 +52,9 @@ async function initializeApp() {
   // Load vehicles
   await loadVehicles()
   
+  // Load favorites (Premium only)
+  await loadFavorites()
+  
   // Setup event listeners
   setupEventListeners()
   
@@ -62,6 +68,14 @@ function syncUserFromAuth() {
     appState.currentUser = window.currentUser
     appState.currentTier = window.currentUser.role
     console.log(`User authenticated: ${window.currentUser.email} (${window.currentUser.role})`)
+    
+    // Show "My Vehicles" button for premium/admin users
+    if (window.currentUser.role === 'premium' || window.currentUser.role === 'admin') {
+      const myVehiclesBtn = document.getElementById('myVehiclesBtn')
+      if (myVehiclesBtn) {
+        myVehiclesBtn.classList.remove('hidden')
+      }
+    }
   } else {
     console.log('User not authenticated or auth check pending')
   }
@@ -99,6 +113,90 @@ async function loadVehicles() {
     console.error('Failed to load vehicles:', error)
     showNotification('Failed to load vehicles', 'error')
   }
+}
+
+// ============================================
+// FAVORITES (PREMIUM FEATURE)
+// ============================================
+async function loadFavorites() {
+  // Only load favorites for authenticated premium/admin users
+  if (!appState.currentUser || (appState.currentTier !== 'premium' && appState.currentTier !== 'admin')) {
+    return
+  }
+  
+  try {
+    const response = await axios.get('/api/favorites')
+    
+    if (response.data.success) {
+      appState.favorites = response.data.favorites
+      appState.favoriteIds = new Set(response.data.favorites.map(v => v.id))
+      console.log(`Loaded ${response.data.count} favorite vehicles`)
+    }
+  } catch (error) {
+    console.error('Failed to load favorites:', error)
+  }
+}
+
+async function toggleFavorite(vehicleId) {
+  // Premium gate
+  if (appState.currentTier !== 'premium' && appState.currentTier !== 'admin') {
+    showPremiumUpgradeModal({ make: 'Favorites', model: 'feature' })
+    return
+  }
+  
+  const isFavorited = appState.favoriteIds.has(vehicleId)
+  
+  try {
+    if (isFavorited) {
+      // Remove from favorites
+      await axios.delete(`/api/favorites/${vehicleId}`)
+      appState.favoriteIds.delete(vehicleId)
+      appState.favorites = appState.favorites.filter(v => v.id !== vehicleId)
+      showNotification('Removed from My Vehicles', 'success')
+    } else {
+      // Add to favorites
+      await axios.post(`/api/favorites/${vehicleId}`)
+      appState.favoriteIds.add(vehicleId)
+      
+      // Add vehicle to favorites list
+      const vehicle = appState.vehicles.find(v => v.id === vehicleId)
+      if (vehicle) {
+        appState.favorites.unshift(vehicle)
+      }
+      
+      showNotification('Added to My Vehicles', 'success')
+    }
+    
+    // Refresh display
+    displayAutocompleteResults()
+  } catch (error) {
+    console.error('Toggle favorite error:', error)
+    
+    if (error.response?.data?.requiresPremium) {
+      showPremiumUpgradeModal({ make: 'Favorites', model: 'feature' })
+    } else {
+      showNotification(error.response?.data?.error || 'Failed to update favorites', 'error')
+    }
+  }
+}
+
+function toggleMyVehiclesFilter() {
+  appState.showOnlyFavorites = !appState.showOnlyFavorites
+  
+  if (appState.showOnlyFavorites) {
+    // Show only favorites
+    appState.filteredVehicles = appState.favorites
+    document.getElementById('myVehiclesBtn').classList.add('active')
+    document.getElementById('myVehiclesBtn').innerHTML = '<i class="fas fa-star mr-2"></i>My Vehicles (ON)'
+  } else {
+    // Show all vehicles
+    appState.filteredVehicles = appState.vehicles
+    document.getElementById('myVehiclesBtn').classList.remove('active')
+    document.getElementById('myVehiclesBtn').innerHTML = '<i class="far fa-star mr-2"></i>My Vehicles'
+  }
+  
+  // Trigger search input to refresh display
+  document.getElementById('vehicleSearch').dispatchEvent(new Event('input'))
 }
 
 // ============================================
@@ -141,6 +239,8 @@ function displayAutocompleteResults() {
   
   resultsContainer.innerHTML = displayVehicles.map((vehicle, index) => {
     const isPremiumLocked = vehicle.is_premium && appState.currentTier === 'free'
+    const isFavorited = appState.favoriteIds.has(vehicle.id)
+    const canFavorite = appState.currentTier === 'premium' || appState.currentTier === 'admin'
     
     return `
       <div class="autocomplete-item ${vehicle.is_premium ? 'premium' : ''} ${isPremiumLocked ? 'locked' : ''}" 
@@ -162,7 +262,18 @@ function displayAutocompleteResults() {
             </div>
             ${isPremiumLocked ? '<div class="text-xs text-yellow-700 mt-1"><i class="fas fa-crown mr-1"></i>Premium Only</div>' : ''}
           </div>
-          ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-600 ml-3"></i>' : ''}
+          <div class="flex items-center gap-2 ml-3">
+            ${canFavorite && !isPremiumLocked ? `
+              <button 
+                onclick="event.stopPropagation(); toggleFavorite(${vehicle.id})" 
+                class="favorite-btn text-xl hover:scale-110 transition-transform"
+                title="${isFavorited ? 'Remove from My Vehicles' : 'Add to My Vehicles'}"
+              >
+                <i class="fa${isFavorited ? 's' : 'r'} fa-star text-yellow-500"></i>
+              </button>
+            ` : ''}
+            ${vehicle.is_premium ? '<i class="fas fa-crown text-yellow-600"></i>' : ''}
+          </div>
         </div>
       </div>
     `
@@ -231,7 +342,11 @@ function showPremiumUpgradeModal(vehicle) {
         <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-700">
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
-            <span><strong>129 vehicles</strong> - All brands</span>
+            <span><strong>138 vehicles</strong> - All brands</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span><strong>My Vehicles</strong> - Save favorites</span>
           </li>
           <li class="flex items-start">
             <i class="fas fa-check text-green-600 mt-1 mr-2 sm:mr-3 flex-shrink-0"></i>

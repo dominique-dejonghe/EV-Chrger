@@ -1165,6 +1165,111 @@ app.post('/api/vehicle-suggestions', optionalAuthMiddleware, async (c) => {
   }
 })
 
+// ===== FAVORITES API ENDPOINTS (PREMIUM ONLY) =====
+
+// Get user's favorite vehicles
+app.get('/api/favorites', authMiddleware, async (c) => {
+  const { DB } = c.env
+  const user = c.get('user')
+  
+  try {
+    // Get favorites with full vehicle details
+    const { results } = await DB.prepare(`
+      SELECT 
+        v.*,
+        f.created_at as favorited_at
+      FROM favorites f
+      JOIN vehicles v ON f.vehicle_id = v.id
+      WHERE f.user_id = ?
+      ORDER BY f.created_at DESC
+    `).bind(user.userId).all()
+    
+    return c.json({
+      success: true,
+      favorites: results,
+      count: results.length
+    })
+  } catch (error) {
+    console.error('Get favorites error:', error)
+    return c.json({ success: false, error: 'Failed to fetch favorites' }, 500)
+  }
+})
+
+// Add vehicle to favorites (Premium only)
+app.post('/api/favorites/:vehicleId', authMiddleware, async (c) => {
+  const { DB } = c.env
+  const user = c.get('user')
+  const vehicleId = parseInt(c.req.param('vehicleId'))
+  
+  // Premium gate: Only premium/admin users can save favorites
+  if (user.role !== 'premium' && user.role !== 'admin') {
+    return c.json({ 
+      success: false, 
+      error: 'Favorites are a Premium feature',
+      requiresPremium: true 
+    }, 403)
+  }
+  
+  try {
+    // Verify vehicle exists
+    const vehicle = await DB.prepare(`
+      SELECT id FROM vehicles WHERE id = ?
+    `).bind(vehicleId).first()
+    
+    if (!vehicle) {
+      return c.json({ success: false, error: 'Vehicle not found' }, 404)
+    }
+    
+    // Add to favorites (UNIQUE constraint prevents duplicates)
+    await DB.prepare(`
+      INSERT INTO favorites (user_id, vehicle_id)
+      VALUES (?, ?)
+    `).bind(user.userId, vehicleId).run()
+    
+    return c.json({
+      success: true,
+      message: 'Vehicle added to favorites'
+    })
+  } catch (error: any) {
+    // Handle duplicate (already favorited)
+    if (error?.message?.includes('UNIQUE constraint')) {
+      return c.json({ 
+        success: false, 
+        error: 'Vehicle already in favorites' 
+      }, 400)
+    }
+    
+    console.error('Add favorite error:', error)
+    return c.json({ success: false, error: 'Failed to add favorite' }, 500)
+  }
+})
+
+// Remove vehicle from favorites
+app.delete('/api/favorites/:vehicleId', authMiddleware, async (c) => {
+  const { DB } = c.env
+  const user = c.get('user')
+  const vehicleId = parseInt(c.req.param('vehicleId'))
+  
+  try {
+    const result = await DB.prepare(`
+      DELETE FROM favorites 
+      WHERE user_id = ? AND vehicle_id = ?
+    `).bind(user.userId, vehicleId).run()
+    
+    if (result.meta.changes === 0) {
+      return c.json({ success: false, error: 'Favorite not found' }, 404)
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Vehicle removed from favorites'
+    })
+  } catch (error) {
+    console.error('Remove favorite error:', error)
+    return c.json({ success: false, error: 'Failed to remove favorite' }, 500)
+  }
+})
+
 // ===== ADMIN API ENDPOINTS =====
 
 // Get all vehicle suggestions (admin only)
@@ -3137,9 +3242,19 @@ app.get('/app', optionalAuthMiddleware, (c) => {
 
             <!-- Vehicle Selection with Search -->
             <div class="mb-8">
-                <label class="block text-sm font-semibold mb-3 text-gray-900">
-                    <i class="fas fa-car mr-2 text-blue-600"></i>Choose your vehicle
-                </label>
+                <div class="flex items-center justify-between mb-3">
+                    <label class="block text-sm font-semibold text-gray-900">
+                        <i class="fas fa-car mr-2 text-blue-600"></i>Choose your vehicle
+                    </label>
+                    <button 
+                        id="myVehiclesBtn" 
+                        onclick="toggleMyVehiclesFilter()" 
+                        class="hidden px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-all border border-transparent hover:border-yellow-300"
+                        title="Show only your saved vehicles (Premium feature)"
+                    >
+                        <i class="far fa-star mr-2"></i>My Vehicles
+                    </button>
+                </div>
                 <div class="relative">
                     <input 
                         type="text" 
