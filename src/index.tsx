@@ -1246,6 +1246,59 @@ app.get('/api/admin/users/:id/detail', authMiddleware, requireRole(['admin']), a
   }
 })
 
+// Create new user (admin only)
+app.post('/api/admin/users', authMiddleware, requireRole(['admin']), async (c) => {
+  const { DB } = c.env
+  
+  try {
+    const { email, password, firstName, lastName, role } = await c.req.json()
+    
+    // Validate required fields
+    if (!email || !password || !firstName || !lastName) {
+      return c.json({ success: false, error: 'All fields are required' }, 400)
+    }
+    
+    // Validate role
+    const userRole = role || 'free'
+    if (!['free', 'premium', 'admin'].includes(userRole)) {
+      return c.json({ success: false, error: 'Invalid role' }, 400)
+    }
+    
+    // Check if user already exists
+    const existingUser = await DB.prepare(`
+      SELECT id FROM users WHERE email = ?
+    `).bind(email).first()
+    
+    if (existingUser) {
+      return c.json({ success: false, error: 'User with this email already exists' }, 409)
+    }
+    
+    // Hash password
+    const encoder = new TextEncoder()
+    const data = encoder.encode(password)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    
+    // Create user
+    const result = await DB.prepare(`
+      INSERT INTO users (email, password_hash, first_name, last_name, role)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(email, passwordHash, firstName, lastName, userRole).run()
+    
+    console.log('[CREATE USER] Created new user:', email, 'with role:', userRole)
+    
+    return c.json({ 
+      success: true, 
+      message: 'User created successfully',
+      userId: result.meta.last_row_id
+    })
+  } catch (error) {
+    console.error('[CREATE USER] Error:', error)
+    return c.json({ success: false, error: 'Failed to create user' }, 500)
+  }
+})
+
 // Change user role (admin only)
 app.post('/api/admin/users/:id/role', authMiddleware, requireRole(['admin']), async (c) => {
   const { DB } = c.env
@@ -2421,9 +2474,14 @@ app.get('/admin', adminMiddleware, async (c) => {
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-semibold text-gray-900">User Management</h2>
-                    <button onclick="loadUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        <i class="fas fa-sync-alt mr-2"></i>Ververs
-                    </button>
+                    <div class="flex gap-3">
+                        <button onclick="showAddUserModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            <i class="fas fa-user-plus mr-2"></i>Voeg User Toe
+                        </button>
+                        <button onclick="loadUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-sync-alt mr-2"></i>Ververs
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- User Search -->

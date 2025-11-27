@@ -791,3 +791,131 @@ async function deleteUserFromModal(userId, email) {
     alert('Fout bij verwijderen: ' + (error.response?.data?.error || 'Onbekende fout'));
   }
 }
+
+// ===== ADD USER MODAL =====
+function showAddUserModal() {
+  const modal = document.createElement('div');
+  modal.id = 'addUserModal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+  modal.onclick = (e) => {
+    if (e.target === modal) closeAddUserModal();
+  };
+  
+  modal.innerHTML = `
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Nieuwe User Aanmaken</h2>
+          <p class="text-gray-600 text-sm mt-1">Vul alle velden in om een user toe te voegen</p>
+        </div>
+        <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+      
+      <form id="addUserForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+          <input type="email" id="newUserEmail" required
+            placeholder="user@example.com"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Voornaam *</label>
+            <input type="text" id="newUserFirstName" required
+              placeholder="John"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Achternaam *</label>
+            <input type="text" id="newUserLastName" required
+              placeholder="Doe"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Wachtwoord *</label>
+          <input type="password" id="newUserPassword" required
+            placeholder="Min. 8 karakters"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          <p class="text-xs text-gray-500 mt-1">Minimaal 8 karakters, 1 hoofdletter, 1 kleine letter, 1 cijfer</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+          <select id="newUserRole" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="free">Free</option>
+            <option value="premium">Premium</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        
+        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <button type="button" onclick="closeAddUserModal()" 
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            Annuleren
+          </button>
+          <button type="submit"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            <i class="fas fa-user-plus mr-2"></i>User Aanmaken
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Handle form submission
+  document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await createNewUser();
+  });
+}
+
+function closeAddUserModal() {
+  const modal = document.getElementById('addUserModal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+async function createNewUser() {
+  try {
+    const email = document.getElementById('newUserEmail').value;
+    const firstName = document.getElementById('newUserFirstName').value;
+    const lastName = document.getElementById('newUserLastName').value;
+    const password = document.getElementById('newUserPassword').value;
+    const role = document.getElementById('newUserRole').value;
+    
+    // Validate password
+    if (password.length < 8) {
+      alert('Wachtwoord moet minimaal 8 karakters bevatten');
+      return;
+    }
+    
+    const data = {
+      email,
+      firstName,
+      lastName,
+      password,
+      role
+    };
+    
+    await axios.post('/api/admin/users', data);
+    alert(`User ${firstName} ${lastName} succesvol aangemaakt met role: ${role}!`);
+    closeAddUserModal();
+    loadUsers(); // Refresh user list
+  } catch (error) {
+    console.error('Error creating user:', error);
+    
+    if (error.response?.status === 409) {
+      alert('Er bestaat al een gebruiker met dit emailadres!');
+    } else {
+      alert('Fout bij aanmaken: ' + (error.response?.data?.error || 'Onbekende fout'));
+    }
+  }
+}
