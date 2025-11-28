@@ -269,8 +269,16 @@ function toggleMyVehiclesFilter() {
 // AUTOCOMPLETE SEARCH
 // ============================================
 function filterVehicles(searchTerm) {
-  if (!searchTerm || searchTerm.length < 2) {
-    appState.filteredVehicles = []
+  // PERMANENT FIX: Never clear vehicles array, just hide/show dropdown
+  if (!searchTerm || searchTerm.trim().length === 0) {
+    // Empty search → show ALL vehicles (user can browse)
+    appState.filteredVehicles = appState.vehicles
+    displayAutocompleteResults()
+    return
+  }
+  
+  if (searchTerm.length < 2) {
+    // Too short → hide dropdown but keep vehicles loaded
     hideAutocomplete()
     return
   }
@@ -545,7 +553,13 @@ function setupEventListeners() {
   })
   
   searchInput.addEventListener('focus', (e) => {
-    if (e.target.value.length >= 2) {
+    // PERMANENT FIX: Always show vehicles on focus (browse mode)
+    if (e.target.value.trim().length === 0) {
+      // Empty field → show all vehicles
+      appState.filteredVehicles = appState.vehicles
+      displayAutocompleteResults()
+    } else if (e.target.value.length >= 2) {
+      // Has search term → filter
       filterVehicles(e.target.value)
     }
   })
