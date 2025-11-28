@@ -386,15 +386,7 @@ function selectVehicleFromAutocomplete(vehicleId) {
   document.getElementById('selectedVehicleDisplay').classList.remove('hidden')
   document.getElementById('premiumVehicleNotice').classList.add('hidden')
   
-  // Show Quick Calculate button
-  const quickCalcSection = document.getElementById('quickCalculateSection')
-  if (quickCalcSection) {
-    quickCalcSection.classList.remove('hidden')
-    // Smooth scroll to show the button
-    setTimeout(() => {
-      quickCalcSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    }, 100)
-  }
+  // REMOVED: Quick Calculate button logic (button removed from UI)
   
   hideAutocomplete()
 }
@@ -491,11 +483,7 @@ function clearVehicleSelection() {
   document.getElementById('selectedVehicleDisplay').classList.add('hidden')
   document.getElementById('resultsSection').classList.add('hidden')
   
-  // Hide Quick Calculate button
-  const quickCalcSection = document.getElementById('quickCalculateSection')
-  if (quickCalcSection) {
-    quickCalcSection.classList.add('hidden')
-  }
+  // REMOVED: Quick Calculate button logic (button removed from UI)
 }
 
 // Handle keyboard navigation in autocomplete

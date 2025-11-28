@@ -3227,8 +3227,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
     </div>
 
     <!-- Calculator Section - Apple Style -->
-    <div class="max-w-4xl mx-auto px-6 pb-12">
-        <div class="glass rounded-3xl p-6 md:p-10 shadow-xl">
+    <div class="max-w-4xl mx-auto px-6 pb-12 relative">
+        <!-- Subtle charging station background pattern -->
+        <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%234F46E5\' fill-opacity=\'1\'%3E%3Cpath d=\'M30 25 L30 15 L35 15 L35 25 L40 25 L40 35 L20 35 L20 25 Z M28 30 L32 30 L32 33 L28 33 Z\'/%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+        <div class="glass rounded-3xl p-6 md:p-10 shadow-xl relative z-10">
             <!-- Subscription Tier Indicator -->
             <div class="mb-8 flex justify-between items-center">
                 <div>
@@ -3314,27 +3316,11 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     <span class="text-sm">Want access to premium vehicles? <button class="text-blue-400 hover:text-blue-300 font-medium">Upgrade now</button></span>
                 </div>
             </div>
-            
-            <!-- Quick Calculate Button (appears after vehicle selection) -->
-            <div id="quickCalculateSection" class="hidden mb-6">
-                <button 
-                    id="quickCalculateBtn" 
-                    onclick="document.getElementById('calculateBtn').click()"
-                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-5 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 text-lg"
-                >
-                    <i class="fas fa-bolt text-2xl"></i>
-                    <span>Calculate Now</span>
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-                <p class="text-center text-sm text-gray-500 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Or scroll down to adjust charging parameters
-                </p>
-            </div>
 
-            <!-- Charger Power Input - Apple Style -->
+            <!-- Step 1: Charger Power Input - Apple Style -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold mr-3">1</span>
                     <i class="fas fa-charging-station text-blue-600 mr-2"></i>
                     <span>Charging Power</span>
                 </label>
@@ -3364,9 +3350,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
 
-            <!-- Available Charging Time Input - Apple Style -->
+            <!-- Step 2: Available Charging Time Input - Apple Style -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-600 text-white text-sm font-bold mr-3">2</span>
                     <i class="fas fa-clock text-cyan-600 mr-2"></i>
                     <span>Available charging time</span>
                     <span class="ml-3 text-xs text-gray-400 font-normal">(Optional - for range calculation)</span>
@@ -3400,9 +3387,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
 
-            <!-- Electricity Price Input - Apple Style -->
+            <!-- Step 3: Electricity Price Input - Apple Style -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-600 text-white text-sm font-bold mr-3">3</span>
                     <i class="fas fa-euro-sign text-yellow-600 mr-2"></i>
                     <span>Electricity Price</span>
                 </label>
@@ -3435,10 +3423,15 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
 
-            <!-- Calculate Button -->
-            <button id="calculateBtn" class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
-                <i class="fas fa-calculator mr-2"></i>Calculate Charging Speed & Range
-            </button>
+            <!-- Step 4: Calculate Button -->
+            <div class="relative">
+                <div class="absolute -left-10 top-1/2 -translate-y-1/2">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold">4</span>
+                </div>
+                <button id="calculateBtn" class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fas fa-calculator mr-2"></i>Calculate Charging Speed & Range
+                </button>
+            </div>
         </div>
 
         <!-- Results Section - Apple Style -->
