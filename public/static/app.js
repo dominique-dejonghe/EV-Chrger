@@ -569,18 +569,20 @@ function setupEventListeners() {
   const powerRange = document.getElementById('chargerPowerRange')
   const powerInput = document.getElementById('chargerPowerInput')
   
-  powerRange.addEventListener('input', (e) => {
-    powerInput.value = e.target.value
-    appState.chargerPower = parseInt(e.target.value)
-  })
-  
-  powerInput.addEventListener('input', (e) => {
-    let value = parseInt(e.target.value)
-    if (value < 1) value = 1
-    if (value > 350) value = 350
-    powerRange.value = value
-    appState.chargerPower = value
-  })
+  if (powerRange && powerInput) {
+    powerRange.addEventListener('input', (e) => {
+      powerInput.value = e.target.value
+      appState.chargerPower = parseInt(e.target.value)
+    })
+    
+    powerInput.addEventListener('input', (e) => {
+      let value = parseInt(e.target.value)
+      if (value < 1) value = 1
+      if (value > 350) value = 350
+      powerRange.value = value
+      appState.chargerPower = value
+    })
+  }
   
   // Start SOC slider and input
   const startSocRange = document.getElementById('startSocRange')
@@ -646,35 +648,39 @@ function setupEventListeners() {
   const priceRange = document.getElementById('electricityPriceRange')
   const priceInput = document.getElementById('electricityPriceInput')
   
-  priceRange.addEventListener('input', (e) => {
-    priceInput.value = parseFloat(e.target.value).toFixed(2)
-    appState.electricityPrice = parseFloat(e.target.value)
-  })
+  if (priceRange && priceInput) {
+    priceRange.addEventListener('input', (e) => {
+      priceInput.value = parseFloat(e.target.value).toFixed(2)
+      appState.electricityPrice = parseFloat(e.target.value)
+    })
+    
+    priceInput.addEventListener('input', (e) => {
+      let value = parseFloat(e.target.value)
+      if (value < 0.10) value = 0.10
+      if (value > 1.00) value = 1.00
+      priceRange.value = value
+      appState.electricityPrice = value
+    })
+  }
   
-  priceInput.addEventListener('input', (e) => {
-    let value = parseFloat(e.target.value)
-    if (value < 0.10) value = 0.10
-    if (value > 1.00) value = 1.00
-    priceRange.value = value
-    appState.electricityPrice = value
-  })
-  
-  // Charging time slider (NEW)
+  // Charging time slider
   const timeRange = document.getElementById('chargingTimeRange')
   const timeInput = document.getElementById('chargingTimeInput')
   
-  timeRange.addEventListener('input', (e) => {
-    timeInput.value = e.target.value
-    appState.chargingTime = parseInt(e.target.value)
-  })
-  
-  timeInput.addEventListener('input', (e) => {
-    let value = parseInt(e.target.value)
-    if (value < 5) value = 5
-    if (value > 120) value = 120
-    timeRange.value = value
-    appState.chargingTime = value
-  })
+  if (timeRange && timeInput) {
+    timeRange.addEventListener('input', (e) => {
+      timeInput.value = e.target.value
+      appState.chargingTime = parseInt(e.target.value)
+    })
+    
+    timeInput.addEventListener('input', (e) => {
+      let value = parseInt(e.target.value)
+      if (value < 5) value = 5
+      if (value > 120) value = 120
+      timeRange.value = value
+      appState.chargingTime = value
+    })
+  }
   
   // Calculate button
   document.getElementById('calculateBtn').addEventListener('click', calculateChargingSpeed)
