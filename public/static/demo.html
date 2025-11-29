@@ -395,6 +395,13 @@
                 const iframeWindow = iframe.contentWindow;
                 const step = walkthroughSteps[currentStep];
                 
+                // Check if iframe is loaded
+                if (!iframeLoaded) {
+                    console.warn('Iframe not loaded yet, waiting...');
+                    setTimeout(() => scrollIframeToElement(selector), 500);
+                    return;
+                }
+                
                 // Send message to iframe to scroll to element with offset
                 iframeWindow.postMessage({
                     type: 'scrollToElement',
@@ -456,6 +463,15 @@
             }
         });
 
+        // Wait for iframe to load before initializing
+        const iframe = document.getElementById('demoIframe');
+        let iframeLoaded = false;
+        
+        iframe.addEventListener('load', () => {
+            console.log('Iframe loaded successfully');
+            iframeLoaded = true;
+        });
+        
         // Initialize on load
         init();
     </script>
