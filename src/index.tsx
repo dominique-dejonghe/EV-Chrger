@@ -3350,10 +3350,62 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
 
-            <!-- Step 2: Available Charging Time Input - Apple Style -->
+            <!-- Step 2: Battery State of Charge (SOC) Range -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-600 text-white text-sm font-bold mr-3">2</span>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-sm font-bold mr-3">2</span>
+                    <i class="fas fa-battery-three-quarters text-green-600 mr-2"></i>
+                    <span>Battery Charge Range</span>
+                    <span class="ml-3 text-xs text-gray-400 font-normal">(Affects charging speed)</span>
+                </label>
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                    <!-- Start SOC -->
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-sm font-medium text-gray-700">Start Battery Level</label>
+                            <div class="flex items-center bg-gradient-to-r from-red-500 to-orange-500 rounded-xl px-4 py-2 min-w-[80px] shadow-md">
+                                <input type="number" id="startSocInput" value="20" min="0" max="100" 
+                                       class="bg-transparent border-none outline-none text-white text-right w-full text-xl font-bold">
+                                <span class="text-white ml-1 text-sm font-semibold">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="startSocRange" min="0" max="100" value="20" class="w-full">
+                    </div>
+                    
+                    <!-- End SOC -->
+                    <div class="mb-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-sm font-medium text-gray-700">Target Battery Level</label>
+                            <div class="flex items-center bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl px-4 py-2 min-w-[80px] shadow-md">
+                                <input type="number" id="endSocInput" value="80" min="0" max="100" 
+                                       class="bg-transparent border-none outline-none text-white text-right w-full text-xl font-bold">
+                                <span class="text-white ml-1 text-sm font-semibold">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="endSocRange" min="0" max="100" value="80" class="w-full">
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between text-xs font-medium">
+                        <span class="text-gray-500">
+                            <i class="fas fa-battery-empty mr-1"></i>Empty (0%)
+                        </span>
+                        <span class="text-blue-600">
+                            <i class="fas fa-battery-half mr-1"></i>Optimal (20-80%)
+                        </span>
+                        <span class="text-green-600">
+                            <i class="fas fa-battery-full mr-1"></i>Full (100%)
+                        </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-400 text-center">
+                        <i class="fas fa-lightbulb mr-1"></i>Tip: 20-80% is fastest (peak charging power)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Available Charging Time Input - Apple Style -->
+            <div class="mb-6">
+                <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-600 text-white text-sm font-bold mr-3">3</span>
                     <i class="fas fa-clock text-cyan-600 mr-2"></i>
                     <span>Available charging time</span>
                     <span class="ml-3 text-xs text-gray-400 font-normal">(Optional - for range calculation)</span>
