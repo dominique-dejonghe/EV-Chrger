@@ -3975,4 +3975,13 @@ app.get('/app', optionalAuthMiddleware, (c) => {
   `)
 })
 
+// Demo Walkthrough Routes
+app.get('/demo-walkthrough', (c) => {
+  return c.redirect('/demo-walkthrough.html')
+})
+
+app.get('/demo', (c) => {
+  return c.redirect('/demo-walkthrough.html')
+})
+
 export default app
