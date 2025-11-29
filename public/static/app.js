@@ -1615,24 +1615,18 @@ window.addEventListener('message', (event) => {
     const element = document.querySelector(selector)
     
     if (element) {
-      // First scroll element into view
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center',
-        inline: 'nearest'
+      // Calculate exact scroll position
+      const rect = element.getBoundingClientRect()
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const targetPosition = rect.top + scrollTop + offset
+      
+      // Scroll to exact position in one smooth motion
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
       })
       
-      // Then apply offset after a brief delay for smooth scrolling
-      if (offset !== 0) {
-        setTimeout(() => {
-          window.scrollBy({
-            top: offset,
-            behavior: 'smooth'
-          })
-        }, 300)
-      }
-      
-      console.log('Scrolled to:', selector, 'with offset:', offset)
+      console.log('Scrolled to:', selector, 'position:', targetPosition, 'offset:', offset)
     } else {
       console.warn('Element not found:', selector)
     }
