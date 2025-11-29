@@ -3986,8 +3986,13 @@ app.get('/app', optionalAuthMiddleware, (c) => {
   `)
 })
 
-// Demo Walkthrough - redirect to static version
+// Demo Walkthrough - redirect to simple guide (no iframe issues)
 app.get('/demo', async (c) => {
+  return c.redirect('/static/demo-simple')
+})
+
+// Old demo (with iframe) - keep for reference
+app.get('/demo-old', async (c) => {
   return c.redirect('/static/demo')
 })
 
