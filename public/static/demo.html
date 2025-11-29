@@ -360,19 +360,30 @@
             // Show overlay
             overlay.classList.remove('hidden');
 
-            // Highlight element in iframe if specified
+            // Scroll iframe to relevant element
             if (step.highlight) {
-                highlightElement(step.highlight);
+                scrollIframeToElement(step.highlight);
             }
 
             renderSteps();
         }
 
-        // Highlight element
-        function highlightElement(selector) {
-            // Note: This is a simplified version. In production, you'd need to
-            // communicate with the iframe or overlay the highlight on top
-            console.log('Highlighting:', selector);
+        // Scroll iframe to show the highlighted element
+        function scrollIframeToElement(selector) {
+            try {
+                const iframe = document.getElementById('demoIframe');
+                const iframeWindow = iframe.contentWindow;
+                
+                // Send message to iframe to scroll to element
+                iframeWindow.postMessage({
+                    type: 'scrollToElement',
+                    selector: selector
+                }, '*');
+                
+                console.log('Scrolling iframe to:', selector);
+            } catch (e) {
+                console.error('Failed to scroll iframe:', e);
+            }
         }
 
         // Navigate to step

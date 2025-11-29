@@ -1603,3 +1603,25 @@ window.upgradeToPremium = upgradeToPremium
 window.addVehicleToCompareFromSearch = addVehicleToCompareFromSearch
 window.removeVehicleFromCompare = removeVehicleFromCompare
 window.closeFreeUserBanner = closeFreeUserBanner
+
+// ============================================
+// DEMO WALKTHROUGH MESSAGE LISTENER
+// ============================================
+// Listen for scroll commands from demo walkthrough
+window.addEventListener('message', (event) => {
+  if (event.data.type === 'scrollToElement') {
+    const selector = event.data.selector
+    const element = document.querySelector(selector)
+    
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest'
+      })
+      console.log('Scrolled to:', selector)
+    } else {
+      console.warn('Element not found:', selector)
+    }
+  }
+})
