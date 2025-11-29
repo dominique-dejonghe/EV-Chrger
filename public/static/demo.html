@@ -104,15 +104,14 @@
                     <!-- Demo App IFrame -->
                     <div class="relative" id="demoContainer">
                         <iframe 
-                            src="" 
+                            id="demoIframe"
                             class="demo-iframe w-full"
                             style="height: 700px;"
-                            id="demoIframe"
                         ></iframe>
                         
-                        <!-- Highlight Overlay -->
-                        <div id="highlightOverlay" class="absolute pointer-events-none hidden">
-                            <div class="highlight-box"></div>
+                        <!-- Visual Highlight Overlay (for highlighting sections) -->
+                        <div id="highlightOverlay" class="absolute top-0 left-0 w-full h-full pointer-events-none hidden">
+                            <div class="absolute border-4 border-yellow-400 rounded-lg animate-pulse" id="highlightBox"></div>
                         </div>
                     </div>
                 </div>
@@ -388,31 +387,17 @@
             renderSteps();
         }
 
-        // Scroll iframe to show the highlighted element
+        // Update iframe with anchor link for the step
         function scrollIframeToElement(selector) {
-            try {
-                const iframe = document.getElementById('demoIframe');
-                const iframeWindow = iframe.contentWindow;
-                const step = walkthroughSteps[currentStep];
-                
-                // Check if iframe is loaded
-                if (!iframeLoaded) {
-                    console.warn('Iframe not loaded yet, waiting...');
-                    setTimeout(() => scrollIframeToElement(selector), 500);
-                    return;
-                }
-                
-                // Send message to iframe to scroll to element with offset
-                iframeWindow.postMessage({
-                    type: 'scrollToElement',
-                    selector: step.scrollTo || selector,
-                    offset: step.scrollOffset || 0
-                }, '*');
-                
-                console.log('Scrolling iframe to:', step.scrollTo || selector, 'offset:', step.scrollOffset);
-            } catch (e) {
-                console.error('Failed to scroll iframe:', e);
-            }
+            if (!selector) return;
+            
+            const iframe = document.getElementById('demoIframe');
+            const baseUrl = window.location.origin + '/app';
+            
+            // Just reload iframe with anchor - browser handles scroll
+            iframe.src = baseUrl + '#' + selector.replace('#', '');
+            
+            console.log('Loading iframe with anchor:', iframe.src);
         }
 
         // Navigate to step
@@ -463,19 +448,11 @@
             }
         });
 
-        // Wait for iframe to load before initializing
+        // Set initial iframe URL
         const iframe = document.getElementById('demoIframe');
-        let iframeLoaded = false;
-        
-        // Set iframe src dynamically to use current origin
         iframe.src = window.location.origin + '/app';
         
-        iframe.addEventListener('load', () => {
-            console.log('Iframe loaded successfully from:', iframe.src);
-            iframeLoaded = true;
-        });
-        
-        // Initialize on load
+        // Initialize immediately
         init();
     </script>
 </body>
