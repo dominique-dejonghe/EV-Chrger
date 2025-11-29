@@ -3387,10 +3387,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
 
-            <!-- Step 3: Electricity Price Input - Apple Style -->
+            <!-- Step 4: Electricity Price Input - Apple Style -->
             <div class="mb-6">
                 <label class="block text-base font-semibold mb-3 flex items-center text-gray-900">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-600 text-white text-sm font-bold mr-3">3</span>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-600 text-white text-sm font-bold mr-3">4</span>
                     <i class="fas fa-euro-sign text-yellow-600 mr-2"></i>
                     <span>Electricity Price</span>
                 </label>
@@ -3423,10 +3423,10 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
             </div>
 
-            <!-- Step 4: Calculate Button -->
+            <!-- Step 5: Calculate Button -->
             <div class="relative">
                 <div class="absolute -left-10 top-1/2 -translate-y-1/2">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold">4</span>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold">5</span>
                 </div>
                 <button id="calculateBtn" class="w-full tesla-gradient text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
                     <i class="fas fa-calculator mr-2"></i>Calculate Charging Speed & Range
