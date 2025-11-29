@@ -1611,15 +1611,28 @@ window.closeFreeUserBanner = closeFreeUserBanner
 window.addEventListener('message', (event) => {
   if (event.data.type === 'scrollToElement') {
     const selector = event.data.selector
+    const offset = event.data.offset || 0
     const element = document.querySelector(selector)
     
     if (element) {
+      // First scroll element into view
       element.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center',
         inline: 'nearest'
       })
-      console.log('Scrolled to:', selector)
+      
+      // Then apply offset after a brief delay for smooth scrolling
+      if (offset !== 0) {
+        setTimeout(() => {
+          window.scrollBy({
+            top: offset,
+            behavior: 'smooth'
+          })
+        }, 300)
+      }
+      
+      console.log('Scrolled to:', selector, 'with offset:', offset)
     } else {
       console.warn('Element not found:', selector)
     }

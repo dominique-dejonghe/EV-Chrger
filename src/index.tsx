@@ -3237,9 +3237,20 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                     <span class="text-sm text-gray-500">Current subscription:</span>
                     <span id="currentTier" class="ml-2 px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-sm font-medium text-gray-700">Free</span>
                 </div>
-                <button id="upgradeBtnCalc" class="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
-                    <i class="fas fa-arrow-up mr-1"></i>Upgrade
-                </button>
+                <div class="flex gap-3">
+                    <a 
+                        href="/static/demo" 
+                        target="_blank"
+                        class="text-sm text-green-600 hover:text-green-700 transition-colors font-medium flex items-center gap-1.5"
+                        title="Open interactive walkthrough in new tab"
+                    >
+                        <i class="fas fa-question-circle"></i>
+                        <span class="hidden sm:inline">How to use</span>
+                    </a>
+                    <button id="upgradeBtnCalc" class="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i>Upgrade
+                    </button>
+                </div>
             </div>
 
             <!-- Vehicle Selection with Search -->

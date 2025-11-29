@@ -208,6 +208,7 @@
                 description: "Calculate charging speed, time, and costs for electric vehicles. This tool uses real charging curves and physics to give you accurate predictions.",
                 icon: "fa-bolt",
                 highlight: null,
+                scrollTo: null,
                 position: { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
             },
             {
@@ -215,6 +216,8 @@
                 description: "Search from 138+ electric vehicles. Each vehicle has real-world battery capacity, consumption, and charging curve data.",
                 icon: "fa-car",
                 highlight: "#vehicleSearch",
+                scrollTo: "#vehicleSearch",
+                scrollOffset: -100,
                 position: { top: "20%", left: "50%" }
             },
             {
@@ -222,6 +225,8 @@
                 description: "Set your starting and target battery percentage. Notice: 20-80% charges MUCH faster than 80-100% due to the charging curve!",
                 icon: "fa-battery-three-quarters",
                 highlight: "#startSocRange",
+                scrollTo: "#startSocRange",
+                scrollOffset: -50,
                 position: { top: "35%", left: "50%" }
             },
             {
@@ -229,6 +234,8 @@
                 description: "Example: 20-30% charges at 150kW (3 min), but 80-100% only gets 46kW (19 min). That's real battery protection at work!",
                 icon: "fa-chart-line",
                 highlight: null,
+                scrollTo: "#startSocRange",
+                scrollOffset: 0,
                 position: { top: "40%", left: "50%" }
             },
             {
@@ -236,6 +243,8 @@
                 description: "Set the charger power (1-350 kW). The app automatically limits to your vehicle's max DC charging capability.",
                 icon: "fa-charging-station",
                 highlight: "#chargerPowerRange",
+                scrollTo: "#chargerPowerRange",
+                scrollOffset: -50,
                 position: { top: "50%", left: "50%" }
             },
             {
@@ -243,6 +252,8 @@
                 description: "How much time do you have? This helps calculate how much range you'll add during your stop.",
                 icon: "fa-clock",
                 highlight: "#chargingTimeRange",
+                scrollTo: "#chargingTimeRange",
+                scrollOffset: -50,
                 position: { top: "58%", left: "50%" }
             },
             {
@@ -250,6 +261,8 @@
                 description: "Set your electricity cost per kWh. Default is €0.30, but adjust for home charging (€0.10) or fast charging (€0.70).",
                 icon: "fa-euro-sign",
                 highlight: "#electricityPriceRange",
+                scrollTo: "#electricityPriceRange",
+                scrollOffset: -50,
                 position: { top: "68%", left: "50%" }
             },
             {
@@ -257,6 +270,8 @@
                 description: "Click to see: charging speed (km/h), effective power (kW), total time, range added, and total cost. All based on real physics!",
                 icon: "fa-calculator",
                 highlight: "#calculateBtn",
+                scrollTo: "#calculateBtn",
+                scrollOffset: -100,
                 position: { top: "75%", left: "50%" }
             },
             {
@@ -264,6 +279,8 @@
                 description: "Get detailed breakdown: charging time, km/h, cost per 100km, and energy used. Premium users see the full charging curve graph!",
                 icon: "fa-chart-bar",
                 highlight: "#resultsSection",
+                scrollTo: "#resultsSection",
+                scrollOffset: 0,
                 position: { top: "80%", left: "50%" }
             },
             {
@@ -271,6 +288,8 @@
                 description: "Save your favorite vehicles for quick access. Premium users can save unlimited vehicles and get instant calculations!",
                 icon: "fa-star",
                 highlight: "#quickSelectContainer",
+                scrollTo: "#quickSelectContainer",
+                scrollOffset: -80,
                 position: { top: "25%", left: "50%" }
             },
             {
@@ -278,6 +297,7 @@
                 description: "You're all set! Try the calculator with your own vehicle and see how different charging strategies affect time and cost.",
                 icon: "fa-rocket",
                 highlight: null,
+                scrollTo: null,
                 position: { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
             }
         ];
@@ -373,14 +393,16 @@
             try {
                 const iframe = document.getElementById('demoIframe');
                 const iframeWindow = iframe.contentWindow;
+                const step = walkthroughSteps[currentStep];
                 
-                // Send message to iframe to scroll to element
+                // Send message to iframe to scroll to element with offset
                 iframeWindow.postMessage({
                     type: 'scrollToElement',
-                    selector: selector
+                    selector: step.scrollTo || selector,
+                    offset: step.scrollOffset || 0
                 }, '*');
                 
-                console.log('Scrolling iframe to:', selector);
+                console.log('Scrolling iframe to:', step.scrollTo || selector, 'offset:', step.scrollOffset);
             } catch (e) {
                 console.error('Failed to scroll iframe:', e);
             }
