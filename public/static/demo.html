@@ -104,7 +104,7 @@
                     <!-- Demo App IFrame -->
                     <div class="relative" id="demoContainer">
                         <iframe 
-                            src="/app" 
+                            src="" 
                             class="demo-iframe w-full"
                             style="height: 700px;"
                             id="demoIframe"
@@ -467,8 +467,11 @@
         const iframe = document.getElementById('demoIframe');
         let iframeLoaded = false;
         
+        // Set iframe src dynamically to use current origin
+        iframe.src = window.location.origin + '/app';
+        
         iframe.addEventListener('load', () => {
-            console.log('Iframe loaded successfully');
+            console.log('Iframe loaded successfully from:', iframe.src);
             iframeLoaded = true;
         });
         
