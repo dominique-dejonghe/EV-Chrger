@@ -60,6 +60,9 @@ async function initializeApp() {
   
   // Load subscription tiers
   await loadSubscriptionTiers()
+  
+  // Check if first time user (show onboarding)
+  checkFirstTimeUser()
 }
 
 // Sync user data from authentication check
@@ -1603,6 +1606,137 @@ window.upgradeToPremium = upgradeToPremium
 window.addVehicleToCompareFromSearch = addVehicleToCompareFromSearch
 window.removeVehicleFromCompare = removeVehicleFromCompare
 window.closeFreeUserBanner = closeFreeUserBanner
+
+// ============================================
+// FIRST-TIME USER ONBOARDING
+// ============================================
+function checkFirstTimeUser() {
+  // Check localStorage for first visit
+  const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding')
+  
+  if (!hasSeenOnboarding) {
+    // Show onboarding modal after a brief delay
+    setTimeout(() => {
+      showOnboardingModal()
+    }, 1000)
+  }
+}
+
+function showOnboardingModal() {
+  const modal = document.createElement('div')
+  modal.id = 'onboardingModal'
+  modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'
+  modal.innerHTML = `
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white relative">
+        <button onclick="closeOnboarding()" class="absolute top-4 right-4 text-white/80 hover:text-white text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-graduation-cap text-4xl"></i>
+          </div>
+          <div>
+            <h2 class="text-3xl font-bold">Welcome to EV Charge Calculator! 🎉</h2>
+            <p class="text-blue-100 mt-1">Let's get you started in 2 minutes</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Content -->
+      <div class="p-6 space-y-6">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="text-center p-4 bg-blue-50 rounded-xl">
+            <div class="text-3xl font-bold text-blue-600">138+</div>
+            <div class="text-sm text-gray-600">EV Models</div>
+          </div>
+          <div class="text-center p-4 bg-green-50 rounded-xl">
+            <div class="text-3xl font-bold text-green-600">⚡</div>
+            <div class="text-sm text-gray-600">Real Physics</div>
+          </div>
+          <div class="text-center p-4 bg-purple-50 rounded-xl">
+            <div class="text-3xl font-bold text-purple-600">30s</div>
+            <div class="text-sm text-gray-600">To Calculate</div>
+          </div>
+        </div>
+        
+        <!-- Steps -->
+        <div class="space-y-4">
+          <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
+            <div>
+              <h3 class="font-bold text-gray-900">Choose Your EV</h3>
+              <p class="text-gray-600 text-sm">Search from Tesla, MG, BMW, and 135+ more models</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+            <div class="w-8 h-8 bg-cyan-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+            <div>
+              <h3 class="font-bold text-gray-900">Set Battery Range</h3>
+              <p class="text-gray-600 text-sm"><strong>Pro Tip:</strong> 20-80% charges 5x faster than 80-100%!</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+            <div class="w-8 h-8 bg-yellow-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+            <div>
+              <h3 class="font-bold text-gray-900">Select Charger Power</h3>
+              <p class="text-gray-600 text-sm">Home (7kW), Fast (50kW), or Supercharger (150kW+)</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+            <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
+            <div>
+              <h3 class="font-bold text-gray-900">Calculate & See Results</h3>
+              <p class="text-gray-600 text-sm">Get charging time, speed (km/h), and exact costs</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- CTA Buttons -->
+        <div class="flex gap-3 pt-4">
+          <button onclick="closeOnboarding()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-all">
+            Skip - I'll explore myself
+          </button>
+          <a href="/demo" target="_blank" onclick="closeOnboarding()" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all text-center">
+            <i class="fas fa-book-open mr-2"></i>Full Guide (5 min)
+          </a>
+        </div>
+        
+        <div class="text-center text-sm text-gray-500">
+          <label class="flex items-center justify-center gap-2 cursor-pointer">
+            <input type="checkbox" id="dontShowAgain" class="rounded">
+            <span>Don't show this again</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  `
+  
+  document.body.appendChild(modal)
+  document.body.style.overflow = 'hidden'
+}
+
+function closeOnboarding() {
+  const modal = document.getElementById('onboardingModal')
+  const dontShow = document.getElementById('dontShowAgain')?.checked
+  
+  if (dontShow) {
+    localStorage.setItem('hasSeenOnboarding', 'true')
+  }
+  
+  if (modal) {
+    modal.remove()
+    document.body.style.overflow = 'auto'
+  }
+}
+
+window.showOnboardingModal = showOnboardingModal
+window.closeOnboarding = closeOnboarding
 
 // ============================================
 // DEMO WALKTHROUGH MESSAGE LISTENER

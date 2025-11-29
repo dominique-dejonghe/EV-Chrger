@@ -353,13 +353,36 @@ app.get('/', (c) => {
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                     <button onclick="showLoginModal()" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
                         <i class="fas fa-sign-in-alt mr-2"></i>Start now - Login
                     </button>
                     <button onclick="showRegisterModal()" class="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-full text-lg font-medium hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
                         <i class="fas fa-user-plus mr-2"></i>Sign up free
                     </button>
+                </div>
+                
+                <!-- Quick Start Guide Banner -->
+                <div class="max-w-2xl mx-auto mb-20">
+                    <a href="/demo" target="_blank" class="block bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-6 hover:border-green-400 transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                            </div>
+                            <div class="flex-1 text-left">
+                                <h3 class="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                                    New here? Start with our Quick Guide
+                                    <i class="fas fa-arrow-right text-green-600 group-hover:translate-x-1 transition-transform"></i>
+                                </h3>
+                                <p class="text-gray-600 text-sm">Learn how to calculate EV charging in 5 minutes · Step-by-step walkthrough</p>
+                            </div>
+                            <div class="hidden sm:block">
+                                <span class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                                    Free Guide
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
 
@@ -3239,13 +3262,13 @@ app.get('/app', optionalAuthMiddleware, (c) => {
                 </div>
                 <div class="flex gap-3">
                     <a 
-                        href="/static/demo" 
+                        href="/demo" 
                         target="_blank"
-                        class="text-sm text-green-600 hover:text-green-700 transition-colors font-medium flex items-center gap-1.5"
-                        title="Open interactive walkthrough in new tab"
+                        class="text-sm bg-green-50 text-green-700 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors font-semibold flex items-center gap-1.5 border border-green-200"
+                        title="Quick Start Guide - Learn in 5 minutes"
                     >
-                        <i class="fas fa-question-circle"></i>
-                        <span class="hidden sm:inline">How to use</span>
+                        <i class="fas fa-graduation-cap"></i>
+                        <span class="hidden sm:inline">Quick Start</span>
                     </a>
                     <button id="upgradeBtnCalc" class="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium">
                         <i class="fas fa-arrow-up mr-1"></i>Upgrade
