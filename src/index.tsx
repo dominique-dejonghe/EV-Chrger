@@ -2048,7 +2048,7 @@ app.post('/api/account/downgrade-to-free', authMiddleware, async (c) => {
 })
 
 // Calculate charging speed
-app.post('/api/calculate', async (c) => {
+app.post('/api/calculate', optionalAuthMiddleware, async (c) => {
   const { DB } = c.env
   const { vehicleId, chargerPowerKw, startSoc = 20, endSoc = 80, electricityPrice = 0.30 } = await c.req.json()
   
@@ -2146,6 +2146,26 @@ app.post('/api/calculate', async (c) => {
       }
     }
     
+    // Track calculation in history (for logged-in users)
+    try {
+      const user = c.get('user')
+      if (user?.userId) {
+        await DB.prepare(`
+          INSERT INTO calculation_history (user_id, vehicle_id, charger_power_kw, charging_speed_kmh, calculation_data)
+          VALUES (?, ?, ?, ?, ?)
+        `).bind(
+          user.userId,
+          vehicleId,
+          chargerPowerKw,
+          Math.round(chargingSpeedKmh),
+          JSON.stringify(result.calculation)
+        ).run()
+      }
+    } catch (trackError) {
+      console.error('Failed to track calculation:', trackError)
+      // Don't fail the request if tracking fails
+    }
+    
     return c.json(result)
   } catch (error) {
     console.error('Calculation error:', error)
@@ -2154,7 +2174,7 @@ app.post('/api/calculate', async (c) => {
 })
 
 // Compare multiple vehicles
-app.post('/api/compare', async (c) => {
+app.post('/api/compare', optionalAuthMiddleware, async (c) => {
   const { DB } = c.env
   const { vehicleIds, chargerPowerKw, startSoc = 20, endSoc = 80, electricityPrice = 0.30 } = await c.req.json()
   
@@ -2218,6 +2238,24 @@ app.post('/api/compare', async (c) => {
     
     // Sort by charging speed descending
     comparisons.sort((a, b) => b.chargingSpeedKmh - a.chargingSpeedKmh)
+    
+    // Track comparison in history (for logged-in users)
+    try {
+      const user = c.get('user')
+      if (user?.userId) {
+        await DB.prepare(`
+          INSERT INTO comparisons (user_id, vehicle_ids, comparison_data)
+          VALUES (?, ?, ?)
+        `).bind(
+          user.userId,
+          JSON.stringify(vehicleIds),
+          JSON.stringify(comparisons)
+        ).run()
+      }
+    } catch (trackError) {
+      console.error('Failed to track comparison:', trackError)
+      // Don't fail the request if tracking fails
+    }
     
     return c.json({
       success: true,
