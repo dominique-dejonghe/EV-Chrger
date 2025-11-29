@@ -3975,13 +3975,16 @@ app.get('/app', optionalAuthMiddleware, (c) => {
   `)
 })
 
-// Demo Walkthrough Routes
-app.get('/demo-walkthrough', (c) => {
-  return c.redirect('/demo-walkthrough.html')
-})
-
-app.get('/demo', (c) => {
-  return c.redirect('/demo-walkthrough.html')
+// Demo Walkthrough - serve directly
+app.get('/demo', async (c) => {
+  // Simple redirect to full path
+  return c.html(`
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=https://ev-charge-calculator.pages.dev/static/demo.html" /></head>
+<body>Redirecting to demo...</body>
+</html>
+  `)
 })
 
 export default app
