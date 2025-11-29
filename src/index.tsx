@@ -3975,4 +3975,34 @@ app.get('/app', optionalAuthMiddleware, (c) => {
   `)
 })
 
+// Demo Walkthrough Page
+app.get('/demo', (c) => {
+  return c.redirect('/demo-walkthrough.html')
+})
+
+app.get('/demo-walkthrough.html', async (c) => {
+  // Serve the demo walkthrough HTML from public folder
+  const demoHTML = await fetch(new URL('/demo-walkthrough.html', import.meta.url).href).catch(() => null)
+  
+  if (!demoHTML) {
+    // Fallback: inline the HTML if file can't be fetched
+    return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charge Calculator - Demo Walkthrough</title>
+    <script>window.location.href = '/app';</script>
+</head>
+<body>
+    <p>Redirecting to calculator...</p>
+</body>
+</html>
+    `)
+  }
+  
+  return c.html(await demoHTML.text())
+})
+
 export default app
