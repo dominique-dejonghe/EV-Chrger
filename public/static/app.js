@@ -1766,3 +1766,15 @@ window.addEventListener('message', (event) => {
     }
   }
 })
+
+// ============================================
+// INITIALIZE APP ON LOAD
+// ============================================
+// CRITICAL: This call must happen for the app to work!
+// Without this, event listeners are never attached and vehicles never load.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp)
+} else {
+  // Document already loaded (hot reload case)
+  initializeApp()
+}
