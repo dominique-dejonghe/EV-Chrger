@@ -45,8 +45,8 @@ app.get('/', (c) => {
       @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-      .gradient-text { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .gradient-bg { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); }
+      .gradient-text { background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .gradient-bg { background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%); }
       .apple-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08); }
       
       /* Tesla Supercharger Background - More Prominent & Visual */
@@ -220,18 +220,18 @@ app.get('/', (c) => {
             <div class="mb-12">
                 <h1 class="text-5xl sm:text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900 overflow-visible" style="letter-spacing: -0.02em;">
                     <div class="typewriter-container">
-                        <div class="typewriter-line line1" id="typewriter1">Calculate charging time.</div>
+                        <div class="typewriter-line line1" id="typewriter1">Bereken Je EV Laadsnelheid</div>
                     </div>
                     <br>
-                    <span class="gradient-text typewriter-line line2" id="typewriter2">Simple and fast.</span>
+                    <span class="text-blue-600 typewriter-line line2" id="typewriter2">In Seconden</span>
                 </h1>
                 <script>
                     // Rotating phrases for typewriter
                     const phrases = [
-                        { line1: 'Calculate charging time.', line2: 'Simple and fast.' },
-                        { line1: 'Plan your EV journey.', line2: 'Smart and reliable.' },
-                        { line1: 'Compare 129 vehicles.', line2: 'Find your perfect match.' },
-                        { line1: 'Optimize charging costs.', line2: 'Save time and money.' }
+                        { line1: 'Bereken Je EV Laadsnelheid', line2: 'In Seconden' },
+                        { line1: 'Plan Je EV Reis', line2: 'Slim en Betrouwbaar' },
+                        { line1: 'Vergelijk 138 Voertuigen', line2: 'Vind Je Perfecte Match' },
+                        { line1: 'Optimaliseer Laadkosten', line2: 'Bespaar Tijd en Geld' }
                     ];
                     let currentPhraseIndex = 0;
                     
@@ -286,8 +286,8 @@ app.get('/', (c) => {
                     typewriterLoop();
                 </script>
                 <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto font-light">
-                    The smartest way to calculate your EV charging time and costs.<br>
-                    <span class="text-blue-600 font-medium">138 vehicles. Trusted by 2,500+ EV drivers.</span>
+                    De meest geavanceerde EV laadcalculator met 138+ voertuigen,<br>
+                    real-time kosten berekening en charging curves. <span class="text-blue-600 font-semibold">100% gratis te starten!</span>
                 </p>
                 
                 <!-- CIALDINI MAXIMIZED: Social Proof + Authority + Scarcity -->
@@ -354,11 +354,12 @@ app.get('/', (c) => {
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                    <button onclick="showLoginModal()" class="px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-medium hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Start now - Login
-                    </button>
-                    <button onclick="showRegisterModal()" class="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-full text-lg font-medium hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
-                        <i class="fas fa-user-plus mr-2"></i>Sign up free
+                    <a href="/app" class="px-10 py-5 bg-blue-600 text-white rounded-2xl text-lg font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                        <i class="fas fa-bolt"></i>
+                        Start Gratis - Geen Account Nodig
+                    </a>
+                    <button onclick="showLoginModal()" class="px-10 py-5 bg-white text-gray-900 border-2 border-gray-300 rounded-2xl text-lg font-medium hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
                     </button>
                 </div>
                 
@@ -388,35 +389,35 @@ app.get('/', (c) => {
 
             <!-- Features Grid -->
             <div class="grid md:grid-cols-2 gap-6 mb-20 max-w-2xl mx-auto">
-                <div class="apple-card rounded-3xl p-8 border border-gray-200">
+                <div class="bg-white rounded-3xl p-8 border border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg">
                     <i class="fas fa-search text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Smart Search</h3>
-                    <p class="text-gray-600 text-sm">Type and find your vehicle instantly</p>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-900">Smart Search</h3>
+                    <p class="text-gray-600">Type and find your vehicle instantly from 138 EVs</p>
                 </div>
-                <div class="apple-card rounded-3xl p-8 border border-gray-200">
+                <div class="bg-white rounded-3xl p-8 border border-gray-200 hover:border-green-300 transition-all hover:shadow-lg">
                     <i class="fas fa-euro-sign text-4xl text-green-600 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Cost Calculator</h3>
-                    <p class="text-gray-600 text-sm">Calculate your exact charging costs</p>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-900">Cost Calculator</h3>
+                    <p class="text-gray-600">Calculate your exact charging costs per kWh</p>
                 </div>
             </div>
 
             <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-20">
                 <div class="text-center">
-                    <div class="text-5xl font-semibold gradient-text mb-2">138</div>
-                    <div class="text-gray-500 text-sm">Vehicles</div>
+                    <div class="text-5xl font-bold text-blue-600 mb-2">138</div>
+                    <div class="text-gray-600 text-sm font-medium">EV Modellen</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-semibold gradient-text mb-2">40+</div>
-                    <div class="text-gray-500 text-sm">Brands</div>
+                    <div class="text-5xl font-bold text-blue-600 mb-2">40+</div>
+                    <div class="text-gray-600 text-sm font-medium">Merken</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-semibold gradient-text mb-2">100%</div>
-                    <div class="text-gray-500 text-sm">Free to Start</div>
+                    <div class="text-5xl font-bold text-green-600 mb-2">100%</div>
+                    <div class="text-gray-600 text-sm font-medium">Gratis Start</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-semibold gradient-text mb-2">2s</div>
-                    <div class="text-gray-500 text-sm">Fast Results</div>
+                    <div class="text-5xl font-bold text-blue-600 mb-2">2s</div>
+                    <div class="text-gray-600 text-sm font-medium">Berekening</div>
                 </div>
             </div>
         </div>
