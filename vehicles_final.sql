@@ -34,6 +34,9 @@ INSERT OR IGNORE INTO vehicles (make, model, variant, year, battery_capacity_kwh
 -- MAZDA (Free)
 ('Mazda', 'MX-30', 'e-Skyactiv', 2024, 35.5, 35.5, 18.0, 50, 6.6, 0, '{"curve": [{"soc": 0, "kw": 50}, {"soc": 50, "kw": 50}, {"soc": 80, "kw": 25}, {"soc": 100, "kw": 10}]}'),
 
+-- MG (Premium)
+('MG', 'Cyberster', 'First Edition', 2024, 77, 74, 18.5, 150, 11, 1, '{"curve": [{"soc": 0, "kw": 150}, {"soc": 35, "kw": 150}, {"soc": 80, "kw": 70}, {"soc": 100, "kw": 22}]}'),
+
 -- MG (Free)
 ('MG', 'MG4 Electric', '64 kWh', 2024, 64, 61.7, 17.3, 135, 11, 0, '{"curve": [{"soc": 0, "kw": 135}, {"soc": 38, "kw": 135}, {"soc": 80, "kw": 60}, {"soc": 100, "kw": 18}]}'),
 ('MG', 'ZS EV', 'Long Range', 2024, 72.6, 68.3, 19.8, 92, 11, 0, '{"curve": [{"soc": 0, "kw": 92}, {"soc": 40, "kw": 92}, {"soc": 80, "kw": 42}, {"soc": 100, "kw": 15}]}'),
