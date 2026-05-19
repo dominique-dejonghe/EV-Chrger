@@ -242,17 +242,32 @@ app.get('/', (c) => {
         </div>
     </section>
     
-    <!-- Fixed Header with Dark Mode Toggle -->
+    <!-- Fixed Header with Language & Dark Mode Toggle -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <i class="fas fa-bolt text-2xl text-blue-600"></i>
                 <span class="text-xl font-bold">EV Charge</span>
             </div>
-            <button onclick="toggleDarkMode()" class="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" title="Toggle Dark Mode">
-                <i class="fas fa-moon text-xl dark-mode-icon"></i>
-                <i class="fas fa-sun text-xl light-mode-icon hidden"></i>
-            </button>
+            <div class="flex items-center gap-3">
+                <!-- Language Toggle -->
+                <div class="flex items-center gap-2 p-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                    <button onclick="setLanguage('en')" class="lang-btn lang-en p-2 rounded-full hover:bg-white dark:hover:bg-gray-700 transition-all" title="English">
+                        🇬🇧
+                    </button>
+                    <button onclick="setLanguage('nl')" class="lang-btn lang-nl p-2 rounded-full bg-white dark:bg-gray-700 transition-all" title="Nederlands">
+                        🇳🇱
+                    </button>
+                    <button onclick="setLanguage('fr')" class="lang-btn lang-fr p-2 rounded-full hover:bg-white dark:hover:bg-gray-700 transition-all" title="Français">
+                        🇫🇷
+                    </button>
+                </div>
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" title="Toggle Dark Mode">
+                    <i class="fas fa-moon text-xl dark-mode-icon"></i>
+                    <i class="fas fa-sun text-xl light-mode-icon hidden"></i>
+                </button>
+            </div>
         </div>
     </header>
     
@@ -268,8 +283,8 @@ app.get('/', (c) => {
                     <span class="text-blue-600 typewriter-line line2" id="typewriter2">In Seconden</span>
                 </h1>
                 <script>
-                    // Rotating phrases for typewriter
-                    const phrases = [
+                    // Use translated phrases (set by language switcher)
+                    window.translatedPhrases = window.translatedPhrases || [
                         { line1: 'Bereken Je EV Laadsnelheid', line2: 'In Seconden' },
                         { line1: 'Plan Je EV Reis', line2: 'Slim en Betrouwbaar' },
                         { line1: 'Vergelijk 138 Voertuigen', line2: 'Vind Je Perfecte Match' },
@@ -282,7 +297,8 @@ app.get('/', (c) => {
                         const line1 = document.getElementById('typewriter1');
                         const line2 = document.getElementById('typewriter2');
                         
-                        // Get current phrase
+                        // Get current phrase from translated phrases
+                        const phrases = window.translatedPhrases || [];
                         const currentPhrase = phrases[currentPhraseIndex];
                         
                         // Update text content
@@ -327,7 +343,7 @@ app.get('/', (c) => {
                     // Start the loop
                     typewriterLoop();
                 </script>
-                <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto font-light">
+                <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto font-light" data-i18n="heroSubtitle">
                     De meest geavanceerde EV laadcalculator met 138+ voertuigen,<br>
                     real-time kosten berekening en charging curves. <span class="text-blue-600 font-semibold">100% gratis te starten!</span>
                 </p>
@@ -398,10 +414,10 @@ app.get('/', (c) => {
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                     <a href="/app" onclick="event.preventDefault(); window.location.href='/app';" class="px-10 py-5 bg-blue-600 text-white rounded-2xl text-lg font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fas fa-bolt"></i>
-                        Start Gratis - Geen Account Nodig
+                        <span data-i18n="btnStartFree">Start Gratis - Geen Account Nodig</span>
                     </a>
-                    <button onclick="showLoginModal()" class="px-10 py-5 bg-white text-gray-900 border-2 border-gray-300 rounded-2xl text-lg font-medium hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    <button onclick="showLoginModal()" class="px-10 py-5 bg-white text-gray-900 border-2 border-gray-300 rounded-2xl text-lg font-medium hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl" data-i18n="btnLogin">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Inloggen
                     </button>
                 </div>
                 
@@ -414,7 +430,7 @@ app.get('/', (c) => {
                             </div>
                             <div class="flex-1 text-left">
                                 <h3 class="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                                    New here? Start with our Quick Guide
+                                    <span data-i18n="quickGuide">Nieuw hier? Start met onze Snelgids</span>
                                     <i class="fas fa-arrow-right text-green-600 group-hover:translate-x-1 transition-transform"></i>
                                 </h3>
                                 <p class="text-gray-600 text-sm">Learn how to calculate EV charging in 5 minutes · Step-by-step walkthrough</p>
@@ -433,13 +449,13 @@ app.get('/', (c) => {
             <div class="grid md:grid-cols-2 gap-6 mb-20 max-w-2xl mx-auto">
                 <div class="bg-white rounded-3xl p-8 border border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg">
                     <i class="fas fa-search text-4xl text-blue-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2 text-gray-900">Smart Search</h3>
-                    <p class="text-gray-600">Type and find your vehicle instantly from 138 EVs</p>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-900" data-i18n="smartSearch">Slim Zoeken</h3>
+                    <p class="text-gray-600" data-i18n="smartSearchDesc">Type en vind je voertuig direct uit 138 EV's</p>
                 </div>
                 <div class="bg-white rounded-3xl p-8 border border-gray-200 hover:border-green-300 transition-all hover:shadow-lg">
                     <i class="fas fa-euro-sign text-4xl text-green-600 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2 text-gray-900">Cost Calculator</h3>
-                    <p class="text-gray-600">Calculate your exact charging costs per kWh</p>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-900" data-i18n="costCalc">Kosten Calculator</h3>
+                    <p class="text-gray-600" data-i18n="costCalcDesc">Bereken je exacte laadkosten per kWh</p>
                 </div>
             </div>
 
@@ -447,19 +463,19 @@ app.get('/', (c) => {
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-20">
                 <div class="text-center">
                     <div class="text-5xl font-bold text-blue-600 mb-2">138</div>
-                    <div class="text-gray-600 text-sm font-medium">EV Modellen</div>
+                    <div class="text-gray-600 text-sm font-medium" data-i18n="stat1">EV Modellen</div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold text-blue-600 mb-2">40+</div>
-                    <div class="text-gray-600 text-sm font-medium">Merken</div>
+                    <div class="text-gray-600 text-sm font-medium" data-i18n="stat2">Merken</div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold text-green-600 mb-2">100%</div>
-                    <div class="text-gray-600 text-sm font-medium">Gratis Start</div>
+                    <div class="text-gray-600 text-sm font-medium" data-i18n="stat3">Gratis Start</div>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold text-blue-600 mb-2">2s</div>
-                    <div class="text-gray-600 text-sm font-medium">Berekening</div>
+                    <div class="text-gray-600 text-sm font-medium" data-i18n="stat4">Berekening</div>
                 </div>
             </div>
         </div>
@@ -4082,6 +4098,152 @@ app.get('/app', optionalAuthMiddleware, (c) => {
         
         // Run auth check immediately
         checkAuth();
+    </script>
+    
+    <!-- Multilingual Translation System -->
+    <script>
+        // Translation dictionary
+        const translations = {
+            en: {
+                heroTitle1: 'Calculate EV Charging Speed',
+                heroTitle2: 'In Seconds',
+                heroSubtitle: 'The most advanced EV charging calculator with 138+ vehicles, real-time cost calculation and charging curves. 100% free to start!',
+                btnStartFree: 'Start Free - No Account Needed',
+                btnLogin: 'Login',
+                btnSignup: 'Sign up free',
+                quickGuide: 'New here? Start with our Quick Guide',
+                smartSearch: 'Smart Search',
+                smartSearchDesc: 'Type and find your vehicle instantly from 138 EVs',
+                costCalc: 'Cost Calculator',
+                costCalcDesc: 'Calculate your exact charging costs per kWh',
+                stat1: 'EV Models',
+                stat2: 'Brands',
+                stat3: 'Free Start',
+                stat4: 'Calculation',
+                phrases: [
+                    { line1: 'Calculate EV Charging Speed', line2: 'In Seconds' },
+                    { line1: 'Plan Your EV Journey', line2: 'Smart and Reliable' },
+                    { line1: 'Compare 138 Vehicles', line2: 'Find Your Perfect Match' },
+                    { line1: 'Optimize Charging Costs', line2: 'Save Time and Money' }
+                ]
+            },
+            nl: {
+                heroTitle1: 'Bereken Je EV Laadsnelheid',
+                heroTitle2: 'In Seconden',
+                heroSubtitle: 'De meest geavanceerde EV laadcalculator met 138+ voertuigen, real-time kosten berekening en charging curves. 100% gratis te starten!',
+                btnStartFree: 'Start Gratis - Geen Account Nodig',
+                btnLogin: 'Inloggen',
+                btnSignup: 'Gratis aanmelden',
+                quickGuide: 'Nieuw hier? Start met onze Snelgids',
+                smartSearch: 'Slim Zoeken',
+                smartSearchDesc: 'Type en vind je voertuig direct uit 138 EV\'s',
+                costCalc: 'Kosten Calculator',
+                costCalcDesc: 'Bereken je exacte laadkosten per kWh',
+                stat1: 'EV Modellen',
+                stat2: 'Merken',
+                stat3: 'Gratis Start',
+                stat4: 'Berekening',
+                phrases: [
+                    { line1: 'Bereken Je EV Laadsnelheid', line2: 'In Seconden' },
+                    { line1: 'Plan Je EV Reis', line2: 'Slim en Betrouwbaar' },
+                    { line1: 'Vergelijk 138 Voertuigen', line2: 'Vind Je Perfecte Match' },
+                    { line1: 'Optimaliseer Laadkosten', line2: 'Bespaar Tijd en Geld' }
+                ]
+            },
+            fr: {
+                heroTitle1: 'Calculer la Vitesse de Charge EV',
+                heroTitle2: 'En Secondes',
+                heroSubtitle: 'Le calculateur de charge EV le plus avancé avec 138+ véhicules, calcul des coûts en temps réel et courbes de charge. 100% gratuit pour commencer!',
+                btnStartFree: 'Commencer Gratuit - Aucun Compte Requis',
+                btnLogin: 'Connexion',
+                btnSignup: 'S\'inscrire gratuitement',
+                quickGuide: 'Nouveau ici? Commencez avec notre Guide Rapide',
+                smartSearch: 'Recherche Intelligente',
+                smartSearchDesc: 'Tapez et trouvez votre véhicule instantanément parmi 138 VE',
+                costCalc: 'Calculateur de Coûts',
+                costCalcDesc: 'Calculez vos coûts de charge exacts par kWh',
+                stat1: 'Modèles EV',
+                stat2: 'Marques',
+                stat3: 'Démarrage Gratuit',
+                stat4: 'Calcul',
+                phrases: [
+                    { line1: 'Calculer la Vitesse de Charge EV', line2: 'En Secondes' },
+                    { line1: 'Planifier Votre Voyage EV', line2: 'Intelligent et Fiable' },
+                    { line1: 'Comparer 138 Véhicules', line2: 'Trouvez Votre Match Parfait' },
+                    { line1: 'Optimiser les Coûts de Charge', line2: 'Économiser Temps et Argent' }
+                ]
+            }
+        };
+        
+        // Set language function
+        function setLanguage(lang) {
+            // Save to localStorage
+            localStorage.setItem('language', lang);
+            
+            // Update UI
+            updateLanguageUI(lang);
+            
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-gray-700');
+                btn.classList.add('hover:bg-white', 'dark:hover:bg-gray-700');
+            });
+            document.querySelector(\`.lang-\${lang}\`).classList.add('bg-white', 'dark:bg-gray-700');
+            document.querySelector(\`.lang-\${lang}\`).classList.remove('hover:bg-white', 'dark:hover:bg-gray-700');
+        }
+        
+        // Update UI with translations
+        function updateLanguageUI(lang) {
+            const t = translations[lang];
+            
+            // Update hero titles
+            document.getElementById('typewriter1').textContent = t.heroTitle1;
+            document.getElementById('typewriter2').textContent = t.heroTitle2;
+            
+            // Update subtitle
+            const subtitle = document.querySelector('[data-i18n="heroSubtitle"]');
+            if (subtitle) subtitle.innerHTML = t.heroSubtitle;
+            
+            // Update buttons
+            const btnStartFree = document.querySelector('[data-i18n="btnStartFree"]');
+            if (btnStartFree) btnStartFree.textContent = t.btnStartFree;
+            
+            const btnLogin = document.querySelector('[data-i18n="btnLogin"]');
+            if (btnLogin) btnLogin.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>' + t.btnLogin;
+            
+            // Update stats
+            const stats = document.querySelectorAll('[data-i18n^="stat"]');
+            stats.forEach(stat => {
+                const key = stat.getAttribute('data-i18n');
+                if (t[key]) stat.textContent = t[key];
+            });
+            
+            // Update feature cards
+            const smartSearch = document.querySelector('[data-i18n="smartSearch"]');
+            if (smartSearch) smartSearch.textContent = t.smartSearch;
+            
+            const smartSearchDesc = document.querySelector('[data-i18n="smartSearchDesc"]');
+            if (smartSearchDesc) smartSearchDesc.textContent = t.smartSearchDesc;
+            
+            const costCalc = document.querySelector('[data-i18n="costCalc"]');
+            if (costCalc) costCalc.textContent = t.costCalc;
+            
+            const costCalcDesc = document.querySelector('[data-i18n="costCalcDesc"]');
+            if (costCalcDesc) costCalcDesc.textContent = t.costCalcDesc;
+            
+            // Update quick guide
+            const quickGuide = document.querySelector('[data-i18n="quickGuide"]');
+            if (quickGuide) quickGuide.textContent = t.quickGuide;
+            
+            // Update typewriter phrases
+            window.translatedPhrases = t.phrases;
+        }
+        
+        // Load saved language on page load
+        (function() {
+            const savedLang = localStorage.getItem('language') || 'nl'; // Default to Dutch
+            setLanguage(savedLang);
+        })();
     </script>
     
     <!-- Dark Mode Toggle Script -->
