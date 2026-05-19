@@ -34,7 +34,7 @@ app.route('/api/auth', authRoutes)
 app.get('/', (c) => {
   return c.html(`
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,7 +44,35 @@ app.get('/', (c) => {
     <style>
       @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; }
+      
+      /* Dark Mode Variables */
+      [data-theme="dark"] {
+        --bg-primary: #000000;
+        --bg-secondary: #1a1a1a;
+        --bg-card: #2a2a2a;
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0a0;
+        --border-color: #3a3a3a;
+      }
+      
+      [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f9fafb;
+        --bg-card: #ffffff;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+      }
+      
+      /* Apply theme colors */
+      body { background-color: var(--bg-primary); color: var(--text-primary); }
+      [data-theme="dark"] .hero-with-bg { background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.90) 50%, rgba(0, 0, 0, 0.95) 100%), url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=2000&q=90') center/cover; }
+      [data-theme="dark"] .bg-white { background-color: var(--bg-card) !important; color: var(--text-primary) !important; }
+      [data-theme="dark"] .text-gray-900 { color: var(--text-primary) !important; }
+      [data-theme="dark"] .text-gray-600 { color: var(--text-secondary) !important; }
+      [data-theme="dark"] .border-gray-200 { border-color: var(--border-color) !important; }
+      [data-theme="dark"] .bg-gray-50 { background-color: var(--bg-secondary) !important; }
       .gradient-text { background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
       .gradient-bg { background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%); }
       .apple-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08); }
@@ -214,8 +242,22 @@ app.get('/', (c) => {
         </div>
     </section>
     
+    <!-- Fixed Header with Dark Mode Toggle -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-bolt text-2xl text-blue-600"></i>
+                <span class="text-xl font-bold">EV Charge</span>
+            </div>
+            <button onclick="toggleDarkMode()" class="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" title="Toggle Dark Mode">
+                <i class="fas fa-moon text-xl dark-mode-icon"></i>
+                <i class="fas fa-sun text-xl light-mode-icon hidden"></i>
+            </button>
+        </div>
+    </header>
+    
     <!-- Hero Section - Apple Style with Tesla Supercharger Background -->
-    <section class="min-h-screen flex flex-col justify-center px-4 sm:px-6 py-20 hero-with-bg overflow-x-hidden">
+    <section class="min-h-screen flex flex-col justify-center px-4 sm:px-6 py-20 pt-32 hero-with-bg overflow-x-hidden">
         <div class="max-w-5xl mx-auto text-center w-full">
             <div class="mb-12">
                 <h1 class="text-5xl sm:text-6xl md:text-7xl font-semibold mb-6 tracking-tight text-gray-900 overflow-visible" style="letter-spacing: -0.02em;">
@@ -354,7 +396,7 @@ app.get('/', (c) => {
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                    <a href="/app" class="px-10 py-5 bg-blue-600 text-white rounded-2xl text-lg font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                    <a href="/app" onclick="event.preventDefault(); window.location.href='/app';" class="px-10 py-5 bg-blue-600 text-white rounded-2xl text-lg font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fas fa-bolt"></i>
                         Start Gratis - Geen Account Nodig
                     </a>
@@ -4040,6 +4082,46 @@ app.get('/app', optionalAuthMiddleware, (c) => {
         
         // Run auth check immediately
         checkAuth();
+    </script>
+    
+    <!-- Dark Mode Toggle Script -->
+    <script>
+        // Dark mode toggle function
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Toggle icons
+            const darkIcon = document.querySelector('.dark-mode-icon');
+            const lightIcon = document.querySelector('.light-mode-icon');
+            
+            if (newTheme === 'dark') {
+                darkIcon.classList.add('hidden');
+                lightIcon.classList.remove('hidden');
+            } else {
+                darkIcon.classList.remove('hidden');
+                lightIcon.classList.add('hidden');
+            }
+        }
+        
+        // Load saved theme on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            if (savedTheme === 'dark') {
+                const darkIcon = document.querySelector('.dark-mode-icon');
+                const lightIcon = document.querySelector('.light-mode-icon');
+                if (darkIcon && lightIcon) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                }
+            }
+        })();
     </script>
     
     <script src="/static/app.js"></script>
