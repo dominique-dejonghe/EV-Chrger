@@ -1027,6 +1027,7 @@ app.get('/', (c) => {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ email, password })
                 });
                 
@@ -1100,6 +1101,7 @@ app.get('/', (c) => {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ firstName, lastName, email, password })
                 });
                 
@@ -2942,7 +2944,7 @@ app.get('/admin', adminMiddleware, async (c) => {
     <script src="/static/admin.js"></script>
     <script>
         async function logout() {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             window.location.href = '/';
         }
         
@@ -3971,7 +3973,7 @@ app.get('/app', optionalAuthMiddleware, (c) => {
         // Check if user is authenticated on page load
         async function checkAuth() {
             try {
-                const response = await fetch('/api/auth/me');
+                const response = await fetch('/api/auth/me', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.user) {
@@ -4022,7 +4024,7 @@ app.get('/app', optionalAuthMiddleware, (c) => {
         // Logout function
         async function logout() {
             try {
-                await fetch('/api/auth/logout', { method: 'POST' });
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                 window.location.href = '/';
             } catch (error) {
                 console.error('Logout failed:', error);
