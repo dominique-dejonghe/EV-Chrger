@@ -7,7 +7,7 @@ Een geavanceerde elektrische voertuig laadcalculator met een premium Tesla-geïn
 - **Production**: https://4f4b9510.ev-charge-calculator.pages.dev ✨ **LIVE** (Deployed: 2026-01-02)
 - **Previous**: https://dea2b744.ev-charge-calculator.pages.dev (Older deployment)
 - **Development**: http://localhost:3000 (Local development server)
-- **GitHub**: https://github.com/[username]/webapp (configure via setup_github_environment)
+- **GitHub**: https://github.com/dominique-dejonghe/EV-Chrger ✅ **SYNCED**
 
 ## 🔒 Security Features
 
